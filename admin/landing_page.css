@@ -1,0 +1,84 @@
+body {
+    background: linear-gradient(180deg, rgba(12,30,52,1) 0%, rgba(26,31,53,1) 19%, rgba(129,164,216,1) 100%);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    flex-direction: column; /* Stack items vertically */
+}
+.header-image {
+    width: 150px; /* or any desired width */
+    height: auto; /* maintain aspect ratio */
+}
+
+.container {
+    display: flex;
+    flex-direction: column; /* Stack forms vertically */
+    gap: 10px; /* Space between the forms */
+}
+
+.login,
+.password {
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    width: 250px;
+    background-color: white;
+    border-radius: 10px;
+    border: 2px solid #A0A0A0;
+    padding: 15px 40px 15px 200px; /* Adjusted padding */
+    text-align: left;
+}
+
+.icon {
+    position: absolute;
+    top: 50%;
+    left: 10px; /* Adjust as needed to fit your design */
+    transform: translateY(-50%);
+    transition: all 0.3s ease;
+    color: #A0A0A0;
+}
+
+.input {
+    background-color: #FFFFFF;
+    outline: none;
+    border: none;
+    color: #A0A0A0;
+    font-size: 16px;
+    width: 100%; /* Ensure input takes up remaining space */
+    padding-left: 30px; /* Adjust for icon padding */
+    margin-top: 5px; /* Add space above the input */
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #0056b3; 
+}
+
+.btn-link {
+    color: white;
+    text-decoration: none; /* Remove underline */
+    font-size: 14px;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}

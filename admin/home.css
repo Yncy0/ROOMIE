@@ -1,0 +1,238 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+}
+
+/*side bar*/
+.sidebar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    height: 100vh;
+    padding: 0 1.7rem;
+    color: white;
+    overflow: hidden;
+    transition: all 0.5s linear;
+    background: #12171D;
+}
+
+.logo {
+    height: 80px;
+    padding: 16px;
+}
+
+.menu {
+    height: 88%;
+    position: relative;
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    padding: 0.5rem;
+    margin: 8px 0;
+    transition: all 0.5s ease-in-out;
+}
+
+.menu li:hover {
+    background: #81A4D8;
+}
+
+.menu li.active {
+    background: #81A4D8;
+}
+
+.menu li.active a {
+    color: black;
+}
+
+.menu a {
+    color: white;
+    font-size: 14px;
+    text-decoration: none;
+    display: flex;
+    align-items: center; /* Centers content vertically */
+    justify-content: center; /* Centers content horizontally */
+    gap: 1.5rem;
+    height: 100%; /* Ensure it takes the full height of the list item */
+    padding: 0.5rem; /* Add padding for spacing */
+}
+
+.menu a:hover {
+    color: black;
+}
+
+.menu a span {
+    overflow: hidden;
+}
+
+.menu a i {
+    font-size: 1.2rem;
+}
+
+.logout {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+/*main body*/
+.main_content{
+    position: relative;
+    background: #D4DDEC;
+    width: 100%;
+    padding: 1 rem;
+}
+.header_wrapper img{
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.header_wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    background: white;
+    border border-radius: 10px;
+    padding: 10px 2rem;
+    margin margin-bottom: 1rem;
+}
+.user_info{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.user_title h6{
+    color: rebeccapurple;
+}
+.search{
+    background: #D5D5D5;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px;
+}
+.search input{
+    background: transparent;
+    padding: 10px;
+}
+.search i{
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.5s ease-out;
+}
+.search i:hover{
+    transform: scale(1.2);
+}
+
+/*card containers*/
+.cards {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 48%;
+        }
+        .card h3 {
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        .card p {
+            margin: 0;
+            color: #6b7280;
+        }
+        .card .chart {
+            height: 150px;
+            background-color: #f3f4f6;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .stat {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 30%;
+            text-align: center;
+        }
+        .stat h4 {
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        .stat p {
+            margin: 0;
+            color: #6b7280;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .table-container .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .table-container .table-header h3 {
+            margin: 0;
+        }
+        .table-container .table-header .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .table-container .table-header .search-bar input {
+            border: none;
+            outline: none;
+            margin-left: 10px;
+        }
+        .table-container .table-header .filter {
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f3f4f6;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }

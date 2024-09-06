@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="home.css">
+    <!-- Font Awesome for icons (ensure this is included if not in home.css) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <!-- Side Nav -->
+    <div class="sidebar">
+        <div class="logo"></div>
+        <ul class="menu">
+            <li class="active">
+                <a href="#">
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="user.html">
+                    <span>Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="backlogs.html">
+                    <span>Backlogs</span>
+                </a>
+            </li>
+            <li>
+                <a href="rooms.html">
+                    <span>Rooms</span>
+                </a>
+            </li>
+            <!-- Logout -->
+            <li class="logout">
+                <a href="#" onclick="event.preventDefault(); showConfirmation();">
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <div class="main_content">
+        <div class="header_wrapper">
+            <div class="search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search"/>
+            </div>
+            
+            <div class="user_info">
+                <img src="#" alt="User Profile Picture"/>
+                <div class="user_title">
+                    <span>User</span>
+                    <h6>Role</h6>
+                </div>
+            </div>
+        </div>
+
+    <!-- Contents -->
+    <div class="cards">
+        <div class="card">
+            <h3>Website Views</h3>
+            <p>Last Campaign Performance</p>
+            <div class="chart" style="background-color: #f87171;">
+            </div>
+            <p>campaign sent 2 days ago</p>
+        </div>
+        <div class="card">
+            <h3>Bookings</h3>
+            <p>(+15%) increase in today sales.</p>
+            <div class="chart" style="background-color: #34d399;">
+            </div>
+            <p>updated 4 min ago</p>
+        </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <h4>Bookings</h4>
+     <p>287</p>
+     <p>+3% than last week</p>
+    </div>
+    <div class="stat">
+     <h4>Rooms</h4>
+     <p>12</p>
+     <p>+1 updated yesterday</p>
+    </div>
+    <div class="stat">
+     <h4>Users</h4>
+     <p>32</p>
+     <p>Just updated</p>
+    </div>
+   </div>
+   <div class="table-container">
+       <div class="table-header">
+           <h3>Top Booked Rooms</h3>
+           <div class="search-bar">
+               <i class="fas fa-search"></i>
+               <input placeholder="Search rooms" type="text"/>
+           </div>
+           <div class="filter">
+               <i class="fas fa-filter"></i>
+               Filter
+           </div>
+       </div>
+       <table>
+           <thead>
+               <tr><th>Rooms</th>
+                   <th>Times Booked</th>
+                   <th>Cancelled</th>
+               </tr>
+           </thead>
+           <tbody>
+               <tr><td><img alt="Room image" height="40" src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-BVbpSZmLndA7MfHIxv2ahIKS/user-IBY8IaMXtVn7IVIdZeyvjx16/img-65VomBC0CCXLYAiHWy4uleSs.png?st=2024-09-05T10%3A39%3A13Z&amp;se=2024-09-05T12%3A39%3A13Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscd=inline&amp;rsct=image/png&amp;skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&amp;sktid=a48cca56-e6da-484e-a814-9c849652bcb3&amp;skt=2024-09-04T21%3A43%3A28Z&amp;ske=2024-09-05T21%3A43%3A28Z&amp;sks=b&amp;skv=2024-08-04&amp;sig=5Q0zqpJSzgQ9Zt21KM2JgsH%2BkWpY%2BLCg7mYy/o3UGBg%3D" width="40"/>St Augustine (SA) 402</td>
+          <td>21</td>
+          <td>2</td>
+         </tr>
+      <tr><td><img alt="Room image" height="40" src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-BVbpSZmLndA7MfHIxv2ahIKS/user-IBY8IaMXtVn7IVIdZeyvjx16/img-65VomBC0CCXLYAiHWy4uleSs.png?st=2024-09-05T10%3A39%3A13Z&amp;se=2024-09-05T12%3A39%3A13Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscd=inline&amp;rsct=image/png&amp;skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&amp;sktid=a48cca56-e6da-484e-a814-9c849652bcb3&amp;skt=2024-09-04T21%3A43%3A28Z&amp;ske=2024-09-05T21%3A43%3A28Z&amp;sks=b&amp;skv=2024-08-04&amp;sig=5Q0zqpJSzgQ9Zt21KM2JgsH%2BkWpY%2BLCg7mYy/o3UGBg%3D" width="40"/>St Augustine (SA) 406</td>
+          <td>16</td>
+          <td>3</td>
+      </tr>
+         <tr><td><img alt="Room image" height="40" src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-BVbpSZmLndA7MfHIxv2ahIKS/user-IBY8IaMXtVn7IVIdZeyvjx16/img-65VomBC0CCXLYAiHWy4uleSs.png?st=2024-09-05T10%3A39%3A13Z&amp;se=2024-09-05T12%3A39%3A13Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscd=inline&amp;rsct=image/png&amp;skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&amp;sktid=a48cca56-e6da-484e-a814-9c849652bcb3&amp;skt=2024-09-04T21%3A43%3A28Z&amp;ske=2024-09-05T21%3A43%3A28Z&amp;sks=b&amp;skv=2024-08-04&amp;sig=5Q0zqpJSzgQ9Zt21KM2JgsH%2BkWpY%2BLCg7mYy/o3UGBg%3D" width="40"/> St Augustine (SA) 403</td>
+             <td>12</td>
+             <td>1</td>
+         </tr>
+         <tr><td><img alt="Room image" height="40" src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-BVbpSZmLndA7MfHIxv2ahIKS/user-IBY8IaMXtVn7IVIdZeyvjx16/img-65VomBC0CCXLYAiHWy4uleSs.png?st=2024-09-05T10%3A39%3A13Z&amp;se=2024-09-05T12%3A39%3A13Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscd=inline&amp;rsct=image/png&amp;skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&amp;sktid=a48cca56-e6da-484e-a814-9c849652bcb3&amp;skt=2024-09-04T21%3A43%3A28Z&amp;ske=2024-09-05T21%3A43%3A28Z&amp;sks=b&amp;skv=2024-08-04&amp;sig=5Q0zqpJSzgQ9Zt21KM2JgsH%2BkWpY%2BLCg7mYy/o3UGBg%3D" width="40"/> St Augustine (SA) 401</td>
+             <td>9</td>
+             <td>4</td>
+         </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+</body>
+</html>
+
