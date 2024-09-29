@@ -61,6 +61,10 @@ button {
   font: inherit;
 }
 
+html {
+  height: 100%;
+}
+
 h1,
 h2,
 h3,
@@ -69,6 +73,10 @@ h5,
 h6,
 p {
   font-family: var(--ff-main);
+}
+
+p {
+  font-size: 1rem;
 }
 
 ol, ul {
@@ -87,7 +95,7 @@ body {
 }
 
 .svg-inline--fa {
-  font-size: 1.5rem;
+  font-size: 1rem;
 }
 
 
@@ -96,9 +104,10 @@ body {
 .header-div {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   min-width: 100vw;
+  padding-inline: 2rem;
 
   background-color: var(--cl-white-500);
 }
@@ -112,12 +121,12 @@ body {
 
 .input-search {
   min-width: 500px;
-  padding: 15px;
+  padding: 10px;
   
   background-color: var(--cl-white-400);
   border: 1px solid var(--cl-grey-500);
   border-radius: 1rem;
-  font-size: 1.063rem;
+  font-size: 1rem;
   transform: 0.25s ease;
 }
 
@@ -133,17 +142,10 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
 }
 
-.flex-user {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.fa-bars {
+  font-size: 1.6rem;
 }
-
-.fa-user, .fa-bell {
-  font-size: 2rem;
-}
-
 /* BREAK */

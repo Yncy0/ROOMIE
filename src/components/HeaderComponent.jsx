@@ -4,10 +4,10 @@ import { faMagnifyingGlass, faBell, faUser, faBars } from '@fortawesome/free-sol
 export default function HeaderComponent() {
     return(
         <div className="header-div">
-            <div className="flex-search">
-                <button className="button-burger-menu">
+            <button className="button-burger-menu">
                     <FontAwesomeIcon icon={faBars}/>
                 </button>
+            <div className="flex-search">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 
                     className="input-search"
@@ -18,9 +18,10 @@ export default function HeaderComponent() {
             <div className="flex-end">
                 <FontAwesomeIcon icon={faBell} />
                 <FontAwesomeIcon icon={faUser} />
+                <p className='user-name' id='user-name'>Hello! User</p>
                 <div className="flex-user">
-                    <p className='user-name' id='user-name'>Hello! User</p>
-                    <p>Admin</p>
+                    
+
                 </div>
             </div>
         </div>
