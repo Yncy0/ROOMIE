@@ -12,8 +12,12 @@
   --cl-white-600: hsl(216, 33%, 97%);
   --cl-blue-grey-500: hsl(218, 39%, 88%);
 
-  --cl-blue-700: 	hsl(237, 61%, 43%);
-  --cl-blue-500: 	hsl(202, 82%, 44%);
+  --cl-blue-700: hsl(237, 61%, 43%);
+  --cl-blue-500: hsl(202, 82%, 44%);
+
+  --cl-red-500: hsl(353, 63%, 49%);
+  --cl-green-500:	hsl(90, 63%, 43%);
+  --cl-green-600:	hsl(159, 68%, 35%);
 
   --ff-main: "Roboto", sans-serif;
   --ff-logo: "Righteous", sans-serif;
