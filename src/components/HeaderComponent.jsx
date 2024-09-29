@@ -1,7 +1,6 @@
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faBell, faUser} from '@fortawesome/free-solid-svg-icons'
-import Hamburger from 'hamburger-react'
 import MenuComponent from './navigation/MenuComponent'
 
 export default function HeaderComponent() {
