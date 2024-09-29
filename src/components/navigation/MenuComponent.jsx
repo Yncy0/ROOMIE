@@ -1,12 +1,16 @@
-import React, {useState, useRef} from "react";
+import React from "react";
+import { useClickAway } from "react-use";
 import { Navigation } from "./Navigation";
 import Hamburger from "hamburger-react";
 
 export default function MenuComponent() {
     const [isOpen, setIsOpen] = React.useState(false)
+    const ref = React.useRef(null);
+
+    useClickAway(ref, ()=> setIsOpen(false));
 
     return(
-        <>
+        <div ref={ref}>
             <Hamburger size={24} toggle={setIsOpen} toggled={isOpen}/> 
             { isOpen &&(
                 <nav className="menu-container">
@@ -27,6 +31,6 @@ export default function MenuComponent() {
                 </nav>
                 )
             }
-        </>
+        </div>
     )
 }
