@@ -105,9 +105,13 @@ body {
   font-size: 1rem;
 }
 
+.container {
+  display: flex;
+  flex-direction: row;
+}
+
 
 /* HEADER COMPONENT */
-
 .header-div {
   display: flex;
   flex-direction: row;
@@ -118,6 +122,7 @@ body {
   padding-top: 1rem;
   padding-bottom: 1rem;
 
+  
   background-color: var(--cl-white-500);
 }
 
@@ -159,21 +164,30 @@ body {
 }
 /* BREAK */
 
+
 /* MENU */
+.hamburger-react {
+  z-index: 12;
+}
 
 .menu-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background-color: aqua;
+  padding-top: 7rem;
+  padding-inline: 7rem;
+  text-align: start;
+  min-height: 100vh;
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.menu-open {
-  padding: 5rem;
-}
-
-.menu-open h1 {
+.menu-container h1 {
   font-family: var(--ff-logo);
-  padding-bottom: 4rem;
+  padding-bottom: 2rem;
 }
 
 .menu-list {

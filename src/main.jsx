@@ -6,7 +6,6 @@ import MenuComponent from './components/navigation/MenuComponent.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <HeaderComponent />
-    {/* <MenuComponent/> */}
+    <HeaderComponent/>
   </StrictMode>,
 )

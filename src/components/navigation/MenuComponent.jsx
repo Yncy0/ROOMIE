@@ -1,15 +1,15 @@
 import React, {useState, useRef} from "react";
-import Hamburger, { Squash } from "hamburger-react";
 import { Navigation } from "./Navigation";
+import Hamburger from "hamburger-react";
 
 export default function MenuComponent() {
-    const[isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = React.useState(false)
 
     return(
-        <div className="menu-container">
-            <Hamburger toggled={isOpen} toggle={setIsOpen}/> 
-            {isOpen && (
-                <div className="menu-open">
+        <>
+            <Hamburger size={24} toggle={setIsOpen} toggled={isOpen}/> 
+            { isOpen &&(
+                <nav className="menu-container">
                     <h1>ROOMIE</h1>
                     <ul className="menu-list">
                         {Navigation.map((nav) => {
@@ -24,8 +24,9 @@ export default function MenuComponent() {
                             )
                         })}
                     </ul>
-                </div>
-            )}
-        </div>
+                </nav>
+                )
+            }
+        </>
     )
 }
