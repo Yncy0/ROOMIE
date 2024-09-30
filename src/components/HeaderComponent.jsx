@@ -8,7 +8,6 @@ export default function HeaderComponent() {
     return(
         <div className="header-div">
             <MenuComponent/>
-            
             <div className="flex-search">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 
