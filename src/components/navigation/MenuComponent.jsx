@@ -1,6 +1,7 @@
 import React from "react";
 import { useClickAway } from "react-use";
 import { Navigation } from "./Navigation";
+import { Link } from "react-router-dom";
 import Hamburger from "hamburger-react";
 
 export default function MenuComponent() {
@@ -18,8 +19,11 @@ export default function MenuComponent() {
                     <ul className="menu-list">
                         {Navigation.map((nav) => {
                             return(
+                                // TO-DO: Change <a> into <Link>
                                 <li key={nav.title}>
-                                    <a  href={nav.href}
+                                    <a 
+                                        // PPROBLEM: to/href string appending
+                                        href={`/${nav.title.toLowerCase()}`}
                                         onClick={() => setIsOpen((prev) => !prev)}
                                     >
                                         {nav.title}
