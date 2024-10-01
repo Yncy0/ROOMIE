@@ -14,13 +14,13 @@ export default function NavBarComponent() {
                 return(
                     // TO-DO: Change <a> into <Link>
                     <li key={nav.title}>
-                        <a 
+                        <Link 
                             // PPROBLEM: to/href string appending
-                            href={`/${nav.title.toLowerCase()}`}
+                            to={`/${nav.title.toLowerCase()}`}
                             onClick={() => setIsOpen((prev) => !prev)}
                         >
                             {nav.title}
-                        </a>
+                        </Link>
                     </li>
                 )
             })}
