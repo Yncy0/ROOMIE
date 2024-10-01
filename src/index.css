@@ -7,11 +7,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --cl-box-shadow: hsl(0, 0%, 0%);
+  --cl-box-shadow: hsla(0, 0%, 0%, 0.1);
   --cl-black-500: hsl(213, 23%, 9%);
   --cl-white-400: hsl(228, 33%, 97%);
   --cl-white-500: hsl(0, 0%, 100%);
   --cl-white-600: hsl(216, 33%, 97%);
+  --cl-white-700:	hsl(0, 0%, 95%);
   --cl-grey-500: hsl(0, 0%, 84%);
   --cl-grey-600: hsl(0, 0%, 74%);
   --cl-blue-grey-500: hsl(218, 39%, 88%);
@@ -99,7 +100,12 @@ body {
   place-items: center; */
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--cl-white-600);
+  background-color: var(--cl-white-700);
+}
+
+.round-box {
+  border-radius: 1rem;
+  box-shadow: 0 2.3px 2px 2px var(--cl-box-shadow);
 }
 
 .svg-inline--fa {
@@ -134,8 +140,6 @@ body {
   padding-top: 1rem;
   padding-bottom: 1rem;
   min-width: 90vw;
-  box-shadow: 2px var(--cl-black-500);
-  
   background-color: var(--cl-white-500);
 }
 
@@ -150,19 +154,20 @@ body {
   min-width: 500px;
   padding: 10px;
   
-  background-color: var(--cl-white-400);
-  border: 1px solid var(--cl-grey-500);
+  background-color: var(--cl-white-700);
+  box-shadow: 2px 2px 1px 1px var(--cl-box-shadow);
+  border: none;
   border-radius: 1rem;
   font-size: 1rem;
   transform: 0.25s ease;
 }
 
-.input-search[type=text]:focus {
+/* .input-search[type=text]:focus {
   outline: 1px solid var(--cl-grey-600);
-}
+} */
 
 .input-search[type=text]::placeholder {
-  color: var(--cl-grey-500);
+  color: var(--cl-grey-600);
 }
 
 .flex-end {
@@ -170,10 +175,6 @@ body {
   flex-direction: row;
   align-items: center;
   gap: 2rem;
-}
-
-.fa-bars {
-  font-size: 1.6rem;
 }
 /* BREAK */
 
@@ -189,9 +190,8 @@ body {
   align-items: center;
   justify-content: center;
   background-color: var(--cl-white-500);
-  box-shadow: var(--cl-black-500);
   text-align: start;
-  min-height: 100vh;
+  min-height: 95vh;
   width: 100px;
   z-index: 10;
   position: relative;
@@ -218,6 +218,11 @@ body {
   flex-direction: row;
   gap: 1rem;
 }
+
+.menu-list .svg-inline--fa {
+  font-size: 1.2rem;
+}
+/* BREAK */
 
 /* HAMBURGER BUTTON */
 .button-menu-div {

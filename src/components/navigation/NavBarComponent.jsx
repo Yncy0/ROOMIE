@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function NavBarComponent() {
     return(
-        <nav className="menu-container">
+        <nav className="menu-container round-box">
             <ul className="menu-list">
                 {Navigation.map((nav) => {
                     const {Icon} = nav
