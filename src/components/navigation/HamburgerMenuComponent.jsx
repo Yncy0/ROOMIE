@@ -10,12 +10,14 @@ export default function HamburgerMenuComponent() {
     useClickAway(ref, ()=> setIsOpen(false));
 
     return(
-        <div ref={ref}>
+        <div className="button-menu-div" ref={ref}>
+            
             <Hamburger size={24} toggle={setIsOpen} toggled={isOpen}/> 
             { isOpen &&(
                     <NavBarComponent/>
                 )
             }
+            <h1>ROOMIE</h1>
         </div>
     )
 }

@@ -110,6 +110,15 @@ body {
   flex-direction: row;
 }
 
+.root-div {
+  display: flex;
+  flex-direction: row;
+}
+
+.root-column {
+  display: flex;
+  flex-direction: column;
+}
 
 /* HEADER COMPONENT */
 .header-div {
@@ -117,7 +126,6 @@ body {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  min-width: 100vw;
   padding-inline: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -173,26 +181,35 @@ body {
 .menu-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  justify-content: center;
   background-color: var(--cl-white-500);
   border: 2px solid red;
-  padding-top: 7rem;
   padding-inline: 7rem;
   text-align: start;
   min-height: 100vh;
+  max-width: 300px;
   z-index: 10;
   position: absolute;
   top: 0;
   left: 0;
 }
 
-.menu-container h1 {
-  font-family: var(--ff-logo);
-  padding-bottom: 2rem;
-}
-
 .menu-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.9rem;
+  padding-bottom: 250px;
+}
+
+/* HAMBURGER BUTTON */
+.button-menu-div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.button-menu-div h1 {
+  font-family: var(--ff-logo);
+  z-index: 12;
 }

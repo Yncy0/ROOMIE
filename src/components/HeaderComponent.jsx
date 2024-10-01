@@ -2,10 +2,13 @@ import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faBell, faUser} from '@fortawesome/free-solid-svg-icons'
 import HamburgerMenuComponent from './navigation/HamburgerMenuComponent'
+import NavBarComponent from './navigation/NavBarComponent'
 
 export default function HeaderComponent() {
 
     return(
+        <>
+        {/* <NavBarComponent/> */}
         <div className="header-div">
             <HamburgerMenuComponent/>
             <div className="flex-search">
@@ -22,5 +25,6 @@ export default function HeaderComponent() {
                 <p className='user-name' id='user-name'>Hello! User</p>
             </div>
         </div>
+        </>
     )
 }
