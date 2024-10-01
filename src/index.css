@@ -97,7 +97,7 @@ input {
 body {
   /* display: flex;
   place-items: center; */
-  min-width: 100vw;
+  min-width: 320px;
   min-height: 100vh;
   background-color: var(--cl-white-600);
 }
@@ -114,11 +114,14 @@ body {
 .root-div {
   display: flex;
   flex-direction: row;
+  gap: 1rem;
+  margin: 1rem;
 }
 
 .root-column {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 /* HEADER COMPONENT */
@@ -130,7 +133,7 @@ body {
   padding-inline: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  min-width: 320px;
+  min-width: 90vw;
   box-shadow: 2px var(--cl-black-500);
   
   background-color: var(--cl-white-500);
