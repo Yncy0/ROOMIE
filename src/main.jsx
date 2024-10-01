@@ -4,32 +4,32 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import HeaderComponent from './components/HeaderComponent.jsx'
 
-import ArchievesComponent from './components/archieves/ArchievesComponent.jsx'
-import BacklogsComponent from './components/backlogs/BacklogsComponent.jsx'
-import DashboardComponent from './components/dashboard/DashboardComponent.jsx'
-import RoomsComponent from './components/rooms/RoomsComponent.jsx'
-import UsersComponent from './components/users/UsersComponent.jsx'
+import ArchievesPage from './pages/ArchievesPage.jsx'
+import BacklogsPage from './pages/BacklogsPage.jsx'
+import DashboardPage from './pages/DashboardPage.jsx'
+import RoomsPage from './pages/RoomsPage.jsx'
+import UsersPage from './pages/UsersPage.jsx'
 
 const router = createBrowserRouter([
   {
     path: '/dashboard',
-    element: <DashboardComponent/>,
+    element: <DashboardPage/>,
   },
   {
     path: '/users',
-    element: <UsersComponent/>
+    element: <UsersPage/>
   },
   {
     path: '/backlogs',
-    element: <BacklogsComponent/>
+    element: <BacklogsPage/>
   },
   {
     path: '/archieves',
-    element: <ArchievesComponent/>
+    element: <ArchievesPage/>
   },
   {
     path: '/rooms',
-    element: <RoomsComponent/>
+    element: <RoomsPage/>
   },
 ]);
 

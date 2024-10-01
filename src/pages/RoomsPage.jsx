@@ -1,6 +1,6 @@
 
 
-export default function RoomsComponent() {
+export default function RoomsPages() {
     return(
         <h1>ROOMS</h1>
     )
