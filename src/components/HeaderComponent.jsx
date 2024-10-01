@@ -10,7 +10,7 @@ export default function HeaderComponent() {
         <>
         {/* <NavBarComponent/> */}
         <div className="header-div">
-            <HamburgerMenuComponent/>
+            {/* <HamburgerMenuComponent/> */}
             <div className="flex-search">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 

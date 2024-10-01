@@ -1,27 +1,34 @@
+import { faLayerGroup, faObjectUngroup, faObjectGroup, faBoxArchive, faUserGroup} from "@fortawesome/free-solid-svg-icons";
+
 export const Navigation = [
     {
         title: "Dashboard",
-        href: "#"
+        href: "#",
+        Icon: faObjectGroup
     },
 
     {
         title: "Rooms",
-        href: "#"
+        href: "#",
+        Icon: faLayerGroup
     },
 
     {
         title: "Users",
-        href: "#"
+        href: "#",
+        Icon: faUserGroup
     },
 
     {
         title: "Backlogs",
-        href: "#"
+        href: "#",
+        Icon: faObjectUngroup
     },
 
     {
         title: "Archieves",
-        href: "#"
+        href: "#",
+        Icon: faBoxArchive
     },
 
     // {

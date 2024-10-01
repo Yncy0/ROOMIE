@@ -7,6 +7,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --cl-box-shadow: hsl(0, 0%, 0%);
   --cl-black-500: hsl(213, 23%, 9%);
   --cl-white-400: hsl(228, 33%, 97%);
   --cl-white-500: hsl(0, 0%, 100%);
@@ -96,7 +97,7 @@ input {
 body {
   /* display: flex;
   place-items: center; */
-  min-width: 320px;
+  min-width: 100vw;
   min-height: 100vh;
   background-color: var(--cl-white-600);
 }
@@ -129,7 +130,8 @@ body {
   padding-inline: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-
+  min-width: 320px;
+  box-shadow: 2px var(--cl-black-500);
   
   background-color: var(--cl-white-500);
 }
@@ -181,17 +183,20 @@ body {
 .menu-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   background-color: var(--cl-white-500);
-  border: 2px solid red;
-  padding-inline: 7rem;
+  box-shadow: var(--cl-black-500);
   text-align: start;
   min-height: 100vh;
-  max-width: 300px;
+  width: 100px;
   z-index: 10;
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
+  /* position: absolute;
+  top: 0;
+  left: 0; */
 }
 
 .menu-list {
@@ -199,6 +204,16 @@ body {
   flex-direction: column;
   gap: 2.9rem;
   padding-bottom: 250px;
+}
+
+.menu-list span {
+  visibility: hidden;
+}
+
+.menu-list a {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
 }
 
 /* HAMBURGER BUTTON */

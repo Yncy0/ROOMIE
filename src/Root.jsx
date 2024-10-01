@@ -6,8 +6,14 @@ import NavBarComponent from "./components/navigation/NavBarComponent";
 export default function Root() {
     return(
         <>
-            <HeaderComponent/>
-            <Outlet/>        
+            {/* <div className="root-div">
+                <NavBarComponent/>
+                <div className="root-column">
+                    <HeaderComponent/>
+                    <Outlet/>     
+                </div>
+            </div> */}
+            <NavBarComponent/>
         </>
     )
 }
