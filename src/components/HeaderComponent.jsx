@@ -1,13 +1,13 @@
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faBell, faUser} from '@fortawesome/free-solid-svg-icons'
-import MenuComponent from './navigation/MenuComponent'
+import HamburgerMenuComponent from './navigation/HamburgerMenuComponent'
 
 export default function HeaderComponent() {
 
     return(
         <div className="header-div">
-            <MenuComponent/>
+            <HamburgerMenuComponent/>
             <div className="flex-search">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 

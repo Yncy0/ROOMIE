@@ -4,7 +4,7 @@ import { Navigation } from "./Navigation";
 import { Link } from "react-router-dom";
 import Hamburger from "hamburger-react";
 
-export default function MenuComponent() {
+export default function HamburgerMenuComponent() {
     const [isOpen, setIsOpen] = React.useState(false)
     const ref = React.useRef(null);
 

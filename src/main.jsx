@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter , RouterProvider } from 'react-router-dom'
 import './index.css'
 import HeaderComponent from './components/HeaderComponent.jsx'
 
@@ -9,6 +9,7 @@ import BacklogsPage from './pages/BacklogsPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import RoomsPage from './pages/RoomsPage.jsx'
 import UsersPage from './pages/UsersPage.jsx'
+import NavBarComponent from './components/navigation/NavBarComponent.jsx'
 
 const router = createBrowserRouter([
   {
@@ -35,7 +36,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <HeaderComponent/>
-    <RouterProvider router={router}/>
+    {/* <HeaderComponent/> */}
+    <NavBarComponent/>
+    <RouterProvider router={router} future={{ v7_startTransition: true}}/>
   </StrictMode>,
 )
