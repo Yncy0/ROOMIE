@@ -1,3 +1,4 @@
+import BookingsCard from "../components/dashboard/Bookings";
 import ColumnCard from "../components/dashboard/ColumnCard";
 import DashboardCard from "../components/dashboard/DashboardCard";
 
@@ -10,7 +11,8 @@ export default function DashboardPage() {
     return(
         <div className="dashboard-container">
             <DashboardCard header={header1} description={description1}/>
-            <DashboardCard header={header2} description={description1}/>
+            {/* <DashboardCard header={header2} description={description1}/> */}
+            <BookingsCard />
             <div className="dashboard-column-card">
                 <ColumnCard header={"HELLO"}/>
                 <ColumnCard header={"HELLO"}/>
