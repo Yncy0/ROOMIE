@@ -236,3 +236,20 @@ body {
   font-family: var(--ff-logo);
   z-index: 12;
 }
+
+/* DASHBOARD */
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+  margin: 5rem;
+  justify-content: space-evenly;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cl-white-500);
+  border-radius: 0.5rem;
+  line-height: 3rem;
+  padding: 5rem;
+}

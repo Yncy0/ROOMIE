@@ -1,8 +1,16 @@
+import DashboardCard from "../components/dashboard/DashboardCard";
 
 
 export default function DashboardPage() {
+    const header1 = "Website Views";
+    const header2 = "Rooms";
+    const description1 = "Last Campaign Performance";
+
     return(
-        <h1>DASHBOARDS</h1>
+        <div className="dashboard-container">
+            <DashboardCard header={header1} description={description1}/>
+            <DashboardCard header={header2} description={description1}/>
+        </div>
     )
 
 }
