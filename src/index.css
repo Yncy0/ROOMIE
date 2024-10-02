@@ -110,6 +110,7 @@ body {
 .round-box {
   border-radius: 1rem;
   box-shadow: 0 2.3px 2px 2px var(--cl-box-shadow);
+  background-color: var(--cl-white-500);
 }
 
 .svg-inline--fa {
@@ -256,6 +257,31 @@ body {
   border-radius: 0.5rem;
   line-height: 3rem;
   padding: 5rem;
+}
+
+.dashboard-column-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.column-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  width: 300px;
+  background-color: var(--cl-white-500);
+}
+
+.column-card img {
+  max-width: 64px;
+}
+
+.column-text {
+  display: flex;
+  flex-direction: column;
+  text-align: end;
 }
 
 @layer base {

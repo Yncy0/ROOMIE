@@ -1,5 +1,5 @@
+import BarChartComponent from "@/components/dashboard/barChart";
 import ColumnCard from "../components/dashboard/ColumnCard";
-import DashboardCard from "../components/dashboard/DashboardCard";
 
 
 export default function DashboardPage() {
@@ -9,12 +9,12 @@ export default function DashboardPage() {
 
     return(
         <div className="dashboard-container">
-            <DashboardCard header={header1} description={description1}/>
-            <DashboardCard header={header2} description={description1}/>
+            <BarChartComponent />
+            <BarChartComponent />
             <div className="dashboard-column-card">
-                <ColumnCard header={"HELLO"}/>
-                <ColumnCard header={"HELLO"}/>
-                <ColumnCard header={"HELLO"}/>
+                <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>            
             </div>
         </div>
     )
