@@ -242,35 +242,6 @@ body {
   z-index: 12;
 }
 
-/* DASHBOARD */
-.dashboard-container {
-  display: flex;
-  flex-direction: row;
-  margin: 5rem;
-  justify-content: space-evenly;
-}
-
-.dashboard-card {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--cl-white-500);
-  border-radius: 0.5rem;
-  line-height: 3rem;
-  padding: 5rem;
-}
-
-.dashboard-column-card {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.column-text {
-  display: flex;
-  flex-direction: column;
-  text-align: end;
-}
-
 @layer base {
   :root {
     --radius: 0.5rem;

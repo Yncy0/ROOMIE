@@ -10,10 +10,10 @@ export default function DashboardPage() {
 
     return(
         <>
-            <div className="dashboard-container">
+            <div className="flex flex-row m-20 justify-evenly">
                 <BarChartComponent />
                 <BarChartComponent />
-                <div className="dashboard-column-card">
+                <div className="flex flex-col gap-8">
                     <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
                     <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
                     <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>            
