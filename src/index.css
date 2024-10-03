@@ -265,19 +265,6 @@ body {
   gap: 2rem;
 }
 
-.column-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1rem;
-  width: 300px;
-  background-color: var(--cl-white-500);
-}
-
-.column-card img {
-  max-width: 64px;
-}
-
 .column-text {
   display: flex;
   flex-direction: column;
