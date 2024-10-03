@@ -11,7 +11,7 @@ export default function HeaderComponent() {
         {/* <NavBarComponent/> */}
         <div className="header-div round-box">
             {/* <HamburgerMenuComponent/> */}
-            <div className="flex-search">
+            <div className="flex flex-row items-center gap-4">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 
                     className="input-search"
@@ -19,10 +19,10 @@ export default function HeaderComponent() {
                     placeholder="Search"
                 />
             </div>
-            <div className="flex-end">
+            <div className="flex flex-row items-center gap-8">
                 <FontAwesomeIcon icon={faBell} />
                 <FontAwesomeIcon icon={faUser} />
-                <p className='user-name' id='user-name'>Hello! User</p>
+                <p id='user-name'>Hello! User</p>
             </div>
         </div>
         </>
