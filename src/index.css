@@ -235,6 +235,10 @@ body {
   z-index: 12;
 }
 
+.rooms-table {
+  
+}
+
 @layer base {
   :root {
     --radius: 0.5rem;
