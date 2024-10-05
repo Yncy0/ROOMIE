@@ -43,31 +43,6 @@ const router = createBrowserRouter([
   }
 ]);
 
-// const router = createBrowserRouter([
-//   {
-//     path: 'dashboard',
-//     element: <DashboardPage/>,
-//   },
-
-//   {
-//     path: 'users',
-//     element: <UsersPage/>
-//   },
-
-//   {
-//     path: 'backlogs',
-//     element: <BacklogsPage/>
-//   },
-
-//   {
-//     path: 'archieves',
-//     element: <ArchievesPage/>
-//   },
-//   {
-//     path: 'rooms',
-//     element: <RoomsPage/>
-//   },
-// ])
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
