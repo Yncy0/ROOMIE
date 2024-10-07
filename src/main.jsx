@@ -10,7 +10,7 @@ import DashboardPage from './pages/DashboardPage.jsx'
 import RoomsPage from './pages/RoomsPage.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import NavBarComponent from './components/navigation/NavBarComponent.jsx'
-import Root from './Root.jsx'
+import Root from './pages/Root.jsx'
 
 const router = createBrowserRouter([
   { path: '/',

@@ -123,13 +123,6 @@ body {
   flex-direction: row;
 }
 
-.root-div {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin: 1rem;
-}
-
 .root-column {
   display: flex;
   flex-direction: column;
