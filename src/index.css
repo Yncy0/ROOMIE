@@ -118,11 +118,6 @@ body {
   font-size: 1rem;
 }
 
-.container {
-  display: flex;
-  flex-direction: row;
-}
-
 
 /* HEADER COMPONENT */
 .header-div {
