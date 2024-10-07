@@ -123,11 +123,6 @@ body {
   flex-direction: row;
 }
 
-.root-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
 
 /* HEADER COMPONENT */
 .header-div {
