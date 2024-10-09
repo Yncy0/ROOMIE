@@ -9,7 +9,7 @@ export default function HeaderComponent() {
     return(
         <>
         {/* <NavBarComponent/> */}
-        <div className="header-div round-box">
+        <header className="header-div round-box">
             {/* <HamburgerMenuComponent/> */}
             <div className="flex flex-row items-center gap-4">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
@@ -24,7 +24,7 @@ export default function HeaderComponent() {
                 <FontAwesomeIcon icon={faUser} />
                 <p id='user-name'>Hello! User</p>
             </div>
-        </div>
+        </header>
         </>
     )
 }

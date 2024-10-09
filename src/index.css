@@ -100,10 +100,8 @@ input {
 }
 
 body {
-  /* display: flex;
-  place-items: center; */
-  min-width: 320px;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: var(--cl-white-700);
 }
 
@@ -128,15 +126,17 @@ body {
   padding-inline: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  min-width: 100vw;
+  max-width: 100vw;
+  max-height: 100px;
   background-color: var(--cl-white-500);
+  /* position: fixed;
+  top: 0; */
 }
 
 
 .input-search {
   min-width: 500px;
   padding: 10px;
-  
   background-color: var(--cl-white-700);
   box-shadow: 0 4px 6px -1px var(--cl-grey-500), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: none;
@@ -172,9 +172,8 @@ body {
   background-color: var(--cl-white-500);
   text-align: start;
   min-height: 100vh;
-  /* z-index: 10; */
-  position: fixed;
-  /* position: absolute;
+  max-width: 75px;
+  /* position: fixed;
   top: 0;
   left: 0; */
 }

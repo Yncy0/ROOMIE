@@ -5,15 +5,12 @@ import NavBarComponent from "../components/navigation/NavBarComponent";
 
 export default function Root() {
     return(
-        <>
-            <div className="flex flex-row gap-4">
-                <NavBarComponent/>
-                <div className="flex flex-col gap-4">
-                    <HeaderComponent/>
-                    <Outlet/>     
-                </div>
-            </div>
-            {/* <NavBarComponent/> */}
-        </>
+        <div className="flex flex-row">
+            <NavBarComponent/>
+            <main className="flex flex-col gap-4 w-full">
+                <HeaderComponent/>
+                <Outlet/>     
+            </main>
+        </div>       
     )
 }
