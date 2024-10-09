@@ -42,7 +42,7 @@ const chartConfig = {
 
 export default function BarChartComponent() {
   return (
-    <Card>
+    <Card className="w-[30%]">
       <CardHeader>
         <CardTitle>Bar Chart - Multiple</CardTitle>
         <CardDescription>January - June 2024</CardDescription>

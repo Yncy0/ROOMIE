@@ -10,19 +10,18 @@ export default function DashboardPage() {
     const description1 = "Last Campaign Performance";
 
     return(
-        <>
-            <div className="flex flex-row m-20 justify-evenly">
+        <div className="flex flex-col m-20 gap-6">
+            <div className="flex flex-row justify-between">
                 <BarChartComponent />
                 <LineChartComponent />
                 <div className="flex flex-col gap-8">
-                    <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
-                    <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>
-                    <ColumnCard header={"HELLO"} stats={287} percent={"+3%"} description={"more than last week"}/>            
+                    <ColumnCard header={"Bookins"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                    <ColumnCard header={"Rooms"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                    <ColumnCard header={"Users"} stats={287} percent={"+3%"} description={"more than last week"}/>            
                 </div>
-                
             </div>
             <DashbaordTable />
-        </>
+        </div>
     )
 
 }

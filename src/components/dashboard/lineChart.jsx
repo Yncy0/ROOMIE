@@ -37,7 +37,7 @@ const chartConfig = {
 
 export function LineChartComponent() {
   return (
-    <Card>
+    <Card className="w-[30%]">
       <CardHeader>
         <CardTitle>Line Chart - Linear</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
