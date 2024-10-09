@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Navigation } from "./Navigation";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+// import { SidebarContext } from "react-pro-sidebar";
+
 
 export default function NavBarComponent() {
     const [isOpen, setIsOpen] = React.useState(false);
 
     const openSideBar = () => {
         setIsOpen(!isOpen)
+        console.log(isOpen)
     }
 
     return(
@@ -30,7 +33,7 @@ export default function NavBarComponent() {
                                     className="flex flex-row items-center gap-4"
                                 >   
                                     <FontAwesomeIcon icon={Icon} />
-                                    <span className={`${isOpen ? "hidden" : "block"}`}>{nav.title}</span>
+                                    {!isOpen && <span >{nav.title}</span>}
                                 </Link>
                             </li>
                         )
