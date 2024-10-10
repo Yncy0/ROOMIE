@@ -136,17 +136,21 @@ body {
 
 .input-search {
   min-width: 500px;
-  padding: 10px;
+  padding: 9px;
+  padding-left: 50px;
   background-color: var(--cl-white-700);
   box-shadow: 0 4px 6px -1px var(--cl-grey-500), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: none;
   border-radius: 1rem;
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
-/* .input-search[type=text]:focus {
-  outline: 1px solid var(--cl-grey-600);
-} */
+.fa-magnifying-glass {
+  position: absolute;
+  color: var(--cl-grey-600);
+  padding: 10px;
+  min-width: 40px;
+}
 
 .input-search[type=text]::placeholder {
   color: var(--cl-grey-600);
