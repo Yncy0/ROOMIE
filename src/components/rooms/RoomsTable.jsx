@@ -37,10 +37,11 @@ export default function RoomsTables() {
 
     return (
         <div className="flex flex-col bg-white p-4 round-box gap-4">
-            <h1>St. Agustine Building</h1>
+            <h1 className="font-bold text-lg">St. Agustine Building</h1>
             <div className="flex flex-row justify-between">
                 <h2>Rooms</h2>
-                <button>Add</button>
+                {/*CHANGE BUTTON COLOR*/}
+                <button className="rounded-3xl p-3 w-28 bg-green-500 text-white font-bold text-center">Add</button>
             </div>
             <ul className="flex flex-row gap-4 justify-evenly">
                 {rooms.map((element, index) => (
