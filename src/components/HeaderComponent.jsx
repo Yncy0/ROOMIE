@@ -14,7 +14,7 @@ export default function HeaderComponent() {
             <div className="flex flex-row items-center gap-4">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 <input 
-                    className="input-search"
+                    className="input-search min-w-[500px]"
                     type="text"
                     placeholder="Search"
                 />
