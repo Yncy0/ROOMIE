@@ -19,7 +19,7 @@ export default function NavBarComponent() {
                 <button onClick={openSideBar}>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
-                <h1 className={!isOpen ? "block" : "hidden"}>ROOMIE</h1>
+                <h1 className={`${!isOpen ? "block" : "hidden"} font-righteous text-xl`}>ROOMIE</h1>
             </div>
             <ul className="flex flex-col gap-12 pb-64">
                 {Navigation.map((nav) => {
