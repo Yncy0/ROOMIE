@@ -1,6 +1,6 @@
+import { roomDummy } from "./roomsDummy"
 
-
-export default function RoomsDescription() {
+export default function RoomsDescription(props) {
     return(
         //TO-DO: Back icon to the left
         <div className="flex flex-col round-box gap-4">

@@ -1,6 +1,6 @@
 import React from "react";
 import RoomsCard from "./RoomsCard";
-
+import { roomDummy } from "./roomsDummy";
 
 
 export default function RoomsTables() {
@@ -8,30 +8,7 @@ export default function RoomsTables() {
 
     React.useEffect(() => {
         setRooms([
-            {
-                img: "src/assets/dummy/room1.png",
-                building: "St. Agustine Building",
-                room: "Room 301",
-                status: "Available"
-            },
-            {
-                img: "src/assets/dummy/room2.png",
-                building: "St. Agustine Building",
-                room: "Room 302",
-                status: "Available"
-            },
-            {
-                img: "src/assets/dummy/room3.png",
-                building: "St. Agustine Building",
-                room: "Room 303",
-                status: "Available"
-            },
-            {
-                img: "src/assets/dummy/room4.png",
-                building: "St. Agustine Building",
-                room: "Room 304",
-                status: "Available"
-            }
+            ...roomDummy
         ])
     }, [])
 
