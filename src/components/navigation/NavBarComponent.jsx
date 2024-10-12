@@ -19,7 +19,7 @@ export default function NavBarComponent() {
     }
 
     return(
-        <div className={`menu-container round-box pt-14 gap-9 items-center duration-300 ease-in-out ${isOpen ? 'w-32' : 'w-52'}`}>
+        <div className={`menu-container round-box pt-14 gap-9 items-center duration-150 ease-in-out ${isOpen ? 'w-32' : 'w-52'}`}>
             <div className="flex flex-row items-center justify-center gap-4 mb-7 min-w-full">
                 <button onClick={openSideBar} className=" py-2">
                     {isOpen ? <ChevronLast className="min-w-6"/> : <ChevronFirst className="min-w-6"/>}
@@ -34,7 +34,7 @@ export default function NavBarComponent() {
                             <Link 
                                 to={`/${nav.title.toLowerCase()}`}
                                 onClick={() => handleClick(index)}
-                                className={`flex flex-row items-center p-2 px-6 gap-4 hover:bg-gray-100 rounded-lg 
+                                className={`flex flex-row items-center p-2 px-6 gap-4 hover:bg-gray-100 rounded-lg focus-visible:bg-gray-100 outline-none
                                             ${activeLink === index ? "bg-[#2B32B2] text-white pointer-events-none" : "bg-white text-black"}`}
                             >   
                                 <FontAwesomeIcon icon={Icon}/>
