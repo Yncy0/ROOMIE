@@ -9,12 +9,13 @@ export default function RoomsCard(props) {
     
     return (
         //round-box temporary
-        <div className="flex flex-col bg-white round-box gap-4">
-            <img src={image} alt="" className="w-64"/>
-            <p>{building}</p>
-            <h1>{room}</h1>
+        <div className="flex flex-col bg-white gap-4">
+            <img src={image} alt="" className="w-80"/>
+            <p className="text-gray-400">{building}</p>
+            <h1 className="font-bold text-2xl">{room}</h1>
+            {/*TO-DO: Add status icon*/}
             <p>{status}</p>
-            <button>View Room</button>
+            <button className="bg-none border-red-500 border-2 border-solid text-red-500 font-bold p-2 rounded-md w-40">VIEW ROOM</button>
         </div>
     )
 }
