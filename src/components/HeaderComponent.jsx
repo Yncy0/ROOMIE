@@ -9,7 +9,7 @@ export default function HeaderComponent() {
     return(
         <>
         {/* <NavBarComponent/> */}
-        <header className="header-div round-box">
+        <header className="header-div bg-white">
             {/* <HamburgerMenuComponent/> */}
             <div className="flex flex-row items-center gap-4">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />

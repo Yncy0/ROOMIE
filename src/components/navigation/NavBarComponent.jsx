@@ -12,9 +12,11 @@ export default function NavBarComponent() {
     const openSideBar = () => {
         setIsOpen(!isOpen)
     }
-
+    //TO-DO: Fix icon alignment
+    //TO-DO: hover
+    //TO-DO: icon on the header
     return(
-        <div className={`menu-container round-box p-6 gap-9 duration-300 ease-in-out ${isOpen ? 'w-20' : 'w-52'}`}>
+        <div className={`menu-container round-box p-14 gap-9 duration-300 ease-in-out ${isOpen ? 'w-20' : 'w-52'}`}>
             <div className="flex flex-row items-center mb-7 gap-4">
                 <button onClick={openSideBar} className=" py-2">
                     {isOpen ? <ChevronLast className="min-w-6"/> : <ChevronFirst className="min-w-6"/>}

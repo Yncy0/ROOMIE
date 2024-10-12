@@ -128,6 +128,8 @@ body {
   padding-bottom: 1rem;
   max-width: 100vw;
   max-height: 100px;
+  box-shadow: 7.5px 10px 15px -3px rgba(0, 0, 0, 0.1);
+
   /* background-color: var(--cl-white-500); */
   /* position: fixed;
   top: 0; */
@@ -139,7 +141,8 @@ body {
   padding: 9px;
   padding-left: 50px;
   background-color: var(--cl-white-400);
-  box-shadow: 0 4px 6px -1px var(--cl-grey-500), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  outline: 1px solid var(--cl-grey-500);
+  /* box-shadow: 0 4px 6px -1px var(--cl-grey-500), 0 2px 4px -1px rgba(0, 0, 0, 0.06); */
   border: none;
   border-radius: 0.5rem;
   font-size: 0.85rem;
