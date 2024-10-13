@@ -7,16 +7,20 @@ export default function RoomsEdit() {
             <img src="" alt="" />
             <button />
             <label htmlFor="">Room Name</label>
-            <input type="text" name="" id="" placeholder="Enter room here"/>
+            <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room here"/>
             <label htmlFor="">Room Description</label>
-            <input type="text" name="" id="" placeholder="Enter room description here"/>
+            <input className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room description here"/>
             <label htmlFor="">Room Capacity</label>
-            <input type="text" name="" id="" placeholder="Enter room capacity"/>
+            <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room capacity"/>
             <label htmlFor="">Room Location/Building</label>
-            <input type="text" name="" id="" placeholder="Enter room capacity"/>
+            <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room capacity"/>
             <div className="flex flex-row justify-center gap-8">
-                <button>Cancel</button>
-                <button>Add</button>
+            <button onClick={() => setClose(!close)}
+                    className="bg-gray-100 w-full text-center p-2 rounded-md"
+                    >Cancel
+                </button>
+                {close && (<Navigate to="/rooms" />)}
+                <button className="bg-[#2B32B2] text-white w-full text-center p-2 rounded-md">Edit</button>
             </div>
         </div>
     )
