@@ -10,6 +10,7 @@ export default function RoomsPages() {
         <div className="mx-20 mt-6 flex flex-col gap-8">
             <RoomsTables />
             {/* <RoomsDescription /> */}
+            
         </div>
     )
 }

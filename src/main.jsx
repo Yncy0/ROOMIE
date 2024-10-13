@@ -39,13 +39,12 @@ const router = createBrowserRouter([
       {
         path: 'rooms',
         element: <RoomsPage/>,
-        children: [
-          {
-            path: '/rooms_add',
-            element: <RoomsAdd/>
-          }
-        ]
       },
+      //NOTE: Temporary Solution
+      {
+        path: 'rooms_add',
+        element: <RoomsAdd/>
+      }
     ]
   }
 ]);
@@ -53,8 +52,6 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* <HeaderComponent/> */}
-    {/* <NavBarComponent/> */}
     <RouterProvider router={router} future={{ v7_startTransition: true}}/>
   </StrictMode>,
 )

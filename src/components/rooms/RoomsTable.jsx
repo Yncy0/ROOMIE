@@ -18,7 +18,7 @@ export default function RoomsTables() {
     }, [])
 
     return (
-        //TO-DO: Avoid too much props param
+        //TO-DO: Avoid too much props para
         <>
             <div className="flex flex-col bg-white px-8 py-8 round-box gap-4">
                 <h1 className="font-bold text-lg">St. Agustine Building</h1>
@@ -31,7 +31,7 @@ export default function RoomsTables() {
                                     >
                                     Add Room
                     </button>
-                    {open && (<Navigate to="/rooms/rooms_add"/>)}
+                    {open && (<Navigate to="/rooms_add"/>)}
                 </div>
                 <ul className="flex flex-row gap-4 justify-between">
                     {rooms.map((element, index) => (
