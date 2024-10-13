@@ -27,7 +27,7 @@ export default function RoomsTables() {
                     <button className="rounded-3xl p-3 w-28 bg-none 
                                     text-[#1488CC] border-solid border-[#1488CC] 
                                     border-2 font-bold text-center min-w-36"
-                            onClick={() => setOpen(!open)}
+                            onClick={() => (setOpen(!open))}
                                     >
                                     Add Room
                     </button>
