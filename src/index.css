@@ -140,7 +140,6 @@ body {
   /* min-width: 500px; */
   padding: 9px;
   padding-left: 50px;
-  background-color: var(--cl-white-400);
   outline: 1px solid var(--cl-grey-500);
   /* box-shadow: 0 4px 6px -1px var(--cl-grey-500), 0 2px 4px -1px rgba(0, 0, 0, 0.06); */
   border: none;
