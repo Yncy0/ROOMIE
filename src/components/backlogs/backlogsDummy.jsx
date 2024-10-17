@@ -1,6 +1,4 @@
-import React from "react"
-
-export const backlogsDummy = React.useMemo(() => [
+export const backlogsDummy = [
     {
         logs: "REPORT: Incident on MR204",
         date: "05/21/24",
@@ -36,4 +34,4 @@ export const backlogsDummy = React.useMemo(() => [
         date: "05/21/24",
         time: "07:50",
     },
-], [])
+]
