@@ -30,17 +30,11 @@ export default function BacklogsPage() {
         setData(backlogsDummy); 
     }, [])
 
-    // const data = React.useMemo(() => backlogsDummy, [])
     const columns = React.useMemo(() => [
         { header: 'Date', accessorKey: 'date' },
         { header: 'Logs', accessorKey: 'logs' },
         { header: 'Time', accessorKey: 'time' }
     ], []);
-    // const columns = [
-    //     {header: 'Date', accessorKey: 'date'},
-    //     {header: 'Logs', accessorKey: 'logs'},
-    //     {header: 'Time', accessorKey: 'time'}
-    // ]
     
     const table = useReactTable({
         data, 
@@ -50,9 +44,6 @@ export default function BacklogsPage() {
     })
 
     return(
-        //TO-DO: Fix the variable later
-        //TO-DO: 
-
         <div className="round-box mx-20 mt-6 font-roboto">
             <Table>
                 <TableHeader>
@@ -95,31 +86,6 @@ export default function BacklogsPage() {
                     <ChevronsRight/>
                 </button>
             </div>
-        </div>
-
-        // <div className="p-4 flex justify-center">
-        //     <table className>
-        //         {table.getHeaderGroups().map(headerGroup => (
-        //             <tr key={headerGroup.id}>
-        //                 {headerGroup.headers.map(header => 
-        //                 <th key={header.id} colSpan={header.colSpan} className="w-60 text-start">
-        //                     {flexRender(header.column.columnDef.header, header.getContext())}
-        //                 </th>
-        //             )}
-        //             </tr>
-        //         ))}
-        //         <tbody>
-        //             {table.getRowModel().rows.map((row) => (
-        //                 <tr key={row.id}>
-        //                     {row.getVisibleCells().map((cell) => (
-        //                         <td key={cell.id}>
-        //                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        //                         </td>
-        //                     ))}
-        //                 </tr>
-        //             ))}
-        //         </tbody>
-        //     </table>
-        // </div>
+        </div>  
     )
 }
