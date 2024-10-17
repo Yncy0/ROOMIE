@@ -24,7 +24,7 @@ export default function UsersPage() {
                 </div>
                 <button className="bg-[#6EB229] text-white text-sm py-2 px-8 rounded-[50px]">Add User</button>
             </div>
-            {/* TO-DO: FIX HEADER ALIGNENT*/}
+            {/* TO-DO: TABLE!!!!!!!*/}
             <div className="flex flex-col round-box gap-4 p-6">
                 <ul className="flex flex-col gap-4">
                 <li className="flex flex-row justify-between gap-48">
