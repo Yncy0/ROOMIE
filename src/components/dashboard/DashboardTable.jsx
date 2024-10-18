@@ -70,13 +70,15 @@ export default function DashbaordTable() {
         ]);
     }, [])
 
+    const firstIndex = data[0];
+
     const columns = React.useMemo(() => [
         {
             header: 'Rooms',
-            cell: ({rows}) => (
+            cell: ({row}) => (
                 <div className="flex flex-row items-center gap-4">
-                    <img src={data[0].picture} alt="" />
-                    <p>{data[0].name}</p>
+                    <img src={row.original.picture} alt="" />
+                    <p>{row.original.name}</p>
                 </div>
             )
         },

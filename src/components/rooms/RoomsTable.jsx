@@ -3,19 +3,46 @@ import RoomsCard from "./RoomsCard";
 import RoomsDescription from "./RoomsDescription";
 import { roomDummy } from "./roomsDummy";
 import { Link, Navigate } from "react-router-dom";
-
+import { 
+    useReactTable, 
+    getCoreRowModel, 
+    flexRender,
+    getPaginationRowModel
+} from "@tanstack/react-table";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { 
+    ChevronRight, 
+    ChevronLeft, 
+    ChevronsRight,
+    ChevronsLeft,
+} from "lucide-react";
 
 export const RoomContex = React.createContext();
 
 export default function RoomsTables() {
-    const [rooms, setRooms] = React.useState([]);
+    const [data, setData] = React.useState([]);
     const [open, setOpen] = React.useState(false);
 
     React.useEffect(() => {
-        setRooms([
+        setData([
             ...roomDummy
         ])
     }, [])
+
+    const table = useReactTable({
+        data,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel()
+    })
 
     return (
         //TO-DO: Avoid too much props para
@@ -28,23 +55,51 @@ export default function RoomsTables() {
                                     text-[#1488CC] border-solid border-[#1488CC] 
                                     border-2 font-bold text-center min-w-36"
                             onClick={() => (setOpen(!open))}
-                                    >
-                                    Add Room
+                    >Add Room
                     </button>
                     {open && (<Navigate to="/rooms_add"/>)}
                 </div>
-                <ul className="flex flex-row gap-4 justify-between">
-                    {rooms.map((element, index) => (
-                        <li key={index}>
-                            <RoomsCard image={element.image} building={element.building} room={element.room} status={element.status}/>
-                        </li>
-                    ))}
-                </ul>
+                <Table>
+                    <TableBody>
+                        <TableRow className="hover:bg-transparent">
+                            <TableCell>
+                                <div className="flex flex-row justify-between">
+                                    {data.map((items, index) => (
+                                        <RoomsCard 
+                                            image={items.image} 
+                                            building={items.building} 
+                                            room={items.room} 
+                                            status={items.status}
+                                        />
+                                    ))}
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+                <div className="flex flex-row justify-end items-center">
+                    <button onClick={() => table.setIndexPage(0)}>
+                        <ChevronsLeft/>
+                    </button>
+                    <button onClick={() => table.previousPage()}>
+                        <ChevronLeft/>
+                    </button>
+                    <span className="font-bold font-roboto">
+                        {table.getState().pagination.pageIndex + 1}
+                    </span>
+                    <button onClick={() => table.nextPage()}>
+                        <ChevronRight/>
+                    </button>
+                    <button onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
+                        <ChevronsRight/>
+                    </button>
+                </div>
             </div>
+            
             {/*DESCRIPTION LOADER*/}
-            {rooms.map((element, _) => (
+            {/* {data.map((element, _) => (
                 <RoomsDescription image={element.image} room={element.room} building={element.building} seats={element.seats} description={element.description}/>
-            ))}
+            ))} */}
         </>
     );
 }
