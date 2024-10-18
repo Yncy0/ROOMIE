@@ -11,9 +11,7 @@ import {
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -105,7 +103,7 @@ export default function DashbaordTable() {
                 <h1 className="font-bold">Top Booked Rooms</h1>
                 <div className="flex flex-row gap-4 items-end">
                     <FontAwesomeIcon icon={faMagnifyingGlass}/>
-                    <input type="text" placeholder="Search..." className="input-search min-w-40"/>
+                    <input type="text" placeholder="Search..." className="input-search min-w-40 bg-[#F5F7FA]"/>
                     <button className="flex flex-row items-center gap-2 p-1 border-solid border-[#E6E6E6] border-2 rounded-lg">
                         <LucideFilter width={"16px"}/>
                         Filter

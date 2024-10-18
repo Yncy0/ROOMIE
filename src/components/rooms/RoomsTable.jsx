@@ -2,21 +2,16 @@ import React from "react";
 import RoomsCard from "./RoomsCard";
 import RoomsDescription from "./RoomsDescription";
 import { roomDummy } from "./roomsDummy";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { 
     useReactTable, 
     getCoreRowModel, 
-    flexRender,
     getPaginationRowModel
 } from "@tanstack/react-table";
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
 import { 
@@ -51,9 +46,9 @@ export default function RoomsTables() {
                 <h1 className="font-bold text-lg">St. Agustine Building</h1>
                 <div className="flex flex-row justify-between items-center">
                     <h2>Rooms</h2>
-                    <button className="rounded-3xl p-3 w-28 bg-none 
+                    <button className="rounded-3xl py-2 w-28 bg-none 
                                     text-[#1488CC] border-solid border-[#1488CC] 
-                                    border-2 font-bold text-center min-w-36"
+                                    border-2 font-medium text-center min-w-36"
                             onClick={() => (setOpen(!open))}
                     >Add Room
                     </button>
