@@ -121,22 +121,22 @@ export default function UsersPage() {
                     </TableBody>
                 </Table>
                 <div className="flex flex-row justify-end items-center py-4 px-14">
-                <button onClick={() => table.setIndexPage(0)}>
-                    <ChevronsLeft/>
-                </button>
-                <button onClick={() => table.previousPage()}>
-                    <ChevronLeft/>
-                </button>
-                <span className="font-bold font-roboto">
-                    {table.getState().pagination.pageIndex + 1}
-                </span>
-                <button onClick={() => table.nextPage()}>
-                    <ChevronRight/>
-                </button>
-                <button onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
-                    <ChevronsRight/>
-                </button>
-            </div>
+                    <button onClick={() => table.setIndexPage(0)}>
+                        <ChevronsLeft/>
+                    </button>
+                    <button onClick={() => table.previousPage()}>
+                        <ChevronLeft/>
+                    </button>
+                    <span className="font-bold font-roboto">
+                        {table.getState().pagination.pageIndex + 1}
+                    </span>
+                    <button onClick={() => table.nextPage()}>
+                        <ChevronRight/>
+                    </button>
+                    <button onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
+                        <ChevronsRight/>
+                    </button>
+                </div>
             </div>
         </div>
     )
