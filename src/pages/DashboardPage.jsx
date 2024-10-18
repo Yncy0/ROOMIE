@@ -1,4 +1,7 @@
-import DashboardCard from "../components/dashboard/DashboardCard";
+import BarChartComponent from "@/components/dashboard/barChart";
+import ColumnCard from "../components/dashboard/ColumnCard";
+import DashbaordTable from "@/components/dashboard/DashboardTable";
+import { LineChartComponent } from "@/components/dashboard/lineChart";
 
 
 export default function DashboardPage() {
@@ -7,9 +10,17 @@ export default function DashboardPage() {
     const description1 = "Last Campaign Performance";
 
     return(
-        <div className="dashboard-container">
-            <DashboardCard header={header1} description={description1}/>
-            <DashboardCard header={header2} description={description1}/>
+        <div className="flex flex-col m-20 gap-6">
+            <div className="flex flex-row justify-between">
+                <BarChartComponent />
+                <LineChartComponent />
+                <div className="flex flex-col gap-8">
+                    <ColumnCard header={"Bookins"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                    <ColumnCard header={"Rooms"} stats={287} percent={"+3%"} description={"more than last week"}/>
+                    <ColumnCard header={"Users"} stats={287} percent={"+3%"} description={"more than last week"}/>            
+                </div>
+            </div>
+            <DashbaordTable />
         </div>
     )
 
