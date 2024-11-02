@@ -5,9 +5,6 @@ import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
-
-
-
 function RoomsAdd() {
     const navigate = useNavigate();
     const [roomName, setRoomName] = useState("");

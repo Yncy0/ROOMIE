@@ -16,6 +16,28 @@ import Root from './pages/Root.jsx'
 import RoomsAdd from './components/rooms/RoomsAdd'
 
 
+const express = require('express');
+const cors = require('cors');
+const app = express();
+
+// Add the CORS middleware
+app.use(cors({
+    origin: '*', // Allow all origins. Change this to a specific domain if needed.
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type,Authorization'
+}));
+
+// Example route
+app.get('/api/data', (req, res) => {
+    res.json({ message: 'CORS is enabled!' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+
 
 const router = createBrowserRouter([
   { path: '/',
