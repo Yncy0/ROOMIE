@@ -14,13 +14,13 @@ export default function RoomsAdd() {
                 />
             </div>
             <button />
-            <label htmlFor="">Room Name</label>
+            <label htmlFor="roomName">Room Name</label>
             <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room here"/>
-            <label htmlFor="">Room Description</label>
+            <label htmlFor="roomDescription">Room Description</label>
             <input className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room description here"/>
-            <label htmlFor="">Room Capacity</label>
+            <label htmlFor="roomCapacity">Room Capacity</label>
             <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room capacity"/>
-            <label htmlFor="">Room Location/Building</label>
+            <label htmlFor="roomLocation">Room Location/Building</label>
             <input className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm" type="text" name="" id="" placeholder="Enter room capacity"/>
             <div className="flex flex-row justify-center gap-8 w-full">
                 <button onClick={() => setClose(!close)}
