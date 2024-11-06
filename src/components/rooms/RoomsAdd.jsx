@@ -1,49 +1,69 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from "react-router-dom";
-import app from "../firebaseConfig";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-
-
-
-
+import supabase from "../supabaseConfig";
+import { v4 as uuidv4 } from 'uuid';
 
 function RoomsAdd() {
     const navigate = useNavigate();
-    const [roomName, setRoomName] = useState("");
-    const [roomDescription, setRoomDescription] = useState("");
-    const [roomCapacity, setRoomCapacity] = useState("");
-    const [roomLocation, setRoomLocation] = useState("");
+    const [room_name, setRoomName] = useState("");
+    const [room_description, setRoomDescription] = useState("");
+    const [room_capacity, setRoomCapacity] = useState("");
+    const [room_location, setRoomLocation] = useState("");
     const [close, setClose] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
+    const [room_image, setRoomImage] = useState("");
+
+    async function handleImageUpload() {
+        try {
+            const fileInput = document.getElementById("imageInput");
+            if (fileInput.files.length === 0) {
+                alert("Please select an image file.");
+                return null;
+            }
+
+            const file = fileInput.files[0];
+            const filePath = `rooms/${uuidv4()}_${file.name}`;
+            const { data, error } = await supabase.storage
+                .from("Rooms")
+                .upload(filePath, file);
+
+            if (error) throw error;
+
+            // Get public URL of the uploaded image
+            const { data: publicUrlData } = supabase.storage
+                .from('Rooms')
+                .getPublicUrl(filePath);
+
+            return publicUrlData.publicUrl;
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Error uploading image: " + error.message);
+            return null;
+        }
+    }
 
     async function saveData() {
-        const firestore = getFirestore(app);
-        const storage = getStorage(app);
-        let imageUrl = '';
+        let finalImageUrl = room_image;
 
-        if (imageFile) {
-            try {
-                const imageRef = storageRef(storage, `images/${imageFile.name}`);
-                await uploadBytes(imageRef, imageFile);
-                imageUrl = await getDownloadURL(imageRef);
-                console.log("Image URL:", imageUrl);
-                alert("image uploaded successfully");
-            } catch (error) {
-                console.error("Error uploading image:", error);
-                alert("Image upload failed: " + error.message);
-                return;
-            }
+        // Upload image if an image file was selected
+        if (!room_image.startsWith("http")) {
+            const uploadedImageUrl = await handleImageUpload();
+            if (!uploadedImageUrl) return; // Stop if upload fails
+            finalImageUrl = uploadedImageUrl;
         }
 
         try {
-            await addDoc(collection(firestore, "Rooms"), {
-                roomName,
-                roomDescription,
-                roomCapacity,
-                roomLocation,
-                imageUrl
-            });
+            const { data, error } = await supabase
+                .from("rooms")
+                .insert([{
+                    room_name,
+                    room_description,
+                    room_capacity,
+                    room_location,
+                    room_image: finalImageUrl
+                }]);
+
+            if (error) throw error;
+
             alert("Data saved successfully");
             navigate("/rooms");
         } catch (error) {
@@ -56,22 +76,26 @@ function RoomsAdd() {
         <div className="round-box flex flex-col bg-white gap-4 p-4">
             <h1 className="text-center font-bold text-lg">Create New Room</h1>
             <div className="flex justify-center">
-                <img src={imageFile ? URL.createObjectURL(imageFile) : "src/assets/dummy/image-placeholder.png"} alt="" className="object-cover w-64" />
+                <img 
+                    src={room_image ? room_image : "src/assets/dummy/image-placeholder.png"} 
+                    alt="Room Preview" 
+                    className="object-cover w-64" 
+                />
             </div>
-            {/* Image Upload Section */}
-            <label htmlFor="imageUpload">Upload Image</label>
+            {/* Image File Input */}
+            <label htmlFor="imageInput">Upload Image</label>
             <input
-                id="imageUpload"
+                id="imageInput"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageFile(e.target.files[0])}
+                onChange={(e) => setRoomImage(e.target.files[0] ? URL.createObjectURL(e.target.files[0]) : "")}
                 className="border-2 border-gray-300 p-2 rounded-md"
             />
             <label htmlFor="roomName">Room Name</label>
             <input
                 id="roomName"
                 className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-                value={roomName}
+                value={room_name}
                 type="text"
                 placeholder="Enter room name here"
                 onChange={(e) => setRoomName(e.target.value)}
@@ -80,7 +104,7 @@ function RoomsAdd() {
             <input
                 id="roomDescription"
                 className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm"
-                value={roomDescription}
+                value={room_description}
                 type="text"
                 placeholder="Enter room description here"
                 onChange={(e) => setRoomDescription(e.target.value)}
@@ -89,7 +113,7 @@ function RoomsAdd() {
             <input
                 id="roomCapacity"
                 className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-                value={roomCapacity}
+                value={room_capacity}
                 type="text"
                 placeholder="Enter room capacity"
                 onChange={(e) => setRoomCapacity(e.target.value)}
@@ -98,7 +122,7 @@ function RoomsAdd() {
             <input
                 id="roomLocation"
                 className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-                value={roomLocation}
+                value={room_location}
                 type="text"
                 placeholder="Enter room location"
                 onChange={(e) => setRoomLocation(e.target.value)}
