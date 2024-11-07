@@ -1,8 +1,7 @@
 import React from "react";
 import RoomsCard from "./RoomsCard";
 import { roomDummy } from "./roomsDummy";
-import { Navigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { Navigate } from "react-router-dom";    
 import { 
     useReactTable, 
     getCoreRowModel, 
@@ -20,25 +19,27 @@ import {
     ChevronsRight,
     ChevronsLeft,
 } from "lucide-react";
+import { supabase } from "@/supabaseClient";
 
 // export const RoomContext = React.createContext();
-
-const supabase = createClient("https://vjvuhazfxkuqegqlkums.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqdnVoYXpmeGt1cWVncWxrdW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA3MjYzNTEsImV4cCI6MjA0NjMwMjM1MX0.Zhr4aS-oVOhWkHsV9_8s2X1ocxr7CVfrXrc8rfx2n84");
 
 export default function RoomsTables() {
     const [data, setData] = React.useState([]);
     const [open, setOpen] = React.useState(false);
 
     React.useEffect(() => {
-        getData(
-            // ...roomDummy
-        );  
+        const fetchData = async () => {
+            const { data, error } = await supabase
+                .from('rooms')
+                .select();
+
+            setData(data);
+        }
+
+        fetchData();
     }, []);
 
-    async function getData() {
-        const {data, error }= await supabase.from("rooms").select();
-        setData(data);
-    }
+    
 
     const table = useReactTable({
         data,
@@ -66,7 +67,7 @@ export default function RoomsTables() {
                         <TableRow className="hover:bg-transparent">
                             <TableCell>
                                 <div className="flex flex-row justify-between">
-                                    {data.map((items) => (
+                                    {data?.map((items) => (
                                         <RoomsCard 
                                             key={items.room_id}
                                             image={items.room_image} 
