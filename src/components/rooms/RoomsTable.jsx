@@ -1,8 +1,8 @@
 import React from "react";
 import RoomsCard from "./RoomsCard";
-import RoomsDescription from "./RoomsDescription";
 import { roomDummy } from "./roomsDummy";
 import { Navigate } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 import { 
     useReactTable, 
     getCoreRowModel, 
@@ -21,17 +21,24 @@ import {
     ChevronsLeft,
 } from "lucide-react";
 
-export const RoomContex = React.createContext();
+// export const RoomContext = React.createContext();
+
+const supabase = createClient("https://vjvuhazfxkuqegqlkums.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqdnVoYXpmeGt1cWVncWxrdW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA3MjYzNTEsImV4cCI6MjA0NjMwMjM1MX0.Zhr4aS-oVOhWkHsV9_8s2X1ocxr7CVfrXrc8rfx2n84");
 
 export default function RoomsTables() {
     const [data, setData] = React.useState([]);
     const [open, setOpen] = React.useState(false);
 
     React.useEffect(() => {
-        setData([
-            ...roomDummy
-        ])
-    }, [])
+        getData(
+            // ...roomDummy
+        );  
+    }, []);
+
+    async function getData() {
+        const {data, error }= await supabase.from("rooms").select();
+        setData(data);
+    }
 
     const table = useReactTable({
         data,
@@ -59,12 +66,13 @@ export default function RoomsTables() {
                         <TableRow className="hover:bg-transparent">
                             <TableCell>
                                 <div className="flex flex-row justify-between">
-                                    {data.map((items, index) => (
+                                    {data.map((items) => (
                                         <RoomsCard 
-                                            image={items.image} 
-                                            building={items.building} 
-                                            room={items.room} 
-                                            status={items.status}
+                                            key={items.room_id}
+                                            image={items.room_image} 
+                                            building={items.room_location} 
+                                            room={items.room_name} 
+                                            // status={items.status}
                                         />
                                     ))}
                                 </div>

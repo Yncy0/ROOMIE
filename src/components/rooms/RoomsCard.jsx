@@ -1,12 +1,7 @@
 import React from "react"
 
 //MIGHT USE PROPS
-export default function RoomsCard(props) {
-    const image = props.image;
-    const building = props.building;
-    const room = props.room;
-    const status = props.status;
-    
+export default function RoomsCard({ image, building, room, status}) {
     return (
         //round-box temporary
         <div className="flex flex-col bg-white gap-4">
