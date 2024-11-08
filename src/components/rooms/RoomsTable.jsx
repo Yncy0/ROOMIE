@@ -24,7 +24,8 @@ import { supabase } from "@/supabaseClient";
 // export const RoomContext = React.createContext();
 
 export default function RoomsTables() {
-    const [data, setData] = React.useState([]);
+    const [data, setData] = React.useState(null);
+    const [errorData, setErrorData] = React.useState(null);
     const [open, setOpen] = React.useState(false);
 
     React.useEffect(() => {
@@ -32,8 +33,14 @@ export default function RoomsTables() {
             const { data, error } = await supabase
                 .from('rooms')
                 .select();
-
-            setData(data);
+            if (error) {
+                console.log('Error');
+            }
+            if (data) {
+                console.log(data);
+                setData(data);
+            }
+            
         }
 
         fetchData();
@@ -70,10 +77,9 @@ export default function RoomsTables() {
                                     {data?.map((items) => (
                                         <RoomsCard 
                                             key={items.room_id}
-                                            image={items.room_image} 
-                                            building={items.room_location} 
-                                            room={items.room_name} 
-                                            // status={items.status}
+                                            room_image={items.room_image} 
+                                            room_location={items.room_location}
+                                            room_name={items.room_name}
                                         />
                                     ))}
                                 </div>
