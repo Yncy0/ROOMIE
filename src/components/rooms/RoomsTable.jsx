@@ -1,6 +1,6 @@
 import React from "react";
 import RoomsCard from "./RoomsCard";
-import { roomDummy } from "./roomsDummy";
+
 import { Navigate } from "react-router-dom";    
 import { 
     useReactTable, 
@@ -34,11 +34,13 @@ export default function RoomsTables() {
                 .from('rooms')
                 .select();
             if (error) {
+                setData(null);
                 console.log('Error');
             }
             if (data) {
                 console.log(data);
                 setData(data);
+                setErrorData(null);
             }
             
         }
@@ -50,9 +52,19 @@ export default function RoomsTables() {
 
     const table = useReactTable({
         data,
+        
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel()
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+            pagination: {
+                pageSize: 1,
+            }
+        }
     })
+    
+    if (!data || data.length === 0) {
+        return <div>Loading or no data available...</div>;
+    }
 
     return (
         //TO-DO: Avoid too much props para
@@ -71,20 +83,30 @@ export default function RoomsTables() {
                 </div>
                 <Table>
                     <TableBody>
-                        <TableRow className="hover:bg-transparent">
-                            <TableCell>
-                                <div className="flex flex-row justify-between">
-                                    {data?.map((items) => (
-                                        <RoomsCard 
-                                            key={items.room_id}
-                                            room_image={items.room_image} 
-                                            room_location={items.room_location}
-                                            room_name={items.room_name}
-                                        />
-                                    ))}
-                                </div>
-                            </TableCell>
-                        </TableRow>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell>
+                                        <div className="flex flex-row justify-between">
+                                            {data?.map((items) => (
+                                                <RoomsCard 
+                                                    key={items.room_id}
+                                                    room_image={items.room_image} 
+                                                    room_location={items.room_location}
+                                                    room_name={items.room_name}
+                                                />
+                                            ))}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
                 <div className="flex flex-row justify-end items-center">
