@@ -12,6 +12,7 @@ import UsersPage from './pages/UsersPage.jsx'
 import NavBarComponent from './components/navigation/NavBarComponent.jsx'
 import Root from './pages/Root.jsx'
 import RoomsAdd from './components/rooms/RoomsAdd'
+import RoomsDescription from './components/rooms/RoomsDescription'
 
 const router = createBrowserRouter([
   { path: '/',
@@ -44,7 +45,11 @@ const router = createBrowserRouter([
       {
         path: 'rooms_add',
         element: <RoomsAdd/>
-      }
+      },
+      {
+        path: 'rooms_description',
+        element: <RoomsDescription/>
+      },
     ]
   }
 ]);

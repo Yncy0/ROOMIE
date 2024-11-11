@@ -1,58 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import RoomsCard from "./RoomsCard";
-
 import { Navigate } from "react-router-dom";    
-import { 
-    useReactTable, 
-    getCoreRowModel, 
-    getPaginationRowModel
-} from "@tanstack/react-table";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableRow,
-} from "@/components/ui/table"
-import { 
-    ChevronRight, 
-    ChevronLeft, 
-    ChevronsRight,
-    ChevronsLeft,
-} from "lucide-react";
+import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft } from "lucide-react";
 import { supabase } from "@/supabaseClient";
 
 // export const RoomContext = React.createContext();
 
 export default function RoomsTables() {
-    const [data, setData] = React.useState(null);
-    const [errorData, setErrorData] = React.useState(null);
-    const [open, setOpen] = React.useState(false);
+    const [data, setData] = useState([]);
+    const [open, setOpen] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await supabase
+            const { data: fetchedData, error } = await supabase
                 .from('rooms')
                 .select();
             if (error) {
-                setData(null);
-                console.log('Error');
+                console.error('Error fetching data:', error);
+            } else {
+                setData(fetchedData || []);
             }
-            if (data) {
-                console.log(data);
-                setData(data);
-                setErrorData(null);
-            }
-            
-        }
+        };
 
         fetchData();
     }, []);
 
-    
+    const columns = React.useMemo(() => [
+        {
+            header: 'Rooms',
+            cell: ({ row }) => (
+                <div className="flex flex-row justify-between">
+                    {data.map((item) => (
+                        <RoomsCard 
+                            key={item.room_id}
+                            room_image={item.room_image}
+                            room_location={item.room_location}
+                            room_name={item.room_name}
+                        />
+                    ))}
+                </div>
+            ),
+        },
+    ], [data]);
 
     const table = useReactTable({
         data,
-        
+        columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         initialState: {
@@ -60,14 +55,13 @@ export default function RoomsTables() {
                 pageSize: 1,
             }
         }
-    })
-    
+    });
+
     if (!data || data.length === 0) {
         return <div>Loading or no data available...</div>;
     }
 
     return (
-        //TO-DO: Avoid too much props para
         <>
             <div className="flex flex-col bg-white px-8 py-8 round-box gap-4">
                 <h1 className="font-bold text-lg">St. Agustine Building</h1>
@@ -79,24 +73,15 @@ export default function RoomsTables() {
                             onClick={() => (setOpen(!open))}
                     >Add Room
                     </button>
-                    {open && (<Navigate to="/rooms_add"/>)}
+                    {open && (<Navigate to="/rooms_add" />)}
                 </div>
                 <Table>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow className="hover:bg-transparent">
+                                <TableRow key={row.id} className="hover:bg-transparent">
                                     <TableCell>
-                                        <div className="flex flex-row justify-between">
-                                            {data?.map((items) => (
-                                                <RoomsCard 
-                                                    key={items.room_id}
-                                                    room_image={items.room_image} 
-                                                    room_location={items.room_location}
-                                                    room_name={items.room_name}
-                                                />
-                                            ))}
-                                        </div>
+                                        {flexRender(row.getVisibleCells()[0].column.columnDef.cell, row.getVisibleCells()[0].getContext())}
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -110,28 +95,23 @@ export default function RoomsTables() {
                     </TableBody>
                 </Table>
                 <div className="flex flex-row justify-end items-center">
-                    <button onClick={() => table.setIndexPage(0)}>
-                        <ChevronsLeft/>
+                    <button onClick={() => table.setPageIndex(0)}>
+                        <ChevronsLeft />
                     </button>
                     <button onClick={() => table.previousPage()}>
-                        <ChevronLeft/>
+                        <ChevronLeft />
                     </button>
                     <span className="font-bold font-roboto">
                         {table.getState().pagination.pageIndex + 1}
                     </span>
                     <button onClick={() => table.nextPage()}>
-                        <ChevronRight/>
+                        <ChevronRight />
                     </button>
                     <button onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
-                        <ChevronsRight/>
+                        <ChevronsRight />
                     </button>
                 </div>
             </div>
-            
-            {/*DESCRIPTION LOADER*/}
-            {/* {data.map((element, _) => (
-                <RoomsDescription image={element.image} room={element.room} building={element.building} seats={element.seats} description={element.description}/>
-            ))} */}
         </>
     );
 }
