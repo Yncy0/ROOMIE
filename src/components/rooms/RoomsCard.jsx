@@ -6,7 +6,6 @@ import RoomsDescription from "./RoomsDescription";
 export default function RoomsCard({room_image, room_location, room_name}) {
     const navigate = useNavigate();
     
-    
     return (
         //round-box temporary
         <div className="flex flex-col bg-white gap-4">
@@ -16,7 +15,7 @@ export default function RoomsCard({room_image, room_location, room_name}) {
             {/*TO-DO: Add status icon*/}
             <p>Available</p>
             <button className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40"
-                    onClick={() => navigate("/rooms/rooms_description", {replace: true, state: {room_image, room_name} })}
+                    onClick={() => navigate("/rooms_description", {replace: true, state: {room_image, room_name} })}
                 >VIEW ROOM
             </button>
            

@@ -1,6 +1,6 @@
 import { supabase } from '@/supabaseClient';
 import React, { useState } from 'react';
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 
 function RoomsAdd() {
@@ -8,8 +8,7 @@ function RoomsAdd() {
     const [room_name, setRoomName] = useState("");
     const [room_description, setRoomDescription] = useState("");
     const [room_capacity, setRoomCapacity] = useState("");
-    const [room_location, setRoomLocation] = useState("");
-    const [close, setClose] = useState(false);
+    const [room_location, setRoomLocation] = useState("");  
     const [room_image, setRoomImage] = useState("");
 
     async function handleImageUpload() {
@@ -128,10 +127,9 @@ function RoomsAdd() {
                 onChange={(e) => setRoomLocation(e.target.value)}
             />
             <div className="flex flex-row justify-center gap-8 w-full">
-                <button onClick={() => setClose(!close)} className="bg-gray-100 w-full text-center p-2 rounded-md">
+                <button onClick={() => navigate("/rooms")} className="bg-gray-100 w-full text-center p-2 rounded-md">
                     Cancel
                 </button>
-                {close && <Navigate to="/rooms" />}
                 <button onClick={saveData} className="bg-[#2B32B2] text-white w-full text-center p-2 rounded-md">
                     Create
                 </button>

@@ -1,10 +1,9 @@
 import React from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function RoomsDescription({ room_name, room_location, room_capacity}) {
+export default function RoomsDescription({ room_location, room_capacity}) {
     const navigate = useNavigate();
     const location = useLocation(); 
-    console.log(location.state.room_image);
 
     return(
         //TO-DO: Back icon to the left
@@ -15,7 +14,7 @@ export default function RoomsDescription({ room_name, room_location, room_capaci
                     <h1>{location.state.room_name}</h1>
                     <h2>{room_location}</h2>
                     <p>{room_capacity}</p>
-                    <button>Edit Room Information</button>
+                    <button onClick={() => navigate("/rooms_edit")}>Edit Room Information</button>
                     <button onClick={() => navigate("/rooms")}>Exit</button>
                 </div>
             </div>
