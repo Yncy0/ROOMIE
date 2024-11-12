@@ -16,7 +16,7 @@ export default function RoomsDescription({ room_name, room_location, room_capaci
                     <h2>{room_location}</h2>
                     <p>{room_capacity}</p>
                     <button>Edit Room Information</button>
-                    <button onClick={navigate("/rooms")}>Exit</button>
+                    <button onClick={() => navigate("/rooms")}>Exit</button>
                 </div>
             </div>
             <h3>Room Description</h3>
