@@ -38,6 +38,8 @@ export default function RoomsTables() {
                             room_image={item.room_image}
                             room_location={item.room_location}
                             room_name={item.room_name}
+                            room_capacity={item.room_capacity}
+                            room_description={item.room_description}
                         />
                     ))}
                 </div>

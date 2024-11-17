@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import RoomsDescription from "./RoomsDescription";
 
 
-export default function RoomsCard({room_image, room_location, room_name}) {
+export default function RoomsCard({ room_image, room_location, room_name, room_capacity, room_description }) {
     const navigate = useNavigate();
     
     return (
@@ -15,7 +15,19 @@ export default function RoomsCard({room_image, room_location, room_name}) {
             {/*TO-DO: Add status icon*/}
             <p>Available</p>
             <button className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40"
-                    onClick={() => navigate("/rooms_description", {replace: true, state: {room_image, room_name} })}
+                    onClick={() => navigate("/rooms_description", 
+                                {
+                                    replace: true, 
+                                    state: 
+                                        {
+                                            room_image, 
+                                            room_name, 
+                                            room_location, 
+                                            room_capacity,
+                                            room_description,
+                                        } 
+                                })
+                            }
                 >VIEW ROOM
             </button>
            

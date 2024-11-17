@@ -1,15 +1,44 @@
 import { supabase } from '@/supabaseClient';
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 
-function RoomsAdd() {
+function RoomsEdit() {
     const navigate = useNavigate();
+    const { roomId } = useParams(); // Assuming the room ID is passed via route params
     const [room_name, setRoomName] = useState("");
     const [room_description, setRoomDescription] = useState("");
     const [room_capacity, setRoomCapacity] = useState("");
     const [room_location, setRoomLocation] = useState("");  
     const [room_image, setRoomImage] = useState("");
+    const [originalImage, setOriginalImage] = useState(""); // To handle image changes
+
+    useEffect(() => {
+        // Fetch room details for the given roomId
+        async function fetchRoomDetails() {
+            try {
+                const { data, error } = await supabase
+                    .from("rooms")
+                    .select("*")
+                    .eq("id", roomId)
+                    .single();
+
+                if (error) throw error;
+
+                setRoomName(data.room_name);
+                setRoomDescription(data.room_description);
+                setRoomCapacity(data.room_capacity);
+                setRoomLocation(data.room_location);
+                setRoomImage(data.room_image);
+                setOriginalImage(data.room_image);
+            } catch (error) {
+                console.error("Error fetching room details:", error);
+                alert("Error fetching room details: " + error.message);
+            }
+        }
+
+        fetchRoomDetails();
+    }, [roomId]);
 
     async function handleImageUpload() {
         try {
@@ -28,7 +57,7 @@ function RoomsAdd() {
             if (error) throw error;
 
             // Get public URL of the uploaded image
-            const { data: publicUrlData } = supabase.storage
+            const { data: publicUrlData } = await supabase.storage
                 .from('Rooms')
                 .getPublicUrl(filePath);
 
@@ -40,11 +69,11 @@ function RoomsAdd() {
         }
     }
 
-    async function saveData() {
+    async function updateData() {
         let finalImageUrl = room_image;
 
-        // Upload image if an image file was selected
-        if (!room_image.startsWith("http")) {
+        // Upload new image if an image file was selected
+        if (room_image !== originalImage && !room_image.startsWith("http")) {
             const uploadedImageUrl = await handleImageUpload();
             if (!uploadedImageUrl) return; // Stop if upload fails
             finalImageUrl = uploadedImageUrl;
@@ -53,27 +82,28 @@ function RoomsAdd() {
         try {
             const { data, error } = await supabase
                 .from("rooms")
-                .insert([{
+                .update({
                     room_name,
                     room_description,
                     room_capacity,
                     room_location,
                     room_image: finalImageUrl
-                }]);
+                })
+                .eq("id", roomId);
 
             if (error) throw error;
 
-            alert("Data saved successfully");
+            alert("Data updated successfully");
             navigate("/rooms");
         } catch (error) {
-            console.error("Error saving data:", error);
-            alert("Error saving data: " + error.message);
+            console.error("Error updating data:", error);
+            alert("Error updating data: " + error.message);
         }
     }
 
     return (
         <div className="round-box flex flex-col bg-white gap-4 p-4">
-            <h1 className="text-center font-bold text-lg">Create New Room</h1>
+            <h1 className="text-center font-bold text-lg">Edit Room</h1>
             <div className="flex justify-center">
                 <img 
                     src={room_image ? room_image : "src/assets/dummy/image-placeholder.png"} 
@@ -130,12 +160,12 @@ function RoomsAdd() {
                 <button onClick={() => navigate("/rooms")} className="bg-gray-100 w-full text-center p-2 rounded-md">
                     Cancel
                 </button>
-                <button onClick={saveData} className="bg-[#2B32B2] text-white w-full text-center p-2 rounded-md">
-                    Create
+                <button onClick={updateData} className="bg-[#2B32B2] text-white w-full text-center p-2 rounded-md">
+                    Update
                 </button>
             </div>
         </div>
     );
 }
 
-export default RoomsAdd;
+export default RoomsEdit;
