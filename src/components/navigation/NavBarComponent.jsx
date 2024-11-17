@@ -7,7 +7,7 @@ import { ChevronFirst, ChevronLast } from "lucide-react";
 
 
 export default function NavBarComponent() {
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [isOpen, setIsOpen] = React.useState(true);
     const [activeLink, setActiveLink] = React.useState(null);
 
     const openSideBar = () => {
@@ -34,8 +34,9 @@ export default function NavBarComponent() {
                             <Link 
                                 to={`/${nav.title.toLowerCase()}`}
                                 onClick={() => handleClick(index)}
-                                className={`flex flex-row items-center p-2 px-6 gap-4 hover:bg-gray-100 rounded-lg focus-visible:bg-gray-100 outline-none
-                                            ${activeLink === index ? "bg-[#2B32B2] text-white pointer-events-none" : "bg-white text-black"}`}
+                                className={`flex flex-row items-center p-2 px-6 gap-4 hover:bg-gray-100 rounded-lg 
+                                            focus-visible:bg-gray-100 outline-none`}
+                                // ${activeLink === index ? "bg-[#2B32B2] text-white pointer-events-none" : "bg-white text-black"}
                             >   
                                 <FontAwesomeIcon icon={Icon}/>
                                 <span className={` ${!isOpen ? "block" : "hidden"}`}>{nav.title}</span>

@@ -1,21 +1,36 @@
-import React from "react"
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import RoomsDescription from "./RoomsDescription";
 
-//MIGHT USE PROPS
-export default function RoomsCard(props) {
-    const image = props.image;
-    const building = props.building;
-    const room = props.room;
-    const status = props.status;
+
+export default function RoomsCard({ room_image, room_location, room_name, room_capacity, room_description }) {
+    const navigate = useNavigate();
     
     return (
         //round-box temporary
         <div className="flex flex-col bg-white gap-4">
-            <img src={image} alt="" className="w-80"/>
-            <p className="text-gray-400">{building}</p>
-            <h1 className="font-bold text-2xl">{room}</h1>
+            <img src={room_image} alt="" className="w-80"/>
+            <p className="text-gray-400">{room_location}</p>
+            <h1 className="font-bold text-2xl">{room_name}</h1>
             {/*TO-DO: Add status icon*/}
-            <p>{status}</p>
-            <button className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40">VIEW ROOM</button>
+            <p>Available</p>
+            <button className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40"
+                    onClick={() => navigate("/rooms_description", 
+                                {
+                                    replace: true, 
+                                    state: 
+                                        {
+                                            room_image, 
+                                            room_name, 
+                                            room_location, 
+                                            room_capacity,
+                                            room_description,
+                                        } 
+                                })
+                            }
+                >VIEW ROOM
+            </button>
+           
         </div>
     )
 }
