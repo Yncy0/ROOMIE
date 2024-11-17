@@ -20,8 +20,8 @@ export default function RoomsEdit() {
 
             if (error) throw error;
 
-            alert("User updated successfully");
-            navigate("/users"); 
+            alert("Rooms updated successfully");
+            navigate("/rooms_description"); 
         } catch (error) {
             console.error("Error saving data:", error);
             alert("Error saving user data: " + error.message);
