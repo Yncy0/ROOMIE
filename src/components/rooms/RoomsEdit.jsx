@@ -9,10 +9,10 @@ export default function RoomsEdit() {
             const { data, error } = await supabase
                 .from("rooms")
                 .update([{
-                    room_id,
+                    id,
                     room_name,
-                    room_location,
-                    room_description,
+                    room_building,
+                    room_type,
                     room_capacity,
                     room_image
                 }])
@@ -41,12 +41,12 @@ export default function RoomsEdit() {
                 value={location.state.room_name}
                 placeholder="Enter room here"
             />
-            <label htmlFor="">Room Description</label>
+            <label htmlFor="">Room Type</label>
             <input 
-                id="roomDescription" 
+                id="roomType" 
                 className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm" 
                 type="text" 
-                value={location.state.room_description}
+                value={location.state.room_type}
                 placeholder="Enter room description here"
             />
             <label htmlFor="">Room Capacity</label>

@@ -16,11 +16,12 @@ export default function RoomsTables() {
         const fetchData = async () => {
             const { data: fetchedData, error } = await supabase
                 .from('rooms')
-                .select();
+                .select('*');
             if (error) {
                 console.error('Error fetching data:', error);
             } else {
                 setData(fetchedData || []);
+                console.log({data})
             }
         };
 
@@ -34,12 +35,12 @@ export default function RoomsTables() {
                 <div className="flex flex-row justify-between">
                     {data.map((item) => (
                         <RoomsCard 
-                            key={item.room_id}
+                            key={item.id}
                             room_image={item.room_image}
-                            room_location={item.room_location}
+                            room_building={item.room_building}
                             room_name={item.room_name}
                             room_capacity={item.room_capacity}
-                            room_description={item.room_description}
+                            room_type={item.room_type}
                         />
                     ))}
                 </div>
@@ -52,11 +53,11 @@ export default function RoomsTables() {
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        initialState: {
-            pagination: {
-                pageSize: 1,
-            }
-        }
+        // initialState: {
+        //     pagination: {
+        //         pageSize: 1,
+        //     }
+        // }
     });
 
     if (!data || data.length === 0) {

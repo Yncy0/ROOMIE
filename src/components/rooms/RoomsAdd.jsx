@@ -7,9 +7,9 @@ function RoomsEdit() {
     const navigate = useNavigate();
     const { roomId } = useParams(); // Assuming the room ID is passed via route params
     const [room_name, setRoomName] = useState("");
-    const [room_description, setRoomDescription] = useState("");
+    const [room_type, setRoomType] = useState("");
     const [room_capacity, setRoomCapacity] = useState("");
-    const [room_location, setRoomLocation] = useState("");  
+    const [room_building, setRoomBuilding] = useState("");  
     const [room_image, setRoomImage] = useState("");
     const [originalImage, setOriginalImage] = useState(""); // To handle image changes
 
@@ -26,9 +26,9 @@ function RoomsEdit() {
                 if (error) throw error;
 
                 setRoomName(data.room_name);
-                setRoomDescription(data.room_description);
+                setRoomType(data.room_type);
                 setRoomCapacity(data.room_capacity);
-                setRoomLocation(data.room_location);
+                setRoomBuilding(data.room_building);
                 setRoomImage(data.room_image);
                 setOriginalImage(data.room_image);
             } catch (error) {
@@ -84,9 +84,9 @@ function RoomsEdit() {
                 .from("rooms")
                 .update({
                     room_name,
-                    room_description,
+                    room_type,
                     room_capacity,
-                    room_location,
+                    room_building,
                     room_image: finalImageUrl
                 })
                 .eq("id", roomId);
@@ -129,14 +129,14 @@ function RoomsEdit() {
                 placeholder="Enter room name here"
                 onChange={(e) => setRoomName(e.target.value)}
             />
-            <label htmlFor="roomDescription">Room Description</label>
+            <label htmlFor="roomType">Room Description</label>
             <input
-                id="roomDescription"
+                id="roomType"
                 className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm"
-                value={room_description}
+                value={room_type}
                 type="text"
                 placeholder="Enter room description here"
-                onChange={(e) => setRoomDescription(e.target.value)}
+                onChange={(e) => setRoomType(e.target.value)}
             />
             <label htmlFor="roomCapacity">Room Capacity</label>
             <input
@@ -151,10 +151,10 @@ function RoomsEdit() {
             <input
                 id="roomLocation"
                 className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-                value={room_location}
+                value={room_building}
                 type="text"
                 placeholder="Enter room location"
-                onChange={(e) => setRoomLocation(e.target.value)}
+                onChange={(e) => setRoomBuilding(e.target.value)}
             />
             <div className="flex flex-row justify-center gap-8 w-full">
                 <button onClick={() => navigate("/rooms")} className="bg-gray-100 w-full text-center p-2 rounded-md">
