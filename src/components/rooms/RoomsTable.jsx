@@ -16,7 +16,7 @@ export default function RoomsTables() {
         const fetchData = async () => {
             const { data: fetchedData, error } = await supabase
                 .from('rooms')
-                .select('*');
+                .select('*, building_id(*)');
             if (error) {
                 console.error('Error fetching data:', error);
             } else {
@@ -28,6 +28,7 @@ export default function RoomsTables() {
         fetchData();
     }, []);
 
+
     const columns = React.useMemo(() => [
         {
             header: 'Rooms',
@@ -37,7 +38,7 @@ export default function RoomsTables() {
                         <RoomsCard 
                             key={item.id}
                             room_image={item.room_image}
-                            room_building={item.room_building}
+                            room_building={item.building_id.building_name}
                             room_name={item.room_name}
                             room_capacity={item.room_capacity}
                             room_type={item.room_type}
