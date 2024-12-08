@@ -10,10 +10,17 @@ import ArchievesPage from './pages/ArchievesPage.jsx'
 import BacklogsPage from './pages/BacklogsPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import RoomsPage from './pages/RoomsPage.jsx'
+import SchedulePage from './pages/SchedulePage'
+import UserSchedulePage from './pages/UserSchedulePage'
 import UsersPage from './pages/UsersPage.jsx'
+import UserInfoSched from './components/users/userInfoSched'
+import UserAdd from './components/users/UserAdd'
+import UserEdit from './components/users/userEdit'
 import NavBarComponent from './components/navigation/NavBarComponent.jsx'
 import Root from './pages/Root.jsx'
 import RoomsAdd from './components/rooms/RoomsAdd'
+
+
 
 
 
@@ -30,10 +37,30 @@ const router = createBrowserRouter([
         path: 'dashboard',
         element: <DashboardPage/>,
       },
+      {
+        path: 'schedule',
+        element: <SchedulePage/>,
+      },
+      {
+        path: 'User Schedule',
+        element: <UserSchedulePage/>,
+      },
 
       {
         path: 'users',
         element: <UsersPage/>
+      },
+      {
+        path: 'user_info_sched',
+        element: <UserInfoSched/>
+      },
+      {
+        path: 'user_add',
+        element: <UserAdd/>
+      },
+      {
+        path: 'user_edit',
+        element: <UserEdit/>
       },
 
       {

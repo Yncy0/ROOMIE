@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from "react-router-dom";
-import supabase from "../supabaseConfig";
+import supabase from "../../supabaseConfig";
 import { v4 as uuidv4 } from 'uuid';
 
 function RoomsAdd() {
