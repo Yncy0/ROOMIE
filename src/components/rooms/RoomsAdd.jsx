@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import app from "../firebaseConfig";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
+import supabase from "../supabaseConfig";
+import { v4 as uuidv4 } from "uuid";
 
 function RoomsAdd() {
   const navigate = useNavigate();
