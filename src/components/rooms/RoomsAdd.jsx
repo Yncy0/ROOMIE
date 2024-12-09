@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 function RoomsAdd() {
     const navigate = useNavigate();
     const [room_name, setRoomName] = useState("");
-    const [room_description, setRoomDescription] = useState("");
+    const [room_type, setRoomType] = useState("");
     const [room_capacity, setRoomCapacity] = useState("");
-    const [room_location, setRoomLocation] = useState("");
+    const [room_building, setRoomBuilding] = useState("");
     const [close, setClose] = useState(false);
     const [room_image, setRoomImage] = useState("");
 
@@ -56,7 +56,7 @@ function RoomsAdd() {
                 .from("rooms")
                 .insert([{
                     room_name,
-                    room_description,
+                    room_type,
                     room_capacity,
                     room_location,
                     room_image: finalImageUrl
