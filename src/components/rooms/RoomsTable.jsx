@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft } from "lucide-react";
-import { supabase } from "@/supabaseClient";
+import supabase from "@/supabaseConfig";
 
 // export const RoomContext = React.createContext();
 

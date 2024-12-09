@@ -45,7 +45,29 @@ const UserSchedulePage = () => {
       try {
         const { data, error } = await supabase
         .from('booked_rooms')
-        .select(' * , room_id( *, building_id( * ) ,schedule_id( * , user_id( * , subject_id( * ))))');
+        .select(`
+          *,
+          rooms(
+            *,
+            id,
+            building (
+              *,
+              id
+            ),
+            schedule(
+              *,
+              id,
+              users(
+                *,
+                id,
+                subject(
+                  *,
+                  id
+                )
+              )
+            )
+          )
+        `);
            
           
 

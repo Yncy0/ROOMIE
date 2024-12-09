@@ -50,7 +50,7 @@ export default function UsersPage() {
             try {
                 const { data: users, error } = await supabase
                     .from('users')
-                    .select('user_id, user_name, user_email, user_role, user_department, login_time'); // Select all columns
+                    .select('*'); // Select all columns
 
                 if (error) {
                     console.error('Error fetching data:', error);
