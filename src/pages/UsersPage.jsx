@@ -8,7 +8,7 @@ import {
     useReactTable,
     getCoreRowModel,
     flexRender,
-    getPaginationRowModel
+    getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
     Table,
@@ -31,96 +31,71 @@ import { useNavigate } from "react-router-dom";
 export default function UsersPage() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
+    const fetchUsers = async () => {
+        try {
+            const { data: users, error } = await supabase
+                .from("users")
+                .select("user_id, user_name, user_email, user_role, user_department, login_time");
+
+            if (error) {
+                console.error("Error fetching users:", error);
+            } else {
+                setData(users || []);
+            }
+        } catch (error) {
+            console.error("Unexpected error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const handleEditUser = (event, user) => {
-        event.stopPropagation(); // Prevent the row click event from firing
+        event.stopPropagation(); // Prevent row click from firing
         navigate("/user_edit", { state: { user } });
     };
 
     const handleRowClick = (user) => {
-    navigate("/user_info_sched", { state: { user } }); // Replace with your desired route
-};
+        navigate("/user_info_sched", { state: { user } });
+    };
 
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data: users, error } = await supabase
-                    .from('users')
-                    .select('user_id, user_name, user_email, user_role, user_department, login_time'); // Select all columns
-
-                if (error) {
-                    console.error('Error fetching data:', error);
-                    return;
-                }
-
-
-                setData(users);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching data from Supabase:', error);
-                setLoading(false);
-            }
-        };
-
-
-        fetchData();
-    }, []);
-
-    const columns = React.useMemo(() => [
-        {
-            header: 'UserID',
-            accessorKey: 'user_id'
-        },
-        {
-            header: 'Name',
-            accessorKey: 'user_name'
-        },
-        {
-            header: 'Email',
-            accessorKey: 'user_email'
-        },
-        {
-            header: 'Role',
-            accessorKey: 'user_role'
-        },
-        {
-            header: 'Department',
-            accessorKey: 'user_department'
-        },
-        {
-            header: 'Last Login',
-            accessorKey: 'login_time'
-        },
-
-
-        {
-    
-                header: 'Edit User',
-                accessorKey: 'editUser',
+    const columns = React.useMemo(
+        () => [
+            { header: "UserID", accessorKey: "user_id" },
+            { header: "Name", accessorKey: "user_name" },
+            { header: "Email", accessorKey: "user_email" },
+            { header: "Role", accessorKey: "user_role" },
+            { header: "Department", accessorKey: "user_department" },
+            { header: "Last Login", accessorKey: "login_time" },
+            {
+                header: "Edit User",
+                accessorKey: "edit_user",
                 cell: ({ row }) => (
                     <button
-                        onClick={(event) => handleEditUser(event, row.original)} // Pass the event
+                        onClick={(event) => handleEditUser(event, row.original)}
                         className="border-solid border-2 border-[#2B32B2] py-1 w-28 text-center rounded-[50px] text-[#2B32B2] font-medium"
                     >
                         Edit
                     </button>
-                )
-            
-        },
-        {
-            header: 'Delete User',
-            accessorKey: 'delete user',
-            cell: ({ row }) => (
-                <button className="border-solid border-2 border-red-500 py-1 w-28 text-center rounded-[50px] text-red-500 font-medium">
-                    Delete
-                </button>
-            )
-        }
-    ], []);
+                ),
+            },
+            {
+                header: "Delete User",
+                accessorKey: "delete_user",
+                cell: ({ row }) => (
+                    <button className="border-solid border-2 border-red-500 py-1 w-28 text-center rounded-[50px] text-red-500 font-medium">
+                        Delete
+                    </button>
+                ),
+            },
+        ],
+        []
+    );
 
     const table = useReactTable({
         data,
@@ -129,18 +104,12 @@ export default function UsersPage() {
         getPaginationRowModel: getPaginationRowModel(),
     });
 
-
     const handleAddUserClick = () => {
-        setOpen(true);
         navigate("/user_add");
     };
 
-
-
-
-
     if (loading) {
-        return <div>Loading...</div>; // Show loading text while fetching data
+        return <div>Loading...</div>;
     }
 
     return (
@@ -154,7 +123,6 @@ export default function UsersPage() {
                         Filter
                     </button>
                 </div>
-                {/* Handle the Add User button click to navigate */}
                 <button
                     onClick={handleAddUserClick}
                     className="bg-[#6EB229] text-white text-sm py-2 px-8 rounded-[50px]"
@@ -163,13 +131,12 @@ export default function UsersPage() {
                 </button>
             </div>
 
-            {/* TO-DO: TABLE */}
             <div className="round-box p-6">
                 <Table>
                     <TableHeader>
-                        {table.getHeaderGroups().map(headerGroup => (
+                        {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map(header => (
+                                {headerGroup.headers.map((header) => (
                                     <TableHead key={header.id}>
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                     </TableHead>
@@ -182,7 +149,7 @@ export default function UsersPage() {
                             <TableRow
                                 key={row.id}
                                 className="cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleRowClick(row.original)} // Add the onClick handler
+                                onClick={() => handleRowClick(row.original)}
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
@@ -192,8 +159,6 @@ export default function UsersPage() {
                             </TableRow>
                         ))}
                     </TableBody>
-
-
                 </Table>
                 <div className="flex flex-row justify-end items-center py-4 px-14">
                     <button onClick={() => table.setPageIndex(0)}>

@@ -26,49 +26,63 @@ const SchedulePage = () => {
   const [scheduleData, setScheduleData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterType, setFilterType] = useState("All"); // Store selected filter type
-  const [selectedFilterValue, setSelectedFilterValue] = useState(""); // Store the selected filter value
-  const [roomOptions, setRoomOptions] = useState([]); // Store available rooms for search
-  const [userOptions, setUserOptions] = useState([]); // Store available users for search
-  const [sectionOptions, setSectionOptions] = useState([]); // Store available sections for search
-  const [statusOptions, setStatusOptions] = useState(["Incoming", "In Progress", "Complete", "Cancelled"]); // Status options
+  const [filterType, setFilterType] = useState("All");
+  const [selectedFilterValue, setSelectedFilterValue] = useState("");
+  const [roomOptions, setRoomOptions] = useState([]);
+  const [userOptions, setUserOptions] = useState([]);
+  const [sectionOptions, setSectionOptions] = useState([]);
+  const [statusOptions] = useState(["Incoming", "In Progress", "Complete", "Cancelled"]);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      // Fetch data from Supabase
-      const { data, error } = await supabase
-      .from('booked_rooms')
-      .select(' * , room_id( *, building_id( * ) ,schedule_id( * , user_id( * , subject_id( * ))))');
-         
+      try {
+        // Fetch data from Supabase based on the provided schema
+        const { data, error } = await supabase
+          .from("booking")
+          .select(`
+            booking_id,
+            created_at,
+            time_in,
+            time_out,
+            subject_code,
+            section,
+            rooms (
+              room_id,
+              room_name,
+              room_description,
+              room_capacity,
+              room_location
+            ),
+            users (*)
+            
+            
+          `);
 
-      if (error) {
-        console.error("Error fetching data:", error);
+        if (error) {
+          console.error("Error fetching data:", error);
+          setIsLoading(false);
+          return;
+        }
+
+        const transformedData = transformData(data);
+        setScheduleData(transformedData);
+        setFilteredData(transformedData);
+
+        // Extract unique options for filters
+        const rooms = Array.from(new Set(data.map((item) => item.rooms?.room_name || "Unknown")));
+        const users = Array.from(new Set(data.map((item) => item.schedule?.users?.user_name || "Unknown")));
+        const sections = Array.from(new Set(data.map((item) => item.section || "Unknown")));
+
+        setRoomOptions(rooms);
+        setUserOptions(users);
+        setSectionOptions(sections);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      } finally {
         setIsLoading(false);
-        return;
       }
-
-      const transformedData = transformData(data);
-      setScheduleData(transformedData);
-      setFilteredData(transformedData); // Initially show all data
-
-      // Collect unique options for filter fields
-
-
-
-
-
-      
-      const rooms = Array.from(new Set(data.map((item) => item.room_name)));
-      const users = Array.from(new Set(data.map((item) => item.users?.user_name || "Unknown")));
-      const sections = Array.from(new Set(data.map((item) => item.section)));
-
-      setRoomOptions(rooms);
-      setUserOptions(users);
-      setSectionOptions(sections);
-
-      setIsLoading(false);
     };
 
     fetchData();
@@ -76,36 +90,23 @@ const SchedulePage = () => {
 
   const transformData = (data) =>
     data.map((item) => {
-      const dateFormat = "YYYY/MM/DD";
-      const timeFormat = "H:mm:ss";
-
-      const startDateString = `${item.date} ${item.time_in}`;
-      const endDateString = `${item.date} ${item.time_out}`;
-
-      const startDate = dayjs
-        .tz(startDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila")
-        .toDate();
-      const endDate = dayjs
-        .tz(endDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila")
-        .toDate();
-
-      const timeIn = dayjs(item.time_in, timeFormat).format("h:mm A");
-      const timeOut = dayjs(item.time_out, timeFormat).format("h:mm A");
+      const startDate = dayjs(item.time_in).toDate();
+      const endDate = dayjs(item.time_out).toDate();
 
       return {
-        event_id: item.id, // Use item.id as unique identifier
+        event_id: item.booking_id || "N/A",
         start: startDate,
         end: endDate,
-        title: item.room_id.room_name,
-        subtitle: `Professor: ${item.users?.user_name || "Unknown"}`,
-        color: getColorBasedOnStatus(item.status),
-        status: item.status,
-        room_name: item.room_id.room_name,
-        section: item.section,
-        user_name: item.users?.user_name || "Unknown",
-        time_in: item.room_id.schedule_id.time_in,
-        time_out: item.room_id.schedule_id.time_out,
-        subject_code: item.subject?.subject_code,
+        title: item.rooms?.room_name || "Unknown Room",
+        subtitle: `Professor: ${item.schedule?.users?.user_name || "Unknown"}`,
+        color: getColorBasedOnStatus(item.status || "Unknown"),
+        status: item.status || "Unknown",
+        room_name: item.rooms?.room_name || "Unknown Room",
+        section: item.section || "Unknown Section",
+        username: item.schedule?.users?.user_name || "Unknown",
+        time_in: item.schedule?.time_in || "N/A",
+        time_out: item.schedule?.time_out || "N/A",
+        subject_code: item.subject_code || "N/A",
       };
     });
 
@@ -124,69 +125,60 @@ const SchedulePage = () => {
     }
   };
 
-  // Handle filter type change
   const handleFilterTypeChange = (event) => {
     setFilterType(event.target.value);
-    setSelectedFilterValue(""); // Reset the selected value for a new filter type
+    setSelectedFilterValue("");
   };
 
-  // Handle the filter value change (searchable dropdown or text input)
   const handleFilterValueChange = (event, newValue) => {
     setSelectedFilterValue(newValue);
     applyFilter(filterType, newValue);
   };
 
-  // Apply the filter based on the selected filter type and value
   const applyFilter = (filterCriteria, value) => {
     let filtered = scheduleData;
-  
+
     if (filterCriteria === "All") {
-      // Reset to show all data when "All" is selected
       setFilteredData(scheduleData);
     } else {
-      // Apply filters based on filter type
-      if (filterCriteria === "User") {
-        filtered = filtered.filter((event) => event.user_name.toLowerCase().includes(value.toLowerCase()));
-      } else if (filterCriteria === "Room Name") {
-        filtered = filtered.filter((event) => event.room_name.toLowerCase().includes(value.toLowerCase()));
-      } else if (filterCriteria === "Section") {
-        filtered = filtered.filter((event) => event.section.toLowerCase().includes(value.toLowerCase()));
-      } else if (filterCriteria === "Status") {
-        filtered = filtered.filter((event) => event.status.toLowerCase().includes(value.toLowerCase()));
-      } else if (filterCriteria === "ID") {
-        filtered = filtered.filter((event) => event.id.toString().includes(value));
-      }
-  
+      filtered = filtered.filter((event) => {
+        if (filterCriteria === "User") {
+          return event.username.toLowerCase().includes(value.toLowerCase());
+        } else if (filterCriteria === "Room Name") {
+          return event.room_name.toLowerCase().includes(value.toLowerCase());
+        } else if (filterCriteria === "Section") {
+          return event.section.toLowerCase().includes(value.toLowerCase());
+        } else if (filterCriteria === "Status") {
+          return event.status.toLowerCase().includes(value.toLowerCase());
+        } else if (filterCriteria === "ID") {
+          return event.event_id.toString().includes(value);
+        }
+        return false;
+      });
       setFilteredData(filtered);
     }
   };
 
-  // Custom Event Card Renderer
-  const CustomEventCard = (event) => {
-    return (
-      <Tooltip
-        title={`Room: ${event.room_name} \nSubject: ${event.subject_code} \nTime: ${event.time_in} - ${event.time_out} \nProfessor: ${event.user_name}`}
-        arrow
-      >
-        <Card sx={{ backgroundColor: event.color, margin: "5px", padding: "10px" }}>
-          <CardContent>
-            <Typography variant="h6" component="div">{event.room_name}</Typography>
-            <Typography variant="body2">{event.subject_code}</Typography>
-            <Typography variant="body2">{`Professor: ${event.user_name}`}</Typography>
-            <Typography variant="body2">{`Time: ${event.time_in} - ${event.time_out}`}</Typography>
-          </CardContent>
-        </Card>
-      </Tooltip>
-    );
-  };
+  const CustomEventCard = (event) => (
+    <Tooltip
+      title={`Room: ${event.room_name}\nSubject: ${event.subject_code}\nTime: ${event.time_in} - ${event.time_out}\nProfessor: ${event.user_name}`}
+      arrow
+    >
+      <Card sx={{ backgroundColor: event.color, margin: "5px", padding: "10px" }}>
+        <CardContent>
+          <Typography variant="h6" component="div">{event.room_name}</Typography>
+          <Typography variant="body2">{event.subject_code}</Typography>
+          <Typography variant="body2">{`Professor: ${event.username}`}</Typography>
+          <Typography variant="body2">{`Time: ${event.time_in} - ${event.time_out}`}</Typography>
+        </CardContent>
+      </Card>
+    </Tooltip>
+  );
 
   return (
     <Box sx={{ padding: 3, color: "black" }}>
-
-      {/* Filter Section */}
       <Box sx={{ marginBottom: 3 }}>
         <Typography variant="h6">Filter by</Typography>
-
         <TextField
           select
           fullWidth
@@ -202,7 +194,6 @@ const SchedulePage = () => {
           <MenuItem value="Status">Status</MenuItem>
         </TextField>
 
-        {/* Filter Input based on filter type */}
         {filterType === "Room Name" && (
           <Autocomplete
             fullWidth
@@ -244,7 +235,6 @@ const SchedulePage = () => {
         )}
       </Box>
 
-      {/* Main Content */}
       <Box sx={{ padding: "20px", marginTop: 5 }}>
         <Typography variant="h5" gutterBottom>
           Room Schedule
@@ -258,16 +248,16 @@ const SchedulePage = () => {
             events={filteredData}
             loading={isLoading}
             week={{
-              startHour: 7.0, // 7:00 AM
-              endHour: 22.0, // 10:00 PM
-              step: 60, // 60-minute intervals (1 hour)
+              startHour: 7.0,
+              endHour: 22.0,
+              step: 60,
             }}
             day={{
-              startHour: 7.0, // 7:00 AM
-              endHour: 22.0, // 10:00 PM
-              step: 60, // 60-minute intervals (1 hour)
+              startHour: 7.0,
+              endHour: 22.0,
+              step: 60,
             }}
-            eventRender={CustomEventCard} // Custom event card rendering
+            eventRenderer={CustomEventCard}
           />
         )}
       </Box>

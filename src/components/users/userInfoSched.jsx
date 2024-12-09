@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// Import required modules
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import supabase from "../../supabaseConfig";
 
@@ -28,7 +29,6 @@ function UserInfoSched({ userInfo, bookedRooms, onAddBookedRoom }) {
             </div>
 
             {/* Booked Room Card */}
-
             <div className="flex-1 bg-white shadow-md rounded-lg p-6 relative">
                 <h2 className="text-xl font-bold mb-4">Booked Rooms</h2>
                 <button
@@ -43,7 +43,6 @@ function UserInfoSched({ userInfo, bookedRooms, onAddBookedRoom }) {
                             <th className="border border-gray-200 px-4 py-2">Room Name</th>
                             <th className="border border-gray-200 px-4 py-2">Subject Code</th>
                             <th className="border border-gray-200 px-4 py-2">Class</th>
-                            <th className="border border-gray-200 px-4 py-2">Date</th>
                             <th className="border border-gray-200 px-4 py-2">Time In</th>
                             <th className="border border-gray-200 px-4 py-2">Time Out</th>
                         </tr>
@@ -55,7 +54,6 @@ function UserInfoSched({ userInfo, bookedRooms, onAddBookedRoom }) {
                                     <td className="border border-gray-200 px-4 py-2">{room.room_name}</td>
                                     <td className="border border-gray-200 px-4 py-2">{room.subject_code}</td>
                                     <td className="border border-gray-200 px-4 py-2">{room.section}</td>
-                                    <td className="border border-gray-200 px-4 py-2">{room.date}</td>
                                     <td className="border border-gray-200 px-4 py-2">{room.time_in}</td>
                                     <td className="border border-gray-200 px-4 py-2">{room.time_out}</td>
                                 </tr>
@@ -79,32 +77,48 @@ function AddBookedRoomModal({ userId, onClose, onSuccess }) {
     const [roomName, setRoomName] = useState("");
     const [subjectCode, setSubjectCode] = useState("");
     const [section, setSection] = useState("");
-    const [date, setDate] = useState("");
     const [timeIn, setTimeIn] = useState("");
     const [timeOut, setTimeOut] = useState("");
+    const [date, setDate] = useState(""); // Date input to combine with time
 
     const handleAddRoom = async () => {
         try {
-            const { error } = await supabase
-                .from("booked_rooms")
+            // Validate inputs
+            if (!roomName || !subjectCode || !section || !timeIn || !timeOut || !date) {
+                alert("All fields are required.");
+                return;
+            }
+
+            // Format timestamps correctly (combine date and time)
+            const formattedTimeIn = `${date}T${timeIn}:00`;
+            const formattedTimeOut = `${date}T${timeOut}:00`;
+
+            // Insert into Supabase table
+            const { data, error } = await supabase
+                .from("booking")
                 .insert([
                     {
                         user_id: userId,
-                        room_name: roomName,
+                        room_id: roomsId,
                         subject_code: subjectCode,
                         section: section,
-                        date: date,
-                        time_in: timeIn,
-                        time_out: timeOut,
+                        time_in: formattedTimeIn,  // Directly use time_in (timestamp)
+                        time_out: formattedTimeOut,  // Directly use time_out (timestamp)
                     },
                 ]);
 
-            if (error) throw error;
-            alert("Successfully booked!");
+            if (error) {
+                console.error("Supabase insert error:", error);
+                alert(`Failed to add room: ${error.message}`);
+                return;
+            }
+
+            alert("Room successfully booked!");
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Error adding room:", error.message);
+            console.error("Unexpected error:", error);
+            alert("An unexpected error occurred. Please try again.");
         }
     };
 
@@ -216,8 +230,8 @@ function App() {
                 setUserInfo(userInfo);
 
                 const { data: bookedRooms } = await supabase
-                    .from("booked_rooms")
-                    .select("room_name, subject_code, date, time_in, time_out")
+                    .from("booking")
+                    .select("room_id, subject_code, section, time_in, time_out")
                     .eq("user_id", user.user_id);
 
                 setBookedRooms(bookedRooms || []);
@@ -231,10 +245,19 @@ function App() {
         fetchUserInfoAndRooms();
     }, [location.state?.user, navigate]);
 
-    const handleAddRoomSuccess = () => {
+    const handleAddRoomSuccess = async () => {
+        try {
+            const { data: updatedRooms, error } = await supabase
+                .from("booking")
+                .select("room_id, subject_code, section, time_in, time_out")
+                .eq("user_id", userInfo.user_id);
+
+            if (error) throw error;
+            setBookedRooms(updatedRooms || []);
+        } catch (error) {
+            console.error("Error refreshing booked rooms:", error.message);
+        }
         setShowModal(false);
-        // Refresh bookings
-        setBookedRooms([...bookedRooms]); // or re-fetch
     };
 
     if (loading) return <div className="text-center mt-6">Loading...</div>;
