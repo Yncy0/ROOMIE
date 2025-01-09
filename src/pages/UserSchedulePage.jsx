@@ -229,14 +229,35 @@ const UserSchedulePage = () => {
     // Prepare the data for insertion
     const formattedData = { ...formData, user_id: user.user_id };
   
-    // Separate the logic for booking and schedule
+    // Calculate status based on date and time
+    const now = dayjs(); // Current time
+    let status = "Pending"; // Default status
+  
     if (modalType === "booking") {
-      // Ensure 'weekday' is removed and 'date' is validated
       if (!formattedData.date) {
         alert("Date is required for bookings.");
         return;
       }
-      delete formattedData.weekday;
+  
+      const startDateTime = dayjs(
+        `${formattedData.date} ${formattedData.time_in}`,
+        "YYYY-MM-DD HH:mm"
+      );
+      const endDateTime = dayjs(
+        `${formattedData.date} ${formattedData.time_out}`,
+        "YYYY-MM-DD HH:mm"
+      );
+  
+      if (now.isBefore(startDateTime)) {
+        status = "Incoming";
+      } else if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
+        status = "In Progress";
+      } else if (now.isAfter(endDateTime)) {
+        status = "Complete";
+      }
+  
+      formattedData.status = status;
+      delete formattedData.weekday; // Ensure 'weekday' is not included in booking data
   
       const { error } = await supabase.from("booking").insert([formattedData]);
       if (error) {
@@ -246,12 +267,39 @@ const UserSchedulePage = () => {
         closeModal();
       }
     } else if (modalType === "schedule") {
-      // Ensure 'date' is removed and 'weekday' is validated
       if (!formattedData.weekday) {
         alert("Weekday is required for schedules.");
         return;
       }
-      delete formattedData.date;
+  
+      const todayWeekday = dayjs().format("dddd");
+      const isToday = todayWeekday === formattedData.weekday;
+  
+      if (isToday) {
+        const startDateTime = dayjs(
+          `${todayWeekday} ${formattedData.time_in}`,
+          "dddd HH:mm"
+        );
+        const endDateTime = dayjs(
+          `${todayWeekday} ${formattedData.time_out}`,
+          "dddd HH:mm"
+        );
+  
+        if (now.isBefore(startDateTime)) {
+          status = "Incoming";
+        } else if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
+          status = "In Progress";
+        } else if (now.isAfter(endDateTime)) {
+          status = "Complete";
+        }
+      } else if (now.isBefore(dayjs().day(dayjs().day(formattedData.weekday)))) {
+        status = "Incoming";
+      } else {
+        status = "Complete";
+      }
+  
+      formattedData.status = status;
+      delete formattedData.date; // Ensure 'date' is not included in schedule data
   
       const { error } = await supabase.from("schedule").insert([formattedData]);
       if (error) {
@@ -262,6 +310,7 @@ const UserSchedulePage = () => {
       }
     }
   };
+  
   
 
   return (
