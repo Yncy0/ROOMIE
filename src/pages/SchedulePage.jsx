@@ -37,78 +37,164 @@ const SchedulePage = () => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      try {
-        // Fetch data from Supabase based on the provided schema
-        const { data, error } = await supabase
-          .from("booking")
-          .select(`
-            booking_id,
-            created_at,
-            time_in,
-            time_out,
-            subject_code,
-            section,
-            rooms (
-              room_id,
-              room_name,
-              room_description,
-              room_capacity,
-              room_location
-            ),
-            users (*)
-            
-            
-          `);
+      // Fetch data from "booking" table
+      const { data: bookingData, error: bookingError } = await supabase
+        .from("booking")
+        .select(
+          `rooms (room_name),
+          subject_code,
+          section,
+          time_in,
+          time_out,
+          status, 
+          date, 
+          users (user_name)`
+        );
 
-        if (error) {
-          console.error("Error fetching data:", error);
-          setIsLoading(false);
-          return;
-        }
-
-        const transformedData = transformData(data);
-        setScheduleData(transformedData);
-        setFilteredData(transformedData);
-
-        // Extract unique options for filters
-        const rooms = Array.from(new Set(data.map((item) => item.rooms?.room_name || "Unknown")));
-        const users = Array.from(new Set(data.map((item) => item.schedule?.users?.user_name || "Unknown")));
-        const sections = Array.from(new Set(data.map((item) => item.section || "Unknown")));
-
-        setRoomOptions(rooms);
-        setUserOptions(users);
-        setSectionOptions(sections);
-      } catch (error) {
-        console.error("Unexpected error:", error);
-      } finally {
+      if (bookingError) {
+        console.error("Error fetching booking data:", bookingError);
         setIsLoading(false);
+        return;
       }
+
+      // Fetch data from "schedule" table
+      const { data: scheduleData, error: scheduleError } = await supabase
+        .from("schedule")
+        .select(
+          `rooms (room_name),
+          subject_code,
+          section,
+          time_in,
+          time_out,
+          status,
+          weekday,
+          users (user_name)`
+        );
+
+      if (scheduleError) {
+        console.error("Error fetching schedule data:", scheduleError);
+        setIsLoading(false);
+        return;
+      }
+
+      const transformedBookingData = transformBookingData(bookingData);
+      const transformedScheduleData = transformScheduleData(scheduleData);
+
+      const combinedData = [...transformedBookingData, ...transformedScheduleData];
+      setScheduleData(combinedData);
+      setFilteredData(combinedData);
+
+      const rooms = Array.from(new Set(combinedData.map((item) => item.room_name || "Unknown")));
+      const users = Array.from(new Set(combinedData.map((item) => item.user_name || "Unknown")));
+      const sections = Array.from(new Set(combinedData.map((item) => item.section || "Unknown")));
+
+      setRoomOptions(rooms);
+      setUserOptions(users);
+      setSectionOptions(sections);
+      setIsLoading(false);
     };
 
     fetchData();
   }, []);
 
-  const transformData = (data) =>
+  const transformBookingData = (data) =>
     data.map((item) => {
-      const startDate = dayjs(item.time_in).toDate();
-      const endDate = dayjs(item.time_out).toDate();
+      const dateFormat = "YYYY/MM/DD";
+      const timeFormat = "H:mm:ss";
+
+      const startDateString = item.date && item.time_in ? `${item.date} ${item.time_in}` : null;
+      const endDateString = item.date && item.time_out ? `${item.date} ${item.time_out}` : null;
+
+      const startDate = startDateString
+        ? dayjs.tz(startDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila").toDate()
+        : null;
+      const endDate = endDateString
+        ? dayjs.tz(endDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila").toDate()
+        : null;
 
       return {
-        event_id: item.booking_id || "N/A",
+        event_id: `${item.rooms?.room_name || "Unknown"}-${item.date || "Unknown"}`,
         start: startDate,
         end: endDate,
         title: item.rooms?.room_name || "Unknown Room",
-        subtitle: `Professor: ${item.schedule?.users?.user_name || "Unknown"}`,
-        color: getColorBasedOnStatus(item.status || "Unknown"),
-        status: item.status || "Unknown",
+        subtitle: `Prof. ${item.users?.user_name || "Unknown"}`,
+        color: getColorBasedOnStatus(item.status),
+        status: item.status,
         room_name: item.rooms?.room_name || "Unknown Room",
-        section: item.section || "Unknown Section",
-        username: item.schedule?.users?.user_name || "Unknown",
-        time_in: item.schedule?.time_in || "N/A",
-        time_out: item.schedule?.time_out || "N/A",
-        subject_code: item.subject_code || "N/A",
+        section: item.section || "Unknown",
+        user_name: item.users?.user_name || "Unknown",
+        time_in: item.time_in || "Unknown",
+        time_out: item.time_out || "Unknown",
+        subject_code: item.subject_code || "Unknown",
+        weekday: startDate ? dayjs(startDate).format("dddd") : "Unknown",
       };
     });
+
+  const transformScheduleData = (data) => {
+    const weekdayToDates = (weekday) => {
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const targetDayIndex = weekdays.indexOf(weekday);
+    
+      if (targetDayIndex === -1) {
+        throw new Error("Invalid weekday provided");
+      }
+    
+      const currentYear = dayjs().year(); // Get the current year
+      const firstDayOfYear = dayjs(`${currentYear}-01-01`);
+      const lastDayOfYear = dayjs(`${currentYear}-12-31`);
+    
+      let currentDay = firstDayOfYear;
+      const dates = [];
+    
+      // Loop through all the days in the year
+      while (currentDay.isBefore(lastDayOfYear) || currentDay.isSame(lastDayOfYear)) {
+        if (currentDay.day() === targetDayIndex) {
+          dates.push(currentDay.toDate());
+        }
+        currentDay = currentDay.add(1, "day");
+      }
+    
+      return dates;
+    };
+
+    return data.flatMap((item) => {
+      const timeFormat = "H:mm:ss";
+      const dates = weekdayToDates(item.weekday); // Get dates for the specified weekday
+
+      return dates.map((baseDate) => {
+        const startDateString = item.time_in
+          ? `${dayjs(baseDate).format("YYYY-MM-DD")} ${item.time_in}`
+          : null;
+        const endDateString = item.time_out
+          ? `${dayjs(baseDate).format("YYYY-MM-DD")} ${item.time_out}`
+          : null;
+
+        const startDate = startDateString
+          ? dayjs.tz(startDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila").toDate()
+          : null;
+        const endDate = endDateString
+          ? dayjs.tz(endDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila").toDate()
+          : null;
+
+        return {
+          event_id: `${item.rooms?.room_name || "Unknown"}-${item.weekday || "Unknown"}-${baseDate}`,
+          start: startDate,
+          end: endDate,
+          title: item.rooms?.room_name || "Unknown Room",
+          subtitle: `Prof. ${item.users?.user_name || "Unknown"}`,
+          color: getColorBasedOnStatus(item.status),
+          status: item.status || "Unknown",
+          room_name: item.rooms?.room_name || "Unknown Room",
+          section: item.section || "Unknown",
+          user_name: item.users?.user_name || "Unknown",
+          time_in: item.time_in || "Unknown",
+          time_out: item.time_out || "Unknown",
+          subject_code: item.subject_code || "Unknown",
+          weekday: item.weekday || "Unknown",
+        };
+      });
+    });
+  };
 
   const getColorBasedOnStatus = (status) => {
     switch (status) {
@@ -141,44 +227,51 @@ const SchedulePage = () => {
     if (filterCriteria === "All") {
       setFilteredData(scheduleData);
     } else {
-      filtered = filtered.filter((event) => {
-        if (filterCriteria === "User") {
-          return event.username.toLowerCase().includes(value.toLowerCase());
-        } else if (filterCriteria === "Room Name") {
-          return event.room_name.toLowerCase().includes(value.toLowerCase());
-        } else if (filterCriteria === "Section") {
-          return event.section.toLowerCase().includes(value.toLowerCase());
-        } else if (filterCriteria === "Status") {
-          return event.status.toLowerCase().includes(value.toLowerCase());
-        } else if (filterCriteria === "ID") {
-          return event.event_id.toString().includes(value);
-        }
-        return false;
-      });
-      setFilteredData(filtered);
+      if (filterCriteria === "User") {
+        filtered = filtered.filter((event) =>
+          event.user_name.toLowerCase().includes(value.toLowerCase())
+        );
+      } else if (filterCriteria === "Room Name") {
+        filtered = filtered.filter((event) =>
+          event.room_name.toLowerCase().includes(value.toLowerCase())
+        );
+      } else if (filterCriteria === "Section") {
+        filtered = filtered.filter((event) =>
+          event.section.toLowerCase().includes(value.toLowerCase())
+        );
+      } else if (filterCriteria === "Status") {
+        filtered = filtered.filter((event) =>
+          event.status.toLowerCase().includes(value.toLowerCase())
+        );
+      }
     }
+
+    setFilteredData(filtered);
   };
 
-  const CustomEventCard = (event) => (
-    <Tooltip
-      title={`Room: ${event.room_name}\nSubject: ${event.subject_code}\nTime: ${event.time_in} - ${event.time_out}\nProfessor: ${event.user_name}`}
-      arrow
-    >
-      <Card sx={{ backgroundColor: event.color, margin: "5px", padding: "10px" }}>
-        <CardContent>
-          <Typography variant="h6" component="div">{event.room_name}</Typography>
-          <Typography variant="body2">{event.subject_code}</Typography>
-          <Typography variant="body2">{`Professor: ${event.username}`}</Typography>
-          <Typography variant="body2">{`Time: ${event.time_in} - ${event.time_out}`}</Typography>
-        </CardContent>
-      </Card>
-    </Tooltip>
-  );
+  const CustomEventCard = (event) => {
+    return (
+      <Tooltip
+        title={`Room: ${event.room_name} \nSubject: ${event.subject_code} \nTime: ${event.time_in} - ${event.time_out} \nProfessor: ${event.user_name}`}
+        arrow
+      >
+        <Card sx={{ backgroundColor: event.color, color: "black", margin: "5px", padding: "10px" }}>
+          <CardContent>
+            <Typography variant="h6" component="div">{event.room_name}</Typography>
+            <Typography variant="body2">{event.subject_code}</Typography>
+            <Typography variant="body2">{`Professor: ${event.user_name}`}</Typography>
+            <Typography variant="body2">{`Time: ${event.time_in} - ${event.time_out}`}</Typography>
+          </CardContent>
+        </Card>
+      </Tooltip>
+    );
+  };
 
   return (
     <Box sx={{ padding: 3, color: "black" }}>
       <Box sx={{ marginBottom: 3 }}>
         <Typography variant="h6">Filter by</Typography>
+
         <TextField
           select
           fullWidth
@@ -257,7 +350,7 @@ const SchedulePage = () => {
               endHour: 22.0,
               step: 60,
             }}
-            eventRenderer={CustomEventCard}
+            eventRender={CustomEventCard}
           />
         )}
       </Box>

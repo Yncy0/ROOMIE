@@ -83,44 +83,49 @@ function AddBookedRoomModal({ userId, onClose, onSuccess }) {
 
     const handleAddRoom = async () => {
         try {
-            // Validate inputs
             if (!roomName || !subjectCode || !section || !timeIn || !timeOut || !date) {
-                alert("All fields are required.");
+                alert("Please fill in all fields.");
                 return;
             }
-
-            // Format timestamps correctly (combine date and time)
+    
             const formattedTimeIn = `${date}T${timeIn}:00`;
             const formattedTimeOut = `${date}T${timeOut}:00`;
-
-            // Insert into Supabase table
+    
+            const { data: roomData, error: roomError } = await supabase
+                .from("rooms")
+                .select("room_id")
+                .eq("room_name", "roomName")
+                .single();
+    
+            if (roomError || !roomData) {
+                alert("Invalid room name. Please try again.");
+                return;
+            }
+    
             const { data, error } = await supabase
                 .from("booking")
                 .insert([
                     {
                         user_id: userId,
-                        room_id: roomsId,
+                        room_id: roomData.room_id,
                         subject_code: subjectCode,
                         section: section,
-                        time_in: formattedTimeIn,  // Directly use time_in (timestamp)
-                        time_out: formattedTimeOut,  // Directly use time_out (timestamp)
+                        time_in: formattedTimeIn,
+                        time_out: formattedTimeOut,
                     },
                 ]);
-
-            if (error) {
-                console.error("Supabase insert error:", error);
-                alert(`Failed to add room: ${error.message}`);
-                return;
-            }
-
+    
+            if (error) throw error;
+    
             alert("Room successfully booked!");
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Unexpected error:", error);
-            alert("An unexpected error occurred. Please try again.");
+            console.error("Error adding room:", error);
+            alert("Failed to book the room. Please try again.");
         }
     };
+    
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
