@@ -330,7 +330,7 @@ const SchedulePage = () => {
 
       <Box sx={{ padding: "20px", marginTop: 5 }}>
         <Typography variant="h5" gutterBottom>
-          Room Schedule
+           Schedule
         </Typography>
 
         {isLoading ? (
