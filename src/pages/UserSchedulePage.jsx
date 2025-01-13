@@ -24,12 +24,15 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Fab,
 } from "@mui/material";
 import supabase from "../supabaseConfig";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import PrintIcon from "@mui/icons-material/Print"; // Import the print icon
+import PrintablePage from './PrintablePage';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -59,6 +62,7 @@ const UserSchedulePage = () => {
   const [rooms, setRooms] = useState([]);
   const [userInfo, setUserInfo] = useState({});
   const [allUsers, setAllUsers] = useState([]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,6 +211,18 @@ const UserSchedulePage = () => {
       weekday: "",
     });
   };
+  const handlePrint = () => {
+    const printContent = document.getElementById("printableContent"); // Get the printable content
+    const printWindow = window.open("", "_blank", "width=800,height=600"); // Open a new window
+    printWindow.document.write("<html><head><title>Print</title>");
+    printWindow.document.write("<style>@media print { body { font-family: Arial, sans-serif; font-size: 12px; } }</style>");
+    printWindow.document.write("<body>");
+    printWindow.document.write(printContent.innerHTML); // Write the content to the print window
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.print(); // Trigger print dialog
+  };
+
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -341,6 +357,11 @@ const UserSchedulePage = () => {
             >
               {selectedUser} Information
             </Typography>
+
+            {/* Printable Content Wrapper */}
+      <div id="printableContent" className="printable-content">
+        <PrintablePage selectedUser={selectedUser} userInfo={userInfo} scheduleData={scheduleData} />
+      </div>
             <Tabs value={activeTab} onChange={handleTabChange} sx={{ marginBottom: 2 }}>
               <Tab label="User Info" />
               <Tab label="Booking Info" />
@@ -530,6 +551,19 @@ const UserSchedulePage = () => {
           </Box>
         )}
       </Box>
+       {/* Floating Action Button (FAB) for printing */}
+       <Fab
+        color="primary"
+        aria-label="print"
+        sx={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+        }}
+        onClick={handlePrint} // Make sure the function is correctly referenced
+      >
+        <PrintIcon />
+      </Fab>
 
       {/* Modal for adding data */}
       <Modal open={modalOpen} onClose={closeModal}>
@@ -638,6 +672,27 @@ const UserSchedulePage = () => {
           </Button>
         </Box>
       </Modal>
+            {/* Print styles */}
+      <style>
+        {`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .printable-content, .printable-content * {
+              visibility: visible;
+            }
+            .printable-content {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+            }
+          }
+        `}
+      </style>
+  
+
     </Box>
   );
 };
