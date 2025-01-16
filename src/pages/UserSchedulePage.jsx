@@ -57,12 +57,15 @@ const UserSchedulePage = () => {
     room_id: "",
     user_id: "",
     weekday: "",
+    schedule_id: "",
+    booking_id: "",
   });
 
   const [rooms, setRooms] = useState([]);
   const [userInfo, setUserInfo] = useState({});
   const [allUsers, setAllUsers] = useState([]);
-  
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,7 +84,7 @@ const UserSchedulePage = () => {
       const { data: scheduleData, error: scheduleError } = await supabase
         .from("schedule")
         .select(
-          "rooms (*), subject_code, section, time_in, time_out, status, weekday, users (user_name, user_email, user_department, user_id)"
+          "*, rooms (*), subject_code, section, time_in, time_out, status, weekday, users (user_name, user_email, user_department, user_id)"
         );
 
 
@@ -94,7 +97,7 @@ const UserSchedulePage = () => {
       const { data: bookingData, error: bookingError } = await supabase
         .from("booking")
         .select(
-          "rooms (*), subject_code, section, time_in, time_out, status, date, users (user_name, user_email, user_department, user_id)"
+          "*, rooms (*), subject_code, section, time_in, time_out, status, date, users (user_name, user_email, user_department, user_id)"
         );
 
 
@@ -141,8 +144,7 @@ const UserSchedulePage = () => {
   const transformData = (data) =>
     data.map((item) => {
       return {
-        event_id: `${item.rooms?.room_name || "Unknown"}-${item.weekday || "Unknown"
-          }`,
+        event_id: `${item.rooms?.room_name || "Unknown"}-${item.weekday || "Unknown"}`,
         start: item.time_in
           ? dayjs
             .tz(`${item.weekday} ${item.time_in}`, "dddd H:mm", "Asia/Manila")
@@ -150,11 +152,7 @@ const UserSchedulePage = () => {
           : null,
         end: item.time_out
           ? dayjs
-            .tz(
-              `${item.weekday} ${item.time_out}`,
-              "dddd H:mm",
-              "Asia/Manila"
-            )
+            .tz(`${item.weekday} ${item.time_out}`, "dddd H:mm", "Asia/Manila")
             .toDate()
           : null,
         room_name: item.rooms?.room_name || "Unknown Room",
@@ -169,9 +167,10 @@ const UserSchedulePage = () => {
         id: item.users?.user_id || "Unknown ID",
         date: item.date,
         status: item.status || "Pending",
+        schedule_id: item.schedule_id || "",  // Include schedule_id for schedules
+        booking_id: item.booking_id || "",    // Include booking_id for bookings
       };
     });
-
   const handleUserSelection = (user) => {
     setSelectedUser(user);
     const selectedUserInfo = allUsers.find((item) => item.user_name === user);
@@ -193,24 +192,40 @@ const UserSchedulePage = () => {
     setActiveTab(newValue);
   };
 
-  const openModal = (type) => {
+  const openModal = (type, event) => {
     setModalType(type);
-    setModalOpen(true); // Ensure this is executed properly to open the modal
+
+    if (event) {
+      setSelectedEvent(event); // Set selected event for editing
+      setFormData({
+        room_id: event.room_id,
+        subject_code: event.subject_code,
+        section: event.section,
+        date: event.date || "", // Optional for schedules
+        time_in: event.time_in,
+        time_out: event.time_out,
+        weekday: event.weekday || "", // Optional for bookings
+      });
+    } else {
+      setSelectedEvent(null); // Reset for adding new data
+      setFormData({
+        subject_code: "",
+        section: "",
+        date: "",
+        time_in: "",
+        time_out: "",
+        room_id: "",
+        user_id: "",
+        weekday: "",
+      });
+    }
+
+    setModalOpen(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setFormData({
-      subject_code: "",
-      section: "",
-      date: "",
-      time_in: "",
-      time_out: "",
-      room_id: "",
-      user_id: "",
-      weekday: "",
-    });
-  };
+
+
+
   const handlePrint = () => {
     const printContent = document.getElementById("printableContent"); // Get the printable content
     const printWindow = window.open("", "_blank", "width=800,height=600"); // Open a new window
@@ -229,105 +244,186 @@ const UserSchedulePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = async () => {
-    if (!selectedUser) {
-      alert("Please select a user first.");
+const handleFormSubmit = async () => {
+  if (!selectedUser) {
+    alert("Please select a user first.");
+    return;
+  }
+
+  // Find the user by user_name and validate user_id
+  const user = allUsers.find((item) => item.user_name === selectedUser);
+  if (!user || !user.user_id) {
+    console.error("Error: User ID is missing or invalid.");
+    return;
+  }
+
+  // Prepare the formatted data with the user_id included
+  const formattedData = { ...formData, user_id: user.user_id };
+
+  // Variable to hold action result message
+  let actionResult;
+
+  // Validate for overlaps
+  const hasConflict = await checkForConflicts(formattedData, modalType);
+  if (hasConflict) {
+    alert("Conflict detected: Overlapping schedule or booking in the same room and time slot.");
+    return;
+  }
+
+  if (modalType === "booking") {
+    // Validate date for booking
+    if (!formattedData.date) {
+      alert("Date is required for bookings.");
       return;
     }
-  
-    const user = allUsers.find((item) => item.user_name === selectedUser);
-  
-    if (!user || !user.user_id) {
-      console.error("Error: User ID is missing or invalid.");
+
+    const startDateTime = dayjs(`${formattedData.date} ${formattedData.time_in}`, "YYYY-MM-DD HH:mm");
+    const endDateTime = dayjs(`${formattedData.date} ${formattedData.time_out}`, "YYYY-MM-DD HH:mm");
+
+    // Calculate status for booking based on current time
+    formattedData.status = dayjs().isBefore(startDateTime)
+      ? "Incoming"
+      : dayjs().isBefore(endDateTime)
+        ? "In Progress"
+        : "Complete";
+
+    // Remove weekday field for booking (since booking doesn't need it)
+    delete formattedData.weekday;
+
+    if (selectedEvent) {
+      const { error } = await supabase
+        .from("booking")
+        .update(formattedData)
+        .eq("booking_id", selectedEvent.booking_id);
+      actionResult = error ? `Error updating booking: ${error.message}` : "Booking updated successfully";
+    } else {
+      const { data, error } = await supabase.from("booking").insert([formattedData]);
+      if (error) {
+        actionResult = `Error adding booking: ${error.message}`;
+      } else if (data && data.length > 0) {
+        const newBookingId = data[0].booking_id;
+        actionResult = "Booking added successfully. ID: " + newBookingId;
+      } else {
+        actionResult = "Booking added successfully!";
+      }
+    }
+  } else if (modalType === "schedule") {
+    if (!formattedData.weekday) {
+      alert("Weekday is required for schedules.");
       return;
     }
-  
-    // Prepare the data for insertion
-    const formattedData = { ...formData, user_id: user.user_id };
-  
-    // Calculate status based on date and time
-    const now = dayjs(); // Current time
-    let status = "Pending"; // Default status
-  
-    if (modalType === "booking") {
-      if (!formattedData.date) {
-        alert("Date is required for bookings.");
-        return;
-      }
-  
-      const startDateTime = dayjs(
-        `${formattedData.date} ${formattedData.time_in}`,
-        "YYYY-MM-DD HH:mm"
-      );
-      const endDateTime = dayjs(
-        `${formattedData.date} ${formattedData.time_out}`,
-        "YYYY-MM-DD HH:mm"
-      );
-  
-      if (now.isBefore(startDateTime)) {
-        status = "Incoming";
-      } else if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
-        status = "In Progress";
-      } else if (now.isAfter(endDateTime)) {
-        status = "Complete";
-      }
-  
-      formattedData.status = status;
-      delete formattedData.weekday; // Ensure 'weekday' is not included in booking data
-  
-      const { error } = await supabase.from("booking").insert([formattedData]);
+
+    delete formattedData.date;
+
+    const todayWeekday = dayjs().format("dddd");
+    const isToday = todayWeekday === formattedData.weekday;
+
+    if (isToday) {
+      const startDateTime = dayjs(`${todayWeekday} ${formattedData.time_in}`, "dddd HH:mm");
+      const endDateTime = dayjs(`${todayWeekday} ${formattedData.time_out}`, "dddd HH:mm");
+
+      formattedData.status = dayjs().isBefore(startDateTime)
+        ? "Incoming"
+        : dayjs().isBefore(endDateTime)
+          ? "In Progress"
+          : "Complete";
+    } else {
+      formattedData.status = dayjs().isBefore(dayjs().day(formattedData.weekday)) ? "Incoming" : "Complete";
+    }
+
+    if (selectedEvent) {
+      const { error } = await supabase
+        .from("schedule")
+        .update(formattedData)
+        .eq("schedule_id", selectedEvent.schedule_id);
+      actionResult = error ? `Error updating schedule: ${error.message}` : "Schedule updated successfully";
+    } else {
+      const { data, error } = await supabase.from("schedule").insert([formattedData]);
       if (error) {
-        console.error("Error adding booking:", error);
+        actionResult = `Error adding schedule: ${error.message}`;
+      } else if (data && data.length > 0) {
+        const newScheduleId = data[0].schedule_id;
+        actionResult = "Schedule added successfully. ID: " + newScheduleId;
       } else {
-        alert("Booking added successfully");
-        closeModal();
+        actionResult = "Schedule added successfully!";
       }
-    } else if (modalType === "schedule") {
-      if (!formattedData.weekday) {
-        alert("Weekday is required for schedules.");
-        return;
-      }
+    }
+  }
+
+  alert(actionResult);
+  closeModal();
+};
+
+const checkForConflicts = async (data, type) => {
+  const { room_id, date, weekday, time_in, time_out } = data;
+
+  const query = supabase
+    .from(type === "booking" ? "booking" : "schedule")
+    .select("*")
+    .eq("room_id", room_id);
+
+  if (type === "booking") {
+    query.eq("date", date);
+  } else {
+    query.eq("weekday", weekday);
+  }
+
+  const { data: existingRecords, error } = await query;
+  if (error) {
+    console.error("Error checking for conflicts:", error.message);
+    return false; // Assume no conflict if the query fails
+  }
+
+  return existingRecords.some((record) => {
+    const recordStart = dayjs(record.time_in, "HH:mm");
+    const recordEnd = dayjs(record.time_out, "HH:mm");
+    const newStart = dayjs(time_in, "HH:mm");
+    const newEnd = dayjs(time_out, "HH:mm");
+
+    return (
+      (newStart.isBetween(recordStart, recordEnd, null, "[)")) ||
+      (newEnd.isBetween(recordStart, recordEnd, null, "(]")) ||
+      (newStart.isSameOrBefore(recordStart) && newEnd.isSameOrAfter(recordEnd))
+    );
+  });
+};
+
   
-      const todayWeekday = dayjs().format("dddd");
-      const isToday = todayWeekday === formattedData.weekday;
   
-      if (isToday) {
-        const startDateTime = dayjs(
-          `${todayWeekday} ${formattedData.time_in}`,
-          "dddd HH:mm"
-        );
-        const endDateTime = dayjs(
-          `${todayWeekday} ${formattedData.time_out}`,
-          "dddd HH:mm"
-        );
+  const closeModal = () => {
+    setModalOpen(false);
+    setFormData({
+      subject_code: "",
+      section: "",
+      date: "",
+      time_in: "",
+      time_out: "",
+      room_id: "",
+      user_id: "",
+      weekday: "",
+    });
+  };
   
-        if (now.isBefore(startDateTime)) {
-          status = "Incoming";
-        } else if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
-          status = "In Progress";
-        } else if (now.isAfter(endDateTime)) {
-          status = "Complete";
-        }
-      } else if (now.isBefore(dayjs().day(dayjs().day(formattedData.weekday)))) {
-        status = "Incoming";
-      } else {
-        status = "Complete";
-      }
-  
-      formattedData.status = status;
-      delete formattedData.date; // Ensure 'date' is not included in schedule data
-  
-      const { error } = await supabase.from("schedule").insert([formattedData]);
+  // Add Function
+  const add = async (dataToAdd, table) => {
+    try {
+      const { data, error } = await supabase.from(table).insert([dataToAdd]);
       if (error) {
-        console.error("Error adding schedule:", error);
-      } else {
-        alert("Schedule added successfully");
-        closeModal();
+        console.error(`Error adding to ${table}:`, error.message);
+        alert(`Error adding to ${table}: ${error.message}`);
+        return null;
       }
+      alert(`Successfully added to ${table}.`);
+      return data[0];
+    } catch (err) {
+      console.error("Unexpected error in add function:", err.message);
+      alert("Unexpected error. Please try again.");
+      return null;
     }
   };
   
-  
+const [showIdColumn, setShowIdColumn] = useState(false); // State to control visibility of the ID column
+
 
   return (
     <Box sx={{ padding: 3, color: "black", display: "flex" }}>
@@ -359,9 +455,9 @@ const UserSchedulePage = () => {
             </Typography>
 
             {/* Printable Content Wrapper */}
-      <div id="printableContent" className="printable-content">
-        <PrintablePage selectedUser={selectedUser} userInfo={userInfo} scheduleData={scheduleData} />
-      </div>
+            <div id="printableContent" className="printable-content">
+              <PrintablePage selectedUser={selectedUser} userInfo={userInfo} scheduleData={scheduleData} />
+            </div>
             <Tabs value={activeTab} onChange={handleTabChange} sx={{ marginBottom: 2 }}>
               <Tab label="User Info" />
               <Tab label="Booking Info" />
@@ -442,117 +538,103 @@ const UserSchedulePage = () => {
                 </CardContent>
               </Card>
             )}
-            {activeTab === 1 && (
-              <Card>
-                <CardContent>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                      Booking Information
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => openModal("booking")}
-                    >
-                      Add Booking
-                    </Button>
-                  </Box>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Room Name</TableCell>
-                          <TableCell>Subject Code</TableCell>
-                          <TableCell>Section</TableCell>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Time</TableCell>
-                          <TableCell>Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {bookingData
-                          .filter((event) => event.user_name === selectedUser)
-                          .map((event, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{event.room_name}</TableCell>
-                              <TableCell>{event.subject_code}</TableCell>
-                              <TableCell>{event.section}</TableCell>
-                              <TableCell>{event.date}</TableCell>
-                              <TableCell>
-                                {`${event.time_in} - ${event.time_out}`}
-                              </TableCell>
-                              <TableCell>{event.status}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            )}
-            {activeTab === 2 && (
-              <Card>
-                <CardContent>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                      Schedule Information
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => openModal("schedule")}
-                    >
-                      Add Schedule
-                    </Button>
-                  </Box>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Room Name</TableCell>
-                          <TableCell>Subject Code</TableCell>
-                          <TableCell>Section</TableCell>
-                          <TableCell>Weekday</TableCell>
-                          <TableCell>Time</TableCell>
-                          <TableCell>Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {scheduleData
-                          .filter((event) => event.user_name === selectedUser)
-                          .map((event, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{event.room_name}</TableCell>
-                              <TableCell>{event.subject_code}</TableCell>
-                              <TableCell>{event.section}</TableCell>
-                              <TableCell>{event.weekday}</TableCell>
-                              <TableCell>
-                                {`${event.time_in} - ${event.time_out}`}
-                              </TableCell>
-                              <TableCell>{event.status}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            )}
+            
+           {activeTab === 1 && (
+  <Card>
+    <CardContent>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          Booking Information
+        </Typography>
+        <Button variant="contained" color="primary" onClick={() => openModal("booking")}>
+          Add Booking
+        </Button>
+      </Box>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead>
+            <TableRow>
+              {showIdColumn && <TableCell>Booking ID</TableCell>} {/* Conditionally render Booking ID */}
+              <TableCell>Room Name</TableCell>
+              <TableCell>Subject Code</TableCell>
+              <TableCell>Section</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bookingData
+              .filter((event) => event.user_name === selectedUser)
+              .map((event, index) => (
+                <TableRow key={index} onClick={() => openModal("booking", event)}>
+                  {showIdColumn && <TableCell>{event.booking_id}</TableCell>} {/* Conditionally render Booking ID */}
+                  <TableCell>{event.room_name}</TableCell>
+                  <TableCell>{event.subject_code}</TableCell>
+                  <TableCell>{event.section}</TableCell>
+                  <TableCell>{event.date}</TableCell>
+                  <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
+                  <TableCell>{event.status}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </CardContent>
+  </Card>
+)}
+
+{activeTab === 2 && (
+  <Card>
+    <CardContent>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          Schedule Information
+        </Typography>
+        <Button variant="contained" color="primary" onClick={() => openModal("schedule")}>
+          Add Schedule
+        </Button>
+      </Box>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead>
+            <TableRow>
+              {showIdColumn && <TableCell>Schedule ID</TableCell>} {/* Conditionally render Schedule ID */}
+              <TableCell>Room Name</TableCell>
+              <TableCell>Subject Code</TableCell>
+              <TableCell>Section</TableCell>
+              <TableCell>Weekday</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {scheduleData
+              .filter((event) => event.user_name === selectedUser)
+              .map((event, index) => (
+                <TableRow key={index} onClick={() => openModal("schedule", event)}>
+                  {showIdColumn && <TableCell>{event.schedule_id}</TableCell>} {/* Conditionally render Schedule ID */}
+                  <TableCell>{event.room_name}</TableCell>
+                  <TableCell>{event.subject_code}</TableCell>
+                  <TableCell>{event.section}</TableCell>
+                  <TableCell>{event.weekday}</TableCell>
+                  <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
+                  <TableCell>{event.status}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </CardContent>
+  </Card>
+)}
+
+
           </Box>
         )}
       </Box>
-       {/* Floating Action Button (FAB) for printing */}
-       <Fab
+      {/* Floating Action Button (FAB) for printing */}
+      <Fab
         color="primary"
         aria-label="print"
         sx={{
@@ -583,6 +665,28 @@ const UserSchedulePage = () => {
           <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
             Add {modalType === "booking" ? "Booking" : "Schedule"}
           </Typography>
+
+          {/* Display ID (non-editable) */}
+          {modalType === "booking" && selectedEvent && (
+            <TextField
+              label="Booking ID"
+              value={selectedEvent.booking_id}
+              fullWidth
+              disabled
+              sx={{ marginBottom: 2 }}
+            />
+          )}
+          {modalType === "schedule" && selectedEvent && (
+            <TextField
+              label="Schedule ID"
+              value={selectedEvent.schedule_id}
+              fullWidth
+              disabled
+              sx={{ marginBottom: 2 }}
+            />
+          )}
+
+          {/* Rest of the modal form */}
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
             <InputLabel>Room</InputLabel>
             <Select
@@ -597,6 +701,7 @@ const UserSchedulePage = () => {
               ))}
             </Select>
           </FormControl>
+
           <TextField
             label="Subject Code"
             name="subject_code"
@@ -672,7 +777,8 @@ const UserSchedulePage = () => {
           </Button>
         </Box>
       </Modal>
-            {/* Print styles */}
+
+      {/* Print styles */}
       <style>
         {`
           @media print {
@@ -691,7 +797,7 @@ const UserSchedulePage = () => {
           }
         `}
       </style>
-  
+
 
     </Box>
   );
