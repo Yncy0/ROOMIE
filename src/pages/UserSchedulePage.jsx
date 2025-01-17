@@ -37,6 +37,10 @@ import PrintablePage from './PrintablePage';
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
+import isBetween from "dayjs/plugin/isBetween";
+dayjs.extend(isBetween);
+import isoWeek from "dayjs/plugin/isoWeek"; 
+dayjs.extend(isoWeek); 
 
 const UserSchedulePage = () => {
   const [scheduleData, setScheduleData] = useState([]);
@@ -97,7 +101,7 @@ const UserSchedulePage = () => {
       const { data: bookingData, error: bookingError } = await supabase
         .from("booking")
         .select(
-          "*, rooms (*), subject_code, section, time_in, time_out, status, date, users (user_name, user_email, user_department, user_id)"
+          "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, users (user_name, user_email, user_department, user_id)"
         );
 
 
@@ -244,151 +248,293 @@ const UserSchedulePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleFormSubmit = async () => {
-  if (!selectedUser) {
-    alert("Please select a user first.");
-    return;
-  }
-
-  // Find the user by user_name and validate user_id
-  const user = allUsers.find((item) => item.user_name === selectedUser);
-  if (!user || !user.user_id) {
-    console.error("Error: User ID is missing or invalid.");
-    return;
-  }
-
-  // Prepare the formatted data with the user_id included
-  const formattedData = { ...formData, user_id: user.user_id };
-
-  // Variable to hold action result message
-  let actionResult;
-
-  // Validate for overlaps
-  const hasConflict = await checkForConflicts(formattedData, modalType);
-  if (hasConflict) {
-    alert("Conflict detected: Overlapping schedule or booking in the same room and time slot.");
-    return;
-  }
-
-  if (modalType === "booking") {
-    // Validate date for booking
-    if (!formattedData.date) {
-      alert("Date is required for bookings.");
+  const handleFormSubmit = async () => {
+    // Check if a user is selected
+    if (!selectedUser) {
+      alert("Please select a user first.");
       return;
     }
-
-    const startDateTime = dayjs(`${formattedData.date} ${formattedData.time_in}`, "YYYY-MM-DD HH:mm");
-    const endDateTime = dayjs(`${formattedData.date} ${formattedData.time_out}`, "YYYY-MM-DD HH:mm");
-
-    // Calculate status for booking based on current time
-    formattedData.status = dayjs().isBefore(startDateTime)
-      ? "Incoming"
-      : dayjs().isBefore(endDateTime)
-        ? "In Progress"
-        : "Complete";
-
-    // Remove weekday field for booking (since booking doesn't need it)
-    delete formattedData.weekday;
-
-    if (selectedEvent) {
-      const { error } = await supabase
-        .from("booking")
-        .update(formattedData)
-        .eq("booking_id", selectedEvent.booking_id);
-      actionResult = error ? `Error updating booking: ${error.message}` : "Booking updated successfully";
-    } else {
-      const { data, error } = await supabase.from("booking").insert([formattedData]);
-      if (error) {
-        actionResult = `Error adding booking: ${error.message}`;
-      } else if (data && data.length > 0) {
-        const newBookingId = data[0].booking_id;
-        actionResult = "Booking added successfully. ID: " + newBookingId;
-      } else {
-        actionResult = "Booking added successfully!";
+  
+    // Find the user by user_name and validate user_id
+    const user = allUsers.find((item) => item.user_name === selectedUser);
+    if (!user || !user.user_id) {
+      console.error("Error: User ID is missing or invalid.");
+      return;
+    }
+  
+    // Prepare the formatted data with the user_id included
+    const formattedData = { ...formData, user_id: user.user_id };
+  
+    // Automatically set weekday for bookings based on the selected date
+    if (modalType === "booking" && formattedData.date) {
+      const bookingWeekday = dayjs(formattedData.date).format("dddd");
+      formattedData.weekday = bookingWeekday; // Set the weekday automatically
+    }
+  
+   // Validate for conflicts
+   const conflictMessage = await checkScheduleBookingConflict(formattedData);
+   if (conflictMessage) {
+     alert(conflictMessage); // Show the conflict message from checkScheduleBookingConflict
+     return; // Stop further execution
+   }
+  
+    let actionResult;
+  
+    if (modalType === "booking") {
+      // Validate date for booking
+      if (!formattedData.date) {
+        alert("Date is required for bookings.");
+        return;
       }
-    }
-  } else if (modalType === "schedule") {
-    if (!formattedData.weekday) {
-      alert("Weekday is required for schedules.");
-      return;
-    }
-
-    delete formattedData.date;
-
-    const todayWeekday = dayjs().format("dddd");
-    const isToday = todayWeekday === formattedData.weekday;
-
-    if (isToday) {
-      const startDateTime = dayjs(`${todayWeekday} ${formattedData.time_in}`, "dddd HH:mm");
-      const endDateTime = dayjs(`${todayWeekday} ${formattedData.time_out}`, "dddd HH:mm");
-
+  
+      const startDateTime = dayjs(`${formattedData.date} ${formattedData.time_in}`, "YYYY-MM-DD HH:mm");
+      const endDateTime = dayjs(`${formattedData.date} ${formattedData.time_out}`, "YYYY-MM-DD HH:mm");
+  
+      // Calculate status for booking based on current time
       formattedData.status = dayjs().isBefore(startDateTime)
         ? "Incoming"
         : dayjs().isBefore(endDateTime)
           ? "In Progress"
           : "Complete";
-    } else {
-      formattedData.status = dayjs().isBefore(dayjs().day(formattedData.weekday)) ? "Incoming" : "Complete";
-    }
-
-    if (selectedEvent) {
-      const { error } = await supabase
-        .from("schedule")
-        .update(formattedData)
-        .eq("schedule_id", selectedEvent.schedule_id);
-      actionResult = error ? `Error updating schedule: ${error.message}` : "Schedule updated successfully";
-    } else {
-      const { data, error } = await supabase.from("schedule").insert([formattedData]);
-      if (error) {
-        actionResult = `Error adding schedule: ${error.message}`;
-      } else if (data && data.length > 0) {
-        const newScheduleId = data[0].schedule_id;
-        actionResult = "Schedule added successfully. ID: " + newScheduleId;
+  
+      // Remove weekday field for booking (since booking doesn't need it in this step)
+      // Comment or remove this line to ensure the weekday is saved
+      // delete formattedData.weekday;
+  
+      if (selectedEvent) {
+        const { error } = await supabase
+          .from("booking")
+          .update(formattedData)
+          .eq("booking_id", selectedEvent.booking_id);
+        actionResult = error ? `Error updating booking: ${error.message}` : "Booking updated successfully";
       } else {
-        actionResult = "Schedule added successfully!";
+        const { data, error } = await supabase.from("booking").insert([formattedData]);
+        if (error) {
+          actionResult = `Error adding booking: ${error.message}`;
+        } else if (data && data.length > 0) {
+          const newBookingId = data[0].booking_id;
+          actionResult = "Booking added successfully. ID: " + newBookingId;
+        } else {
+          actionResult = "Booking added successfully!";
+        }
+      }
+    } else if (modalType === "schedule") {
+      // Existing schedule logic remains the same
+      if (!formattedData.weekday) {
+        alert("Weekday is required for schedules.");
+        return;
+      }
+  
+      delete formattedData.date;
+  
+      const todayWeekday = dayjs().format("dddd");
+      const isToday = todayWeekday === formattedData.weekday;
+  
+      if (isToday) {
+        const startDateTime = dayjs(`${todayWeekday} ${formattedData.time_in}`, "dddd HH:mm");
+        const endDateTime = dayjs(`${todayWeekday} ${formattedData.time_out}`, "dddd HH:mm");
+  
+        formattedData.status = dayjs().isBefore(startDateTime)
+          ? "Incoming"
+          : dayjs().isBefore(endDateTime)
+            ? "In Progress"
+            : "Complete";
+      } else {
+        formattedData.status = dayjs().isBefore(dayjs().day(formattedData.weekday)) ? "Incoming" : "Complete";
+      }
+  
+      if (selectedEvent) {
+        const { error } = await supabase
+          .from("schedule")
+          .update(formattedData)
+          .eq("schedule_id", selectedEvent.schedule_id);
+        actionResult = error ? `Error updating schedule: ${error.message}` : "Schedule updated successfully";
+      } else {
+        const { data, error } = await supabase.from("schedule").insert([formattedData]);
+        if (error) {
+          actionResult = `Error adding schedule: ${error.message}`;
+        } else if (data && data.length > 0) {
+          const newScheduleId = data[0].schedule_id;
+          actionResult = "Schedule added successfully. ID: " + newScheduleId;
+        } else {
+          actionResult = "Schedule added successfully!";
+        }
       }
     }
-  }
-
-  alert(actionResult);
-  closeModal();
-};
-
-const checkForConflicts = async (data, type) => {
-  const { room_id, date, weekday, time_in, time_out } = data;
-
-  const query = supabase
-    .from(type === "booking" ? "booking" : "schedule")
-    .select("*")
-    .eq("room_id", room_id);
-
-  if (type === "booking") {
-    query.eq("date", date);
-  } else {
-    query.eq("weekday", weekday);
-  }
-
-  const { data: existingRecords, error } = await query;
-  if (error) {
-    console.error("Error checking for conflicts:", error.message);
-    return false; // Assume no conflict if the query fails
-  }
-
-  return existingRecords.some((record) => {
-    const recordStart = dayjs(record.time_in, "HH:mm");
-    const recordEnd = dayjs(record.time_out, "HH:mm");
+  
+    alert(actionResult);
+    closeModal();
+  };
+  
+  const checkScheduleBookingConflict = async (formattedData) => {
+    const { room_id, weekday, time_in, time_out, date, selectedUserId } = formattedData;
+  
+    console.log("Checking for schedule vs booking conflicts with data:", formattedData);
+  
     const newStart = dayjs(time_in, "HH:mm");
     const newEnd = dayjs(time_out, "HH:mm");
-
-    return (
-      (newStart.isBetween(recordStart, recordEnd, null, "[)")) ||
-      (newEnd.isBetween(recordStart, recordEnd, null, "(]")) ||
-      (newStart.isSameOrBefore(recordStart) && newEnd.isSameOrAfter(recordEnd))
-    );
-  });
-};
-
   
+    if (!newStart.isValid() || !newEnd.isValid()) {
+      console.error("Invalid time format for time_in or time_out.");
+      return null; // No conflict found
+    }
+  
+    // --- Booking vs Booking Conflict Check (date-based) ---
+    if (date) {
+      const { data: existingBookings, error: bookingError } = await supabase
+        .from("booking")
+        .select(
+          "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, user_id"
+        )
+        .eq("room_id", room_id)
+        .eq("date", date); // Filter by room_id and date for bookings
+  
+      if (bookingError) {
+        console.error("Error fetching bookings:", bookingError.message);
+        return null; // No conflict found
+      }
+  
+      // Check if any existing booking conflicts with the new booking
+      const bookingConflictMessage = await Promise.all(existingBookings.map(async (record, index) => {
+        const recordStart = dayjs(record.time_in, "HH:mm");
+        const recordEnd = dayjs(record.time_out, "HH:mm");
+  
+        const conflict =
+          newStart.isBetween(recordStart, recordEnd, null, "[)") ||
+          newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
+          (newStart.isSameOrBefore(recordStart) && newEnd.isSameOrAfter(recordEnd));
+  
+        if (conflict) {
+          console.log(`Conflicting Booking User ID: ${record.user_id}`);
+  
+          // Fetch the user name by user_id
+          const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("user_name")
+            .eq("user_id", record.user_id)
+            .single();
+  
+          if (userError) {
+            console.error("Error fetching user name:", userError.message);
+            return null;
+          }
+  
+          const userName = userData?.user_name || "Unknown User";
+          return `A conflict has been detected with another booking.\nConflicting Booking: ${userName} in the Booking tab (Row: ${index + 1}).`;
+        }
+  
+        return null; // No conflict for this record
+      }));
+  
+      const conflictMessage = bookingConflictMessage.find(message => message !== null);
+      if (conflictMessage) {
+        return conflictMessage; // Return the first conflict message found
+      }
+    }
+  
+    // --- Schedule vs Schedule Conflict Check (weekday-based) ---
+    const { data: existingSchedules, error: scheduleError } = await supabase
+      .from("schedule")
+      .select("*, user_id")
+      .eq("room_id", room_id)
+      .eq("weekday", weekday); // Filter by room_id and weekday for schedules
+  
+    if (scheduleError) {
+      console.error("Error fetching schedules:", scheduleError.message);
+      return null; // No conflict found
+    }
+  
+    const scheduleConflictMessage = await Promise.all(existingSchedules.map(async (record, index) => {
+      const recordStart = dayjs(record.time_in, "HH:mm");
+      const recordEnd = dayjs(record.time_out, "HH:mm");
+  
+      const conflict =
+        newStart.isBetween(recordStart, recordEnd, null, "[)") ||
+        newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
+        (newStart.isSameOrBefore(recordStart) && newEnd.isSameOrAfter(recordEnd));
+  
+      if (conflict) {
+        console.log(`Conflicting Schedule User ID: ${record.user_id}`);
+  
+        // Fetch the user name by user_id
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("user_name")
+          .eq("user_id", record.user_id)
+          .single();
+  
+        if (userError) {
+          console.error("Error fetching user name:", userError.message);
+          return null;
+        }
+  
+        const userName = userData?.user_name || "Unknown User";
+        return `A conflict has been detected with another schedule.\nConflicting Schedule: ${userName} in the Schedule tab (Row: ${index + 1}).`;
+      }
+  
+      return null; // No conflict for this record
+    }));
+  
+    const scheduleConflict = scheduleConflictMessage.find(message => message !== null);
+    if (scheduleConflict) {
+      return scheduleConflict; // Return the first conflict message found
+    }
+  
+    // --- Schedule vs Booking Conflict Check (weekday-based) ---
+    const { data: existingBookingsForSchedule, error: bookingForScheduleError } = await supabase
+      .from("booking")
+      .select(
+        "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, user_id"
+      )
+      .eq("room_id", room_id)
+      .eq("weekday", weekday); // Filter by room_id and weekday for bookings
+  
+    if (bookingForScheduleError) {
+      console.error("Error fetching bookings for schedule:", bookingForScheduleError.message);
+      return null; // No conflict found
+    }
+  
+    const bookingConflictForScheduleMessage = await Promise.all(existingBookingsForSchedule.map(async (record, index) => {
+      const recordStart = dayjs(record.time_in, "HH:mm");
+      const recordEnd = dayjs(record.time_out, "HH:mm");
+  
+      const conflict =
+        newStart.isBetween(recordStart, recordEnd, null, "[)") ||
+        newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
+        (newStart.isSameOrBefore(recordStart) && newEnd.isSameOrAfter(recordEnd));
+  
+      if (conflict) {
+        console.log(`Conflicting Booking User ID (Schedule): ${record.user_id}`);
+  
+        // Fetch the user name by user_id
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("user_name")
+          .eq("user_id", record.user_id)
+          .single();
+  
+        if (userError) {
+          console.error("Error fetching user name:", userError.message);
+          return null;
+        }
+  
+        const userName = userData?.user_name || "Unknown User";
+        return `A conflict has been detected with a booking.\nConflicting Booking: ${userName} in the Booking tab (Row: ${index + 1}).`;
+      }
+  
+      return null; // No conflict for this record
+    }));
+  
+    const bookingConflictForSchedule = bookingConflictForScheduleMessage.find(message => message !== null);
+    if (bookingConflictForSchedule) {
+      return bookingConflictForSchedule; // Return the first conflict message found
+    }
+  
+    console.log("No conflicts detected in schedules or bookings.");
+    return null; // No conflict found
+  };
+  
+ 
   
   const closeModal = () => {
     setModalOpen(false);
