@@ -1,7 +1,10 @@
 import supabase from "@/utils/supabase";
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 
 const useSubscription = () => {
+  const queryClient = useQueryClient();
+
   React.useEffect(() => {
     const channels = supabase
       .channel("custom-all-channel")
@@ -10,6 +13,7 @@ const useSubscription = () => {
         { event: "*", schema: "public", table: "rooms" },
         (payload) => {
           console.log("Change received!", payload);
+          queryClient.invalidateQueries({ queryKey: ["rooms"] });
         }
       )
       .subscribe();
