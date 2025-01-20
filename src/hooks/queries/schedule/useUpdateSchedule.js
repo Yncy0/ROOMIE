@@ -1,15 +1,17 @@
 import supabase from "@/utils/supabase";
 
-export const useUpdateRooms = (i) => {
+export const useUpdateSchedule = (i) => {
   const query = async () => {
     const { data, error } = await supabase
       .from("rooms")
       .update({
-        room_name: i.room_name,
-        room_image: i.room_image,
-        room_type: i.room_type,
-        room_capacity: i.room_capacity,
-        building_id: i.building_id,
+        days: i.days,
+        time_in: i.time_in,
+        time_out: i.time_out,
+        subject_id: i.subject_id,
+        course_id: i.course_id,
+        profile_id: i.profile_id,
+        room_id: i.room_id,
       })
       .select();
 
