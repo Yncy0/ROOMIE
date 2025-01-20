@@ -13,9 +13,12 @@ import RoomsEdit from "./components/rooms/RoomsEdit";
 import RoomsDescription from "./components/rooms/RoomsDescription";
 import UsersPage from "./pages/users";
 import UserAdd from "./components/users/UserAdd";
-import UserEdit from "./components/users/userEdit";
+import UserEdit from "./components/users/UserEdit";
 import UserSchedulePage from "./pages/userSchedule";
 import Root from "./pages/root";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
@@ -77,6 +80,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} future={{ v7_startTransition: true }} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} future={{ v7_startTransition: true }} />
+    </QueryClientProvider>
   </StrictMode>
 );

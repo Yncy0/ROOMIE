@@ -15,27 +15,13 @@ import {
   ChevronsLeft,
 } from "lucide-react";
 import supabase from "@/utils/supabase";
+import { useFetchRooms } from "@/hooks/queries/rooms/useFetchRooms";
 
 // export const RoomContext = React.createContext();
 
 export default function RoomsPage() {
-  const [data, setData] = useState([]);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: fetchedData, error } = await supabase
-        .from("rooms")
-        .select();
-      if (error) {
-        console.error("Error fetching data:", error);
-      } else {
-        setData(fetchedData || []);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [open, setOpen] = React.useState(false);
+  const { data } = useFetchRooms();
 
   const columns = React.useMemo(
     () => [
@@ -47,10 +33,10 @@ export default function RoomsPage() {
               <RoomsCard
                 key={item.room_id}
                 room_image={item.room_image}
-                room_location={item.room_location}
+                room_location={item.building.building_name}
                 room_name={item.room_name}
                 room_capacity={item.room_capacity}
-                room_description={item.room_description}
+                room_type={item.room_type}
               />
             ))}
           </div>
