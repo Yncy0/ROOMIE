@@ -1,4 +1,4 @@
-import { faLayerGroup, faObjectUngroup, faObjectGroup, faBoxArchive, faUserGroup} from "@fortawesome/free-solid-svg-icons";
+import { faLayerGroup, faObjectUngroup, faObjectGroup, faBoxArchive, faUserGroup, faCalendar, faCalendarWeek} from "@fortawesome/free-solid-svg-icons";
 
 export const Navigation = [
     {
@@ -11,6 +11,18 @@ export const Navigation = [
         title: "Rooms",
         href: "#",
         Icon: faLayerGroup
+    },
+
+    {
+        title: "Schedule",
+        href: "#",
+        Icon: faCalendar
+    },
+
+    {
+        title: "User Schedule",
+        href: "#",
+        Icon: faCalendarWeek
     },
 
     {
