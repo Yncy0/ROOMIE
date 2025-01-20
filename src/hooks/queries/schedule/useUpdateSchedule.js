@@ -3,7 +3,7 @@ import supabase from "@/utils/supabase";
 export const useUpdateSchedule = (i) => {
   const query = async () => {
     const { data, error } = await supabase
-      .from("rooms")
+      .from("schedule")
       .update({
         days: i.days,
         time_in: i.time_in,
