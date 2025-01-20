@@ -4,14 +4,18 @@ import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
 import "./index.css";
 import HeaderComponent from "./components/HeaderComponent.jsx";
 
-import ArchievesPage from "./pages/archieves.jsx";
-import BacklogsPage from "./pages/backlogs.jsx";
-import DashboardPage from "./pages/dashboard.jsx";
-import RoomsPage from "./pages/rooms.jsx";
-import UsersPage from "./pages/users.jsx";
-import NavBarComponent from "./components/navigation/NavBarComponent.jsx";
-import Root from "./pages/root.jsx";
+import ArchievesPage from "./pages/archieves";
+import BacklogsPage from "./pages/backlogs";
+import DashboardPage from "./pages/dashboard";
+import RoomsPage from "./pages/rooms";
 import RoomsAdd from "./components/rooms/RoomsAdd";
+import RoomsEdit from "./components/rooms/RoomsEdit";
+import RoomsDescription from "./components/rooms/RoomsDescription";
+import UsersPage from "./pages/users";
+import UserAdd from "./components/users/UserAdd";
+import UserEdit from "./components/users/userEdit";
+import UserSchedulePage from "./pages/userSchedule";
+import Root from "./pages/root";
 
 const router = createBrowserRouter([
   {

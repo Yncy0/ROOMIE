@@ -26,7 +26,7 @@ import {
   FormControl,
   Fab,
 } from "@mui/material";
-import supabase from "../supabaseConfig";
+import supabase from "@/utils/supabase";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";

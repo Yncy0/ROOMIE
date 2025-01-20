@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import RoomsCard from "./RoomsCard";
+import RoomsCard from "@/components/rooms/RoomsCard";
 import { Navigate } from "react-router-dom";
 import {
   useReactTable,
@@ -14,7 +14,7 @@ import {
   ChevronsRight,
   ChevronsLeft,
 } from "lucide-react";
-import { supabase } from "@/supabaseClient";
+import supabase from "@/utils/supabase";
 
 // export const RoomContext = React.createContext();
 
