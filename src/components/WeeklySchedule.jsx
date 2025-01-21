@@ -15,9 +15,9 @@ const weekdays = [
 
 export function WeeklySchedule({
   schedules,
-  startTime = "06:00",
-  endTime = "20:00",
-  intervalMinutes = 60,
+  startTime,
+  endTime,
+  intervalMinutes,
 }) {
   const timeSlots = generateTimeSlots(startTime, endTime, intervalMinutes);
 
@@ -38,8 +38,8 @@ export function WeeklySchedule({
   };
 
   const getMinutesFromTime = (time) => {
-    const [hours, minutes] = time?.split(":").map(Number);
-    return hours * 60 + (minutes || 0);
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 30 + (minutes || 0);
   };
 
   if (!schedules || schedules.length === 0) {
@@ -53,7 +53,6 @@ export function WeeklySchedule({
   return (
     <div className="w-full overflow-x-auto">
       <div className="min-w-[800px]">
-        {" "}
         {/* Minimum width to prevent squishing */}
         <div className="relative" style={{ minHeight: "800px" }}>
           {/* Header row */}
@@ -70,7 +69,7 @@ export function WeeklySchedule({
           </div>
 
           {/* Time slots */}
-          <div className="relative w-full h-full">
+          <div className="relative w-full">
             {timeSlots.map((slot) => (
               <div
                 key={slot}
@@ -113,10 +112,10 @@ export function WeeklySchedule({
                   >
                     <div className="h-full overflow-hidden">
                       <p className="font-bold text-sm truncate">
-                        {schedule.course.course_name}
+                        {schedule.subject.subject_code}
                       </p>
                       <p className="text-xs truncate">
-                        {schedule.subject.subject_name}
+                        {schedule.course.course_name}
                       </p>
                     </div>
                   </div>
