@@ -1,6 +1,7 @@
 import supabase from "@/utils/supabase";
 
 export const useUpdateRooms = (
+  id,
   room_name,
   room_image,
   room_type,
@@ -17,6 +18,7 @@ export const useUpdateRooms = (
         room_capacity: room_capacity,
         building_id: building_id,
       })
+      .eq("id", id)
       .select();
 
     if (error) throw error;

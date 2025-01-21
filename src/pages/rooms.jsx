@@ -28,7 +28,8 @@ export default function RoomsPage() {
           <div className="flex flex-row justify-between">
             {data.map((item) => (
               <RoomsCard
-                key={item.room_id}
+                key={item.id}
+                id={item.id}
                 room_image={item.room_image}
                 room_location={item.building?.building_name}
                 room_name={item.room_name}

@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import RoomsDescription from "./RoomsDescription";
 
 export default function RoomsCard({
+  id,
   room_image,
   room_location,
   room_name,
@@ -21,9 +21,10 @@ export default function RoomsCard({
       <button
         className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40"
         onClick={() =>
-          navigate("/rooms_description", {
+          navigate(`/rooms_description/${id}`, {
             replace: true,
             state: {
+              id,
               room_image,
               room_name,
               room_type,

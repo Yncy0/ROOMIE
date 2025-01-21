@@ -6,6 +6,7 @@ export default function RoomsDescription() {
   const { state } = useLocation();
 
   const {
+    id,
     room_image,
     room_name,
     room_location,
@@ -24,6 +25,7 @@ export default function RoomsDescription() {
           className="max-w-[50%] min-w-[25%]"
         />
         <div className="flex flex-col gap-4">
+          <p>{id}</p>
           <h1>{room_name}</h1>
           <h2>{room_location}</h2>
           <p>{room_capacity}</p>
@@ -31,8 +33,9 @@ export default function RoomsDescription() {
           <p>{room_type}</p>
           <button
             onClick={() =>
-              navigate("/rooms_edit", {
+              navigate(`/rooms_edit/${id}`, {
                 state: {
+                  id,
                   room_image,
                   room_name,
                   room_location,

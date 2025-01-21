@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "@/utils/supabase";
 import { v4 as uuidv4 } from "uuid";
-import { useSaveData } from "@/hooks/useHandleImageUpload";
 import { useInsertRooms } from "@/hooks/queries/rooms/useInsertRooms";
 import { useInsertBuilding } from "@/hooks/queries/building/useInsertBuilding";
 
@@ -33,72 +32,6 @@ function RoomsAdd() {
       navigate("/rooms");
     }
   };
-
-  // const saveData = useSaveData(
-  //   room_name,
-  //   room_description,
-  //   room_capacity,
-  //   room_image
-  // );
-
-  // async function handleImageUpload() {
-  //   try {
-  //     const fileInput = document.getElementById("imageInput");
-  //     if (fileInput.files.length === 0) {
-  //       alert("Please select an image file.");
-  //       return null;
-  //     }
-
-  //     const file = fileInput.files[0];
-  //     const filePath = `rooms/${uuidv4()}_${file.name}`;
-  //     const { data, error } = await supabase.storage
-  //       .from("Rooms")
-  //       .upload(filePath, file);
-
-  //     if (error) throw error;
-
-  //     // Get public URL of the uploaded image
-  //     const { data: publicUrlData } = supabase.storage
-  //       .from("Rooms")
-  //       .getPublicUrl(filePath);
-
-  //     return publicUrlData.publicUrl;
-  //   } catch (error) {
-  //     console.error("Error uploading image:", error);
-  //     alert("Error uploading image: " + error.message);
-  //     return null;
-  //   }
-  // }
-
-  // async function saveData() {
-  //   let finalImageUrl = room_image;
-
-  //   // Upload image if an image file was selected
-  //   if (!room_image.startsWith("http")) {
-  //     const uploadedImageUrl = await handleImageUpload();
-  //     if (!uploadedImageUrl) return; // Stop if upload fails
-  //     finalImageUrl = uploadedImageUrl;
-  //   }
-
-  //   try {
-  //     const { data, error } = await supabase.from("rooms").insert([
-  //       {
-  //         room_name,
-  //         room_type,
-  //         room_capacity,
-  //         room_image: finalImageUrl,
-  //       },
-  //     ]);
-
-  //     if (error) throw error;
-
-  //     alert("Data saved successfully");
-  //     navigate("/rooms");
-  //   } catch (error) {
-  //     console.error("Error saving data:", error);
-  //     alert("Error saving data: " + error.message);
-  //   }
-  // }
 
   return (
     <div className="round-box flex flex-col bg-white gap-4 p-4">
