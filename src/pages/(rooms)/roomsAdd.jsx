@@ -23,13 +23,17 @@ function RoomsAdd() {
 
   const insertBuilding = useInsertBuilding(room_location);
 
-  const onHandleInsert = () => {
-    if (insertRooms && insertBuilding) {
-      insertRooms;
-      insertBuilding;
-
-      alert("Data saved successfully");
-      navigate("/rooms");
+  const onHandleInsert = async () => {
+    try {
+      if (insertRooms && insertBuilding) {
+        await insertRooms();
+        await insertBuilding();
+        alert("Data saved successfully");
+        navigate("/rooms");
+      }
+    } catch (error) {
+      console.error("Error inserting data:", error);
+      alert("There was an error saving the data. Please try again.");
     }
   };
 

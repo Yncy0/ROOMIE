@@ -15,8 +15,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import supabase from "../supabaseConfig";
-
+import supabase from "@/utils/supabase";
 // Enable dayjs plugins
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -31,7 +30,12 @@ const SchedulePage = () => {
   const [roomOptions, setRoomOptions] = useState([]);
   const [userOptions, setUserOptions] = useState([]);
   const [sectionOptions, setSectionOptions] = useState([]);
-  const [statusOptions] = useState(["Incoming", "In Progress", "Complete", "Cancelled"]);
+  const [statusOptions] = useState([
+    "Incoming",
+    "In Progress",
+    "Complete",
+    "Cancelled",
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,13 +84,22 @@ const SchedulePage = () => {
       const transformedBookingData = transformBookingData(bookingData);
       const transformedScheduleData = transformScheduleData(scheduleData);
 
-      const combinedData = [...transformedBookingData, ...transformedScheduleData];
+      const combinedData = [
+        ...transformedBookingData,
+        ...transformedScheduleData,
+      ];
       setScheduleData(combinedData);
       setFilteredData(combinedData);
 
-      const rooms = Array.from(new Set(combinedData.map((item) => item.room_name || "Unknown")));
-      const users = Array.from(new Set(combinedData.map((item) => item.user_name || "Unknown")));
-      const sections = Array.from(new Set(combinedData.map((item) => item.section || "Unknown")));
+      const rooms = Array.from(
+        new Set(combinedData.map((item) => item.room_name || "Unknown"))
+      );
+      const users = Array.from(
+        new Set(combinedData.map((item) => item.user_name || "Unknown"))
+      );
+      const sections = Array.from(
+        new Set(combinedData.map((item) => item.section || "Unknown"))
+      );
 
       setRoomOptions(rooms);
       setUserOptions(users);
@@ -102,18 +115,26 @@ const SchedulePage = () => {
       const dateFormat = "YYYY/MM/DD";
       const timeFormat = "H:mm:ss";
 
-      const startDateString = item.date && item.time_in ? `${item.date} ${item.time_in}` : null;
-      const endDateString = item.date && item.time_out ? `${item.date} ${item.time_out}` : null;
+      const startDateString =
+        item.date && item.time_in ? `${item.date} ${item.time_in}` : null;
+      const endDateString =
+        item.date && item.time_out ? `${item.date} ${item.time_out}` : null;
 
       const startDate = startDateString
-        ? dayjs.tz(startDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila").toDate()
+        ? dayjs
+            .tz(startDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila")
+            .toDate()
         : null;
       const endDate = endDateString
-        ? dayjs.tz(endDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila").toDate()
+        ? dayjs
+            .tz(endDateString, `${dateFormat} ${timeFormat}`, "Asia/Manila")
+            .toDate()
         : null;
 
       return {
-        event_id: `${item.rooms?.room_name || "Unknown"}-${item.date || "Unknown"}`,
+        event_id: `${item.rooms?.room_name || "Unknown"}-${
+          item.date || "Unknown"
+        }`,
         start: startDate,
         end: endDate,
         title: item.rooms?.room_name || "Unknown Room",
@@ -132,28 +153,39 @@ const SchedulePage = () => {
 
   const transformScheduleData = (data) => {
     const weekdayToDates = (weekday) => {
-      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const weekdays = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
       const targetDayIndex = weekdays.indexOf(weekday);
-    
+
       if (targetDayIndex === -1) {
         throw new Error("Invalid weekday provided");
       }
-    
+
       const currentYear = dayjs().year(); // Get the current year
       const firstDayOfYear = dayjs(`${currentYear}-01-01`);
       const lastDayOfYear = dayjs(`${currentYear}-12-31`);
-    
+
       let currentDay = firstDayOfYear;
       const dates = [];
-    
+
       // Loop through all the days in the year
-      while (currentDay.isBefore(lastDayOfYear) || currentDay.isSame(lastDayOfYear)) {
+      while (
+        currentDay.isBefore(lastDayOfYear) ||
+        currentDay.isSame(lastDayOfYear)
+      ) {
         if (currentDay.day() === targetDayIndex) {
           dates.push(currentDay.toDate());
         }
         currentDay = currentDay.add(1, "day");
       }
-    
+
       return dates;
     };
 
@@ -170,14 +202,20 @@ const SchedulePage = () => {
           : null;
 
         const startDate = startDateString
-          ? dayjs.tz(startDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila").toDate()
+          ? dayjs
+              .tz(startDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila")
+              .toDate()
           : null;
         const endDate = endDateString
-          ? dayjs.tz(endDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila").toDate()
+          ? dayjs
+              .tz(endDateString, `YYYY-MM-DD ${timeFormat}`, "Asia/Manila")
+              .toDate()
           : null;
 
         return {
-          event_id: `${item.rooms?.room_name || "Unknown"}-${item.weekday || "Unknown"}-${baseDate}`,
+          event_id: `${item.rooms?.room_name || "Unknown"}-${
+            item.weekday || "Unknown"
+          }-${baseDate}`,
           start: startDate,
           end: endDate,
           title: item.rooms?.room_name || "Unknown Room",
@@ -255,9 +293,18 @@ const SchedulePage = () => {
         title={`Room: ${event.room_name} \nSubject: ${event.subject_code} \nTime: ${event.time_in} - ${event.time_out} \nProfessor: ${event.user_name}`}
         arrow
       >
-        <Card sx={{ backgroundColor: event.color, color: "black", margin: "5px", padding: "10px" }}>
+        <Card
+          sx={{
+            backgroundColor: event.color,
+            color: "black",
+            margin: "5px",
+            padding: "10px",
+          }}
+        >
           <CardContent>
-            <Typography variant="h6" component="div">{event.room_name}</Typography>
+            <Typography variant="h6" component="div">
+              {event.room_name}
+            </Typography>
             <Typography variant="body2">{event.subject_code}</Typography>
             <Typography variant="body2">{`Professor: ${event.user_name}`}</Typography>
             <Typography variant="body2">{`Time: ${event.time_in} - ${event.time_out}`}</Typography>
@@ -293,7 +340,9 @@ const SchedulePage = () => {
             options={roomOptions}
             value={selectedFilterValue}
             onInputChange={handleFilterValueChange}
-            renderInput={(params) => <TextField {...params} label="Search Room" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Room" />
+            )}
           />
         )}
 
@@ -303,7 +352,9 @@ const SchedulePage = () => {
             options={userOptions}
             value={selectedFilterValue}
             onInputChange={handleFilterValueChange}
-            renderInput={(params) => <TextField {...params} label="Search User" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Search User" />
+            )}
           />
         )}
 
@@ -313,7 +364,9 @@ const SchedulePage = () => {
             options={sectionOptions}
             value={selectedFilterValue}
             onInputChange={handleFilterValueChange}
-            renderInput={(params) => <TextField {...params} label="Search Section" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Section" />
+            )}
           />
         )}
 
@@ -323,14 +376,16 @@ const SchedulePage = () => {
             options={statusOptions}
             value={selectedFilterValue}
             onInputChange={handleFilterValueChange}
-            renderInput={(params) => <TextField {...params} label="Search Status" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Status" />
+            )}
           />
         )}
       </Box>
 
       <Box sx={{ padding: "20px", marginTop: 5 }}>
         <Typography variant="h5" gutterBottom>
-           Schedule
+          Schedule
         </Typography>
 
         {isLoading ? (
