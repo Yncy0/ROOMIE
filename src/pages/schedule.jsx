@@ -10,8 +10,10 @@ export default function SchedulePage() {
   const { data, isLoading, error } = useFetchSchedule();
 
   const filteredSchedules =
-    data?.filter((data) =>
-      data.rooms?.room_name.toLowerCase().includes(selectedRoom.toLowerCase())
+    data?.filter((schedule) =>
+      schedule.rooms?.room_name
+        .toLowerCase()
+        .includes(selectedRoom.toLowerCase())
     ) || [];
 
   const handleSearch = (query) => {
@@ -26,12 +28,18 @@ export default function SchedulePage() {
       <h1 className="text-3xl font-bold text-center mb-8">Weekly Schedule</h1>
       <div className="max-w-7xl mx-auto px-4">
         <SearchBar onSearch={handleSearch} />
-        <WeeklySchedule
-          schedules={filteredSchedules}
-          startTime="08:00"
-          endTime="18:00"
-          intervalMinutes={60}
-        />
+        {filteredSchedules.length > 0 ? (
+          <WeeklySchedule
+            schedules={filteredSchedules}
+            startTime="08:00"
+            endTime="18:00"
+            intervalMinutes={60}
+          />
+        ) : (
+          <div className="text-center mt-4">
+            No schedules found for the selected room.
+          </div>
+        )}
       </div>
     </div>
   );
