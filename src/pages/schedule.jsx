@@ -1,62 +1,38 @@
+"use client";
+
+import { useState } from "react";
+import { WeeklySchedule } from "../components/WeeklySchedule";
+import { SearchBar } from "../components/SearchBar";
 import { useFetchSchedule } from "@/hooks/queries/schedule/useFetchSchedule";
-import {
-  useReactTable,
-  flexRender,
-  getCoreRowModel,
-} from "@tanstack/react-table";
 
 export default function SchedulePage() {
-  const { data } = useFetchSchedule();
+  const [selectedRoom, setSelectedRoom] = useState("");
+  const { data, isLoading, error } = useFetchSchedule();
 
-  const columns = [
-    { accessorKey: "days", header: "Day" },
-    { accessorKey: "subject.subject_name", header: "Subject" },
-    {
-      accessorKey: "course",
-      header: "Course",
-      cell: (info) =>
-        `${info.row.original.course.course_name}  ${info.row.original.course.course_year}${info.row.original.course.course_section}`,
-    },
-    { accessorKey: "rooms.room_name", header: "Room" },
-    { accessorKey: "profiles.username", header: "User" },
-    { accessorKey: "time_in", header: "Time In" },
-    { accessorKey: "time_out", header: "Time Out" },
-    { accessorKey: "status", header: "Status" },
-  ];
+  const filteredSchedules =
+    data?.filter((data) =>
+      data.rooms?.room_name.toLowerCase().includes(selectedRoom.toLowerCase())
+    ) || [];
 
-  const table = useReactTable({
-    data: data || [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const handleSearch = (query) => {
+    setSelectedRoom(query);
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th key={header.id}>
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}{" "}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Weekly Schedule</h1>
+      <div className="max-w-7xl mx-auto px-4">
+        <SearchBar onSearch={handleSearch} />
+        <WeeklySchedule
+          schedules={filteredSchedules}
+          startTime="08:00"
+          endTime="18:00"
+          intervalMinutes={60}
+        />
+      </div>
+    </div>
   );
 }
