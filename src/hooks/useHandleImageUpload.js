@@ -38,11 +38,6 @@ export async function useSaveData(
   let finalImageUrl = room_image;
 
   // Upload image if an image file was selected
-  if (!room_image.startsWith("http")) {
-    const uploadedImageUrl = await handleImageUpload();
-    if (!uploadedImageUrl) return; // Stop if upload fails
-    finalImageUrl = uploadedImageUrl;
-  }
 
   const { data } = useInsertRooms(
     room_name,

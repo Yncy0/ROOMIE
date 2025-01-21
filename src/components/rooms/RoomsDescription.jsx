@@ -1,21 +1,18 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function RoomsDescription({
-  room_image,
-  room_name,
-  room_location,
-  room_capacity,
-  room_type,
-}) {
+export default function RoomsDescription() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { state } = useLocation();
 
-  room_image = location.state.room_image;
-  room_name = location.state.room_name;
-  room_location = location.state.room_location;
-  room_capacity = location.state.room_capacity;
-  room_type = location.state.room_type;
+  const {
+    room_image,
+    room_name,
+    room_location,
+    room_capacity,
+    room_type,
+    building_id,
+  } = state;
 
   return (
     //TO-DO: Back icon to the left
@@ -41,6 +38,7 @@ export default function RoomsDescription({
                   room_location,
                   room_capacity,
                   room_type,
+                  building_id,
                 },
               })
             }

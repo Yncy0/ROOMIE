@@ -14,16 +14,11 @@ import {
   ChevronsRight,
   ChevronsLeft,
 } from "lucide-react";
-import supabase from "@/utils/supabase";
 import { useFetchRooms } from "@/hooks/queries/rooms/useFetchRooms";
-
-// export const RoomContext = React.createContext();
 
 export default function RoomsPage() {
   const [open, setOpen] = React.useState(false);
-  const { data } = useFetchRooms();
-
-  console.log(open);
+  const { data = [] } = useFetchRooms();
 
   const columns = React.useMemo(
     () => [
@@ -39,6 +34,7 @@ export default function RoomsPage() {
                 room_name={item.room_name}
                 room_capacity={item.room_capacity}
                 room_type={item.room_type}
+                building_id={item.building?.building_id}
               />
             ))}
           </div>

@@ -8,6 +8,7 @@ export default function RoomsCard({
   room_name,
   room_capacity,
   room_type,
+  building_id,
 }) {
   const navigate = useNavigate();
 
@@ -26,7 +27,9 @@ export default function RoomsCard({
               room_image,
               room_name,
               room_type,
+              room_location,
               room_capacity,
+              building_id,
             },
           })
         }
