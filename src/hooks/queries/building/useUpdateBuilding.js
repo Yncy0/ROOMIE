@@ -7,6 +7,7 @@ export const useUpdateBuilding = (i) => {
       .update({
         building_name: i.building_name,
       })
+      .eq("id", i.id)
       .select();
 
     if (error) throw error;
