@@ -23,6 +23,8 @@ export default function RoomsPage() {
   const [open, setOpen] = React.useState(false);
   const { data } = useFetchRooms();
 
+  console.log(open);
+
   const columns = React.useMemo(
     () => [
       {
@@ -33,7 +35,7 @@ export default function RoomsPage() {
               <RoomsCard
                 key={item.room_id}
                 room_image={item.room_image}
-                room_location={item.building.building_name}
+                room_location={item.building?.building_name}
                 room_name={item.room_name}
                 room_capacity={item.room_capacity}
                 room_type={item.room_type}
@@ -58,10 +60,6 @@ export default function RoomsPage() {
     },
   });
 
-  if (!data || data.length === 0) {
-    return <div>Loading or no data available...</div>;
-  }
-
   return (
     <>
       <div className="flex flex-col bg-white px-8 py-8 round-box gap-4">
@@ -72,7 +70,7 @@ export default function RoomsPage() {
             className="rounded-3xl py-2 w-28 bg-none 
                                     text-[#1488CC] border-solid border-[#1488CC] 
                                     border-2 font-medium text-center min-w-36"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen(true)}
           >
             Add Room
           </button>

@@ -27,7 +27,6 @@ export default function RoomsCard({
               room_name,
               room_type,
               room_capacity,
-              room_description,
             },
           })
         }

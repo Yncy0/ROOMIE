@@ -32,8 +32,8 @@ export async function useHandleImageUpload() {
 export async function useSaveData(
   room_name,
   room_image,
-  room_capacity,
-  room_type
+  room_type,
+  room_capacity
 ) {
   let finalImageUrl = room_image;
 
@@ -46,9 +46,9 @@ export async function useSaveData(
 
   const { data } = useInsertRooms(
     room_name,
-    room_image,
-    room_capacity,
-    room_type
+    finalImageUrl,
+    room_type,
+    room_capacity
   );
 
   alert("Data saved successfully");
