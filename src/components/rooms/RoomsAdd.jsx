@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router";
 import supabase from "@/utils/supabase";
 import { v4 as uuidv4 } from "uuid";
 import { useInsertRooms } from "@/hooks/queries/rooms/useInsertRooms";

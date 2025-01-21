@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import RoomsCard from "@/components/rooms/RoomsCard";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router";
 import {
   useReactTable,
   getCoreRowModel,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useUpdateBuilding } from "@/hooks/queries/building/useUpdateBuilding";
 import { useUpdateRooms } from "@/hooks/queries/rooms/useUpdateRooms";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 
 export default function RoomsEdit() {
   const navigate = useNavigate();
