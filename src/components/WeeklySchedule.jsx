@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { generateTimeSlots } from "../utils/timeUtils";
 
@@ -37,71 +39,91 @@ export function WeeklySchedule({
 
   const getMinutesFromTime = (time) => {
     const [hours, minutes] = time?.split(":").map(Number);
-    return hours * 60 + minutes;
+    return hours * 60 + (minutes || 0);
   };
 
   if (!schedules || schedules.length === 0) {
-    console.warn("No schedules provided to WeeklySchedule component");
-    return <div>No schedules available</div>;
+    return (
+      <div className="p-4 text-center text-gray-500">
+        No schedules available
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto p-4 overflow-x-auto">
-      <div className="relative w-full" style={{ minHeight: "800px" }}>
-        {/* Header row */}
-        <div className="grid grid-cols-8 gap-0 mb-2">
-          <div className="p-2 bg-gray-100 border font-medium"></div>
-          {weekdays.map((day) => (
-            <div
-              key={day}
-              className="p-2 bg-gray-100 border font-medium text-center"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Time slots */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          {timeSlots.map((slot) => (
-            <div
-              key={slot}
-              className="grid grid-cols-8 gap-0 border-b"
-              style={{ height: `${100 / timeSlots.length}%` }}
-            >
-              <div className="p-2 border-l font-medium">{slot}</div>
-              {weekdays.map((day) => (
-                <div key={`${day}-${slot}`} className="border-l"></div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Schedule blocks */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          {schedules.map((schedule) => {
-            const { top, height, left, width } = getSchedulePosition(schedule);
-            return (
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[800px]">
+        {" "}
+        {/* Minimum width to prevent squishing */}
+        <div className="relative" style={{ minHeight: "800px" }}>
+          {/* Header row */}
+          <div className="sticky top-0 z-10 grid grid-cols-8 gap-0 bg-white">
+            <div className="p-2 bg-gray-100 border font-medium"></div>
+            {weekdays.map((day) => (
               <div
-                key={schedule.id}
-                className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200"
-                style={{
-                  top: `${top}%`,
-                  height: `${height}%`,
-                  left: `${left + 12.5}%`, // Adjust for the time column
-                  width: `${width}%`,
-                }}
+                key={day}
+                className="p-2 bg-gray-100 border font-medium text-center"
               >
-                <div className="h-full overflow-hidden">
-                  <p className="font-bold truncate">
-                    {schedule.course.course_name}
-                  </p>
-                  <p className="truncate">{schedule.subject.subject_name}</p>
-                  {/* <p className="truncate">{schedule.profiles.username}</p> */}
-                </div>
+                {day}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* Time slots */}
+          <div className="relative w-full h-full">
+            {timeSlots.map((slot) => (
+              <div
+                key={slot}
+                className="grid grid-cols-8 gap-0 border-b"
+                style={{ height: `${100 / timeSlots.length}%` }}
+              >
+                <div className="sticky left-0 p-2 border-l font-medium bg-white z-10">
+                  {slot}
+                </div>
+                {weekdays.map((day) => (
+                  <div
+                    key={`${day}-${slot}`}
+                    className="border-l min-h-[60px]"
+                  ></div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Schedule blocks */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+            <div className="relative w-full h-full">
+              {schedules.map((schedule, index) => {
+                const { top, height, left, width } =
+                  getSchedulePosition(schedule);
+                // Calculate z-index based on duration - shorter events appear on top
+                const zIndex = Math.floor(100 - height);
+
+                return (
+                  <div
+                    key={schedule.id}
+                    className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200 pointer-events-auto hover:z-50 transition-transform hover:scale-105"
+                    style={{
+                      top: `${top}%`,
+                      height: `${height}%`,
+                      left: `${(left * 7) / 8 + 12.5}%`, // Adjust for 8 columns (time + 7 days)
+                      width: `${(width * 7) / 8}%`, // Adjust width proportionally
+                      zIndex,
+                    }}
+                  >
+                    <div className="h-full overflow-hidden">
+                      <p className="font-bold text-sm truncate">
+                        {schedule.course.course_name}
+                      </p>
+                      <p className="text-xs truncate">
+                        {schedule.subject.subject_name}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
