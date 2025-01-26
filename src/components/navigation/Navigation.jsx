@@ -1,4 +1,5 @@
 import { faLayerGroup, faObjectUngroup, faObjectGroup, faBoxArchive, faUserGroup, faCalendar, faCalendarWeek} from "@fortawesome/free-solid-svg-icons";
+import { colors } from "@mui/material";
 
 export const Navigation = [
     {

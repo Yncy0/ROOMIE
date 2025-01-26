@@ -13,13 +13,51 @@ export default function RoomsCard({
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col bg-white gap-4">
-      <img src={room_image} alt="" className="w-80" />
-      <p className="text-gray-400">{room_location}</p>
-      <h1 className="font-bold text-2xl">{room_name}</h1>
-      <p>Available</p>
+    <div 
+  className="relative flex flex-col rounded-xl bg-white p-6 gap-4 shadow-md 
+             w-full max-w-xs md:max-w-sm lg:max-w-md" // Tailwind for responsive widths
+  style={{
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(8px) saturate(180%) contrast(100%)",
+    WebkitBackdropFilter: "blur(8px) saturate(180%) contrast(100%)",
+    borderRadius: "10px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    boxShadow: "0 5px 10px #b0b0b0",
+  }}
+>
+
+    
+    {/*Image*/}
+    <div className="relative h-40 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border 
+    text-white shadow-lg shadow-blue-gray-500/40">
+      <img
+      src={
+        room_image ? room_image : "src/assets/dummy/image-placeholder.png"
+      }
+      alt="Room Preview"
+      className="w-full h-full object-cover rounded-xl"
+      />
+    </div>
+
+    {/* Room Details */}
+    <div>
+      <p className="block font-sans text-base font-light leading-relaxed text-gray-500 antialiased">
+        {room_location}
+      </p>
+      <h5 className="mb-2 block font-sans text-xl font-semibold 
+      leading-snug tracking-normal text-[#35487a] antialiased">
+      {room_name}
+      </h5>
+    </div>
+
+    {/* View Room Button */}
+    <div className="pt-4">
       <button
-        className="bg-none border-red-500 border-2 border-solid text-red-500 font-medium p-2 rounded-md w-40"
+        type="button"
+        className="select-none rounded-lg bg-[#35487a] py-3 px-6 text-center align-middle 
+        font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all 
+        hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] 
+        active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
         onClick={() =>
           navigate(`/rooms_description/${id}`, {
             replace: true,
@@ -38,5 +76,6 @@ export default function RoomsCard({
         VIEW ROOM
       </button>
     </div>
-  );
+  </div>
+);
 }
