@@ -7,7 +7,7 @@ export const useFetchSchedule = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedule")
-        .select(`*, course(*), subject(*)`);
+        .select(`*, course(*), subject(*), profiles(*), rooms(*)`);
 
       if (error) throw error;
 

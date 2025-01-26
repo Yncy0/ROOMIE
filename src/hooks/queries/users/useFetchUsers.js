@@ -1,7 +1,7 @@
 import supabase from "@/utils/supabase";
 import { useQuery } from "@tanstack/react-query";
 
-export const useFetchSchedule = () => {
+export const useFetchUsers = () => {
   return useQuery({
     queryKey: ["profiles"],
     queryFn: async () => {

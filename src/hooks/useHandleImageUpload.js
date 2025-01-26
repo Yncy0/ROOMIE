@@ -1,4 +1,5 @@
-import { useInsertRooms } from "./queries/rooms/useInsertRooms";
+import { v4 as uuidv4 } from "uuid";
+import supabase from "@/utils/supabase";
 
 export async function useHandleImageUpload() {
   try {
@@ -21,7 +22,7 @@ export async function useHandleImageUpload() {
       .from("Rooms")
       .getPublicUrl(filePath);
 
-    return publicUrlData.publicUrl, data;
+    return publicUrlData.publicUrl;
   } catch (error) {
     console.error("Error uploading image:", error);
     alert("Error uploading image: " + error.message);
