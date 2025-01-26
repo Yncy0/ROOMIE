@@ -3,7 +3,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LucideFilter } from "lucide-react";
 import supabase from "@/utils/supabase";
-import '../components/ui/loader.css';
+import "@/components/ui/loader.css";
 import {
   useReactTable,
   getCoreRowModel,
@@ -56,13 +56,13 @@ export default function UsersPage() {
           "user_id, user_name, user_email, user_role, user_department, login_time, is_archived"
         )
         .eq("is_archived", false);
-  
+
       if (error) {
         console.error("Error fetching users:", error);
       } else {
-        console.log("Fetched users:", users);  // Log fetched users
-        setUsers(users || []);  // Ensure users are set to the state
-        setData(users || []);  // Set data as well
+        console.log("Fetched users:", users); // Log fetched users
+        setUsers(users || []); // Ensure users are set to the state
+        setData(users || []); // Set data as well
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -71,126 +71,123 @@ export default function UsersPage() {
     }
   };
 
-   // UseEffect to call fetch on page load
-   useEffect(() => {
+  // UseEffect to call fetch on page load
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   // Add User
   const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    user_name: "",
-    user_email: "",
-    user_role: "",
-    user_department: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    setFormData({
+    const [formData, setFormData] = useState({
       user_name: "",
       user_email: "",
       user_role: "",
       user_department: "",
     });
-    onClose();
-  };
 
-  if (!isOpen) return null;
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
-  return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-      <div
-        className="bg-white p-6 rounded-xl shadow-lg"
-        style={{
-          width: "90%",
-          maxWidth: "500px",
-          background: "rgba(255, 255, 255, 0.9)",
-          backdropFilter: "blur(15px)",
-          WebkitBackdropFilter: "blur(15px)",
-        }}
-      >
-        <h2 className="text-lg font-bold mb-4">Add New User</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input
-            type="text"
-            name="user_name"
-            placeholder="Name"
-            value={formData.user_name}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          />
-          <input
-            type="email"
-            name="user_email"
-            placeholder="Email"
-            value={formData.user_email}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          />
-          <select
-            name="user_role"
-            value={formData.user_role}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          >
-            <option value="" disabled>
-              Select Role
-            </option>
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
-          </select>
-          <select
-            name="user_department"
-            value={formData.user_department}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-            >
-            <option value="" disabled>
-              Select Department
-            </option>
-            <option value="CITE">CITE</option>
-            <option value="CBEA">CBEA</option>
-            <option value="CAMP">CAMP</option>
-            <option value="CASE">CASE</option>
-            <option value="CITHM">CITHM</option>
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      onSubmit(formData);
+      setFormData({
+        user_name: "",
+        user_email: "",
+        user_role: "",
+        user_department: "",
+      });
+      onClose();
+    };
 
-          </select>
-          <div className="flex justify-end mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="mr-4 bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+        <div
+          className="bg-white p-6 rounded-xl shadow-lg"
+          style={{
+            width: "90%",
+            maxWidth: "500px",
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(15px)",
+            WebkitBackdropFilter: "blur(15px)",
+          }}
+        >
+          <h2 className="text-lg font-bold mb-4">Add New User</h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input
+              type="text"
+              name="user_name"
+              placeholder="Name"
+              value={formData.user_name}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <input
+              type="email"
+              name="user_email"
+              placeholder="Email"
+              value={formData.user_email}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <select
+              name="user_role"
+              value={formData.user_role}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-[#1f2947] text-white px-4 py-2 rounded-md hover:bg-[#1f2947]"
+              <option value="" disabled>
+                Select Role
+              </option>
+              <option value="Admin">Admin</option>
+              <option value="User">User</option>
+            </select>
+            <select
+              name="user_department"
+              value={formData.user_department}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
             >
-              Add User
-            </button>
-          </div>
-        </form>
+              <option value="" disabled>
+                Select Department
+              </option>
+              <option value="CITE">CITE</option>
+              <option value="CBEA">CBEA</option>
+              <option value="CAMP">CAMP</option>
+              <option value="CASE">CASE</option>
+              <option value="CITHM">CITHM</option>
+            </select>
+            <div className="flex justify-end mt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="mr-4 bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-[#1f2947] text-white px-4 py-2 rounded-md hover:bg-[#1f2947]"
+              >
+                Add User
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    );
   };
   const handleAddUserSubmit = async (newUser) => {
     try {
-      const { data, error } = await supabase
-        .from("users")
-        .insert([newUser]);
+      const { data, error } = await supabase.from("users").insert([newUser]);
 
       if (error) {
         console.error("Error adding user:", error);
@@ -205,133 +202,134 @@ export default function UsersPage() {
 
   // Edit User
   const EditUserModal = ({ isOpen, onClose, onSubmit, user }) => {
-  const [formData, setFormData] = useState({
-    user_name: user?.user_name || '',
-    user_email: user?.user_email || '',
-    user_role: user?.user_role || '',
-    user_department: user?.user_department || '',
-  });
+    const [formData, setFormData] = useState({
+      user_name: user?.user_name || "",
+      user_email: user?.user_email || "",
+      user_role: user?.user_role || "",
+      user_department: user?.user_department || "",
+    });
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        user_name: user.user_name,
-        user_email: user.user_email,
-        user_role: user.user_role,
-        user_department: user.user_department,
-      });
-    }
-  }, [user]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { user_name, user_email, user_role, user_department } = formData;
-    const user_id = user?.user_id;  // Ensure user_id is from the passed user object
-  
-    if (!user_id) {
-      alert("User ID is missing.");
-      return;
-    }
-  
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .update({ user_name, user_email, user_role, user_department })
-        .eq("user_id", user_id); // Use the correct user_id here
-  
-      if (error) {
-        console.error("Error updating user:", error);
-        throw error;
+    useEffect(() => {
+      if (user) {
+        setFormData({
+          user_name: user.user_name,
+          user_email: user.user_email,
+          user_role: user.user_role,
+          user_department: user.user_department,
+        });
       }
-  
-      console.log("User updated:", data);
-      alert("User updated successfully");
-  
-      // Refresh the page after successful update
-      window.location.reload();
-    } catch (error) {
-      console.error("Error saving data:", error);
-      alert("Error saving user data: " + error.message);
-    }
-  };
-  
+    }, [user]);
 
-  if (!isOpen) return null;
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
-  return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-xl shadow-lg" style={{ maxWidth: '500px' }}>
-        <h2 className="text-lg font-bold mb-4">Edit User</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input
-            type="text"
-            name="user_name"
-            placeholder="Name"
-            value={formData.user_name}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          />
-          <input
-            type="email"
-            name="user_email"
-            placeholder="Email"
-            value={formData.user_email}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          />
-          <select
-            name="user_role"
-            value={formData.user_role}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-          >
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
-          </select>
-          <select
-            name="user_department"
-            value={formData.user_department}
-            onChange={handleChange}
-            required
-            className="input-field border border-gray-300 rounded-lg px-4 py-2"
-            >
-            <option value="" disabled>
-              Select Department
-            </option>
-            <option value="CITE">CITE</option>
-            <option value="CBEA">CBEA</option>
-            <option value="CAMP">CAMP</option>
-            <option value="CASE">CASE</option>
-            <option value="CITHM">CITHM</option>
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const { user_name, user_email, user_role, user_department } = formData;
+      const user_id = user?.user_id; // Ensure user_id is from the passed user object
 
-          </select>
-          <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+      if (!user_id) {
+        alert("User ID is missing.");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .update({ user_name, user_email, user_role, user_department })
+          .eq("user_id", user_id); // Use the correct user_id here
+
+        if (error) {
+          console.error("Error updating user:", error);
+          throw error;
+        }
+
+        console.log("User updated:", data);
+        alert("User updated successfully");
+
+        // Refresh the page after successful update
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+        alert("Error saving user data: " + error.message);
+      }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+        <div
+          className="bg-white p-6 rounded-xl shadow-lg"
+          style={{ maxWidth: "500px" }}
+        >
+          <h2 className="text-lg font-bold mb-4">Edit User</h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input
+              type="text"
+              name="user_name"
+              placeholder="Name"
+              value={formData.user_name}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <input
+              type="email"
+              name="user_email"
+              placeholder="Email"
+              value={formData.user_email}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <select
+              name="user_role"
+              value={formData.user_role}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600"
+              <option value="Admin">Admin</option>
+              <option value="User">User</option>
+            </select>
+            <select
+              name="user_department"
+              value={formData.user_department}
+              onChange={handleChange}
+              required
+              className="input-field border border-gray-300 rounded-lg px-4 py-2"
             >
-              Save Changes
-            </button>
-          </div>
-        </form>
+              <option value="" disabled>
+                Select Department
+              </option>
+              <option value="CITE">CITE</option>
+              <option value="CBEA">CBEA</option>
+              <option value="CAMP">CAMP</option>
+              <option value="CASE">CASE</option>
+              <option value="CITHM">CITHM</option>
+            </select>
+            <div className="flex justify-between mt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    );
   };
   const openEditModal = (user) => {
     setUserToEdit(user);
@@ -343,7 +341,7 @@ export default function UsersPage() {
         .from("users")
         .update(updatedUser)
         .eq("user_id", updatedUser.user_id);
-  
+
       if (error) {
         console.error("Error updating user:", error);
       } else {
@@ -357,25 +355,27 @@ export default function UsersPage() {
 
   // Delete Modal
   const ConfirmModal = ({ onConfirm, onCancel }) => (
-  <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-md shadow-lg">
-      <h2 className="text-lg font-bold">Are you sure you want to delete this user?</h2>
-      <div className="flex justify-around mt-4">
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-          onClick={onConfirm}
-        >
-          Yes
-        </button>
-        <button
-          className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
-          onClick={onCancel}
-        >
-          No
-        </button>
+    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-md shadow-lg">
+        <h2 className="text-lg font-bold">
+          Are you sure you want to delete this user?
+        </h2>
+        <div className="flex justify-around mt-4">
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            onClick={onConfirm}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+            onClick={onCancel}
+          >
+            No
+          </button>
+        </div>
       </div>
     </div>
-  </div>
   );
   const handleDelete = async () => {
     if (!userIdToDelete) return;
@@ -392,7 +392,9 @@ export default function UsersPage() {
 
       console.log("User archived successfully:", data);
 
-      setData((prevData) => prevData.filter((user) => user.user_id !== userIdToDelete));
+      setData((prevData) =>
+        prevData.filter((user) => user.user_id !== userIdToDelete)
+      );
 
       navigate("/archieves");
 
@@ -410,11 +412,13 @@ export default function UsersPage() {
   const applyFilters = () => {
     console.log("Applying filters:", filters);
     console.log("All users:", users);
-  
+
     // Apply filter conditions
     const filteredUsers = users
       .filter((user) => {
-        const matchesRole = filters.role ? user.user_role === filters.role : true;
+        const matchesRole = filters.role
+          ? user.user_role === filters.role
+          : true;
         const matchesDepartment = filters.department
           ? user.user_department === filters.department
           : true;
@@ -444,10 +448,10 @@ export default function UsersPage() {
         }
         return 0;
       });
-  
+
     // Debug log filtered data
     console.log("Filtered users:", filteredUsers);
-  
+
     // Update data state with filtered users
     if (filteredUsers.length === 0) {
       console.log("No users match the filter criteria.");
@@ -461,8 +465,8 @@ export default function UsersPage() {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
   const resetFilters = (event) => {
-    event.preventDefault();  // Prevents the default form behavior
-  
+    event.preventDefault(); // Prevents the default form behavior
+
     // Reset filters
     setFilters({
       role: "",
@@ -470,12 +474,16 @@ export default function UsersPage() {
       sortField: "name",
       sortOrder: "asc",
     });
-  
+
     // Optionally, reapply the filters to show the unfiltered table
     // For example, you can reset the data or trigger a re-fetch of the users:
-    fetchUsers();  // If you want to refresh the users data after resetting the filters
+    fetchUsers(); // If you want to refresh the users data after resetting the filters
   };
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0, height: 0 });
+  const [buttonPosition, setButtonPosition] = useState({
+    top: 0,
+    left: 0,
+    height: 0,
+  });
   const handleFilterButtonClick = (event) => {
     const rect = event.target.getBoundingClientRect(); // Get the button's position
     setButtonPosition({
@@ -485,7 +493,6 @@ export default function UsersPage() {
     });
     toggleFilterModal(); // Toggle the modal
   };
-  
 
   //search
   const filteredData = useMemo(() => {
@@ -504,7 +511,7 @@ export default function UsersPage() {
       );
     });
   }, [searchQuery, data]);
-  
+
   //Table Column Contents
   const columns = React.useMemo(
     () => [
@@ -519,15 +526,15 @@ export default function UsersPage() {
         accessorKey: "edit_user",
         cell: ({ row }) => (
           <button
-          onClick={(event) => {
-            event.stopPropagation();
-            openEditModal(row.original);
-          }}
-          className="border-solid border-2 border-[#2B32B2] py-1 w-28 text-center rounded-[50px]
+            onClick={(event) => {
+              event.stopPropagation();
+              openEditModal(row.original);
+            }}
+            className="border-solid border-2 border-[#2B32B2] py-1 w-28 text-center rounded-[50px]
            text-[#2B32B2] font-medium"
-        >
-          Edit
-        </button>
+          >
+            Edit
+          </button>
         ),
       },
       {
@@ -548,10 +555,9 @@ export default function UsersPage() {
             </button>
           );
         },
-      }
+      },
     ],
-    [data]
-    [filteredData]
+    [data][filteredData]
   );
 
   //Pagination
@@ -591,22 +597,22 @@ export default function UsersPage() {
         <div className="flex gap-4 w-full items-center sm:w-auto">
           <FontAwesomeIcon icon={faMagnifyingGlass} />
           <input
-          className="input-search min-w-[400px] bg-transparent border-2 
+            className="input-search min-w-[400px] bg-transparent border-2 
           border-gray-300 text-gray-500 rounded-lg p-2"
-          type="text" 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search"
-        />
-        <button
-          onClick={handleFilterButtonClick} // Trigger positioning on click
-          className="flex flex-row items-center gap-2 px-4 py-2 
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search"
+          />
+          <button
+            onClick={handleFilterButtonClick} // Trigger positioning on click
+            className="flex flex-row items-center gap-2 px-4 py-2 
           border-solid border-[#E6E6E6] border-2 bg-white rounded-lg 
           text-base w-auto h-auto"
-        >
-        <LucideFilter width={"16px"} />
-          Filter
-        </button>
+          >
+            <LucideFilter width={"16px"} />
+            Filter
+          </button>
         </div>
 
         {/*Add User*/}
@@ -614,23 +620,24 @@ export default function UsersPage() {
           onClick={() => setIsAddUserModalOpen(true)}
           className="flex items-center justify-center text-[#35487a] bg-transparent border-2 border-solid 
           border-[#35487a] rounded-lg py-2 px-8 text-sm font-medium cursor-pointer transition-colors duration-300 
-          hover:bg-[#35487a] hover:text-white mt-4">
+          hover:bg-[#35487a] hover:text-white mt-4"
+        >
           <span
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              height: '100%',
-              borderRadius: '6px',
-              transition: 'background-color 0.3s ease-in-out',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+              borderRadius: "6px",
+              transition: "background-color 0.3s ease-in-out",
             }}
           >
             Add Room
           </span>
         </button>
       </div>
-      
+
       {/*Nothing to edit here*/}
       <div className="round-box p-6 overflow-x-auto">
         <Table>
@@ -671,120 +678,129 @@ export default function UsersPage() {
           <button
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className={`p-2 rounded ${!table.getCanPreviousPage() ? "text-gray-400" : "text-[#35487a]"}`}
+            className={`p-2 rounded ${
+              !table.getCanPreviousPage() ? "text-gray-400" : "text-[#35487a]"
+            }`}
           >
             <ChevronsLeftIcon />
           </button>
-            
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className={`p-2 rounded ${!table.getCanPreviousPage() ? "text-gray-400" : "text-[#35487a]"}`}
-            >
-              <ChevronLeft />
-            </button>
-            
-            <span className="font-bold font-roboto px-4 text-[#35487a]">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-            </span>
-            
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className={`p-2 rounded ${!table.getCanNextPage() ? "text-gray-400" : "text-[#35487a]"}`}
-            >
-              <ChevronRight />
-              </button>
-            <button
-             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-             sdisabled={!table.getCanNextPage()}
-             className={`p-2 rounded ${!table.getCanNextPage() ? "text-gray-400" : "text-[#35487a]"}`}
-            >
-              <ChevronsRight />
-            </button>
+
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className={`p-2 rounded ${
+              !table.getCanPreviousPage() ? "text-gray-400" : "text-[#35487a]"
+            }`}
+          >
+            <ChevronLeft />
+          </button>
+
+          <span className="font-bold font-roboto px-4 text-[#35487a]">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
+
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className={`p-2 rounded ${
+              !table.getCanNextPage() ? "text-gray-400" : "text-[#35487a]"
+            }`}
+          >
+            <ChevronRight />
+          </button>
+          <button
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            sdisabled={!table.getCanNextPage()}
+            className={`p-2 rounded ${
+              !table.getCanNextPage() ? "text-gray-400" : "text-[#35487a]"
+            }`}
+          >
+            <ChevronsRight />
+          </button>
         </div>
       </div>
 
-    {/*Modals*/} 
-    {isModalOpen && (
-      <ConfirmModal
-        onConfirm={() => handleDelete(userIdToDelete)}
-        onCancel={() => setIsModalOpen(false)}
+      {/*Modals*/}
+      {isModalOpen && (
+        <ConfirmModal
+          onConfirm={() => handleDelete(userIdToDelete)}
+          onCancel={() => setIsModalOpen(false)}
         />
       )}
 
-    {isAddUserModalOpen && (
-      <AddUserModal
-        isOpen={isAddUserModalOpen}
-        onClose={() => setIsAddUserModalOpen(false)}
-        onSubmit={handleAddUserSubmit}
+      {isAddUserModalOpen && (
+        <AddUserModal
+          isOpen={isAddUserModalOpen}
+          onClose={() => setIsAddUserModalOpen(false)}
+          onSubmit={handleAddUserSubmit}
         />
       )}
-      
-    {isEditUserModalOpen && (
-      <EditUserModal
-      isOpen={isEditUserModalOpen}
-      onClose={() => setIsEditUserModalOpen(false)}
-      onSubmit={handleEditUserSubmit}
-      user={userToEdit}
-      />
+
+      {isEditUserModalOpen && (
+        <EditUserModal
+          isOpen={isEditUserModalOpen}
+          onClose={() => setIsEditUserModalOpen(false)}
+          onSubmit={handleEditUserSubmit}
+          user={userToEdit}
+        />
       )}
-    
-    {isFilterOpen && (
-  <div
-    className="absolute bg-white shadow-lg p-4 rounded-md w-[300px] transition-all duration-300 ease-in-out"
-    style={{
-      top: `${buttonPosition.top + buttonPosition.height + 10}px`, // Position below the button
-      left: `${buttonPosition.left}px`, // Align with the left of the button
-    }}
-  >
-    <h3 className="text-lg font-semibold mb-3">Filter Users</h3>
-    <div className="flex flex-col gap-3">
-      {/* Filter Form */}
-      <label>
-        Sort by:
-        <select
-          name="sortField"
-          value={filters.sortField}
-          onChange={handleFilterChange}
-          className="border p-2 rounded w-full"
-        >
-          <option value="name">Name</option>
-          <option value="role">Role</option>
-          <option value="department">Department</option>
-        </select>
-      </label>
 
-      <label>
-        Order:
-        <select
-          name="sortOrder"
-          value={filters.sortOrder}
-          onChange={handleFilterChange}
-          className="border p-2 rounded w-full"
+      {isFilterOpen && (
+        <div
+          className="absolute bg-white shadow-lg p-4 rounded-md w-[300px] transition-all duration-300 ease-in-out"
+          style={{
+            top: `${buttonPosition.top + buttonPosition.height + 10}px`, // Position below the button
+            left: `${buttonPosition.left}px`, // Align with the left of the button
+          }}
         >
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-      </label>
+          <h3 className="text-lg font-semibold mb-3">Filter Users</h3>
+          <div className="flex flex-col gap-3">
+            {/* Filter Form */}
+            <label>
+              Sort by:
+              <select
+                name="sortField"
+                value={filters.sortField}
+                onChange={handleFilterChange}
+                className="border p-2 rounded w-full"
+              >
+                <option value="name">Name</option>
+                <option value="role">Role</option>
+                <option value="department">Department</option>
+              </select>
+            </label>
 
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={resetFilters}
-          className="bg-gray-300 px-4 py-2 rounded"
-        >
-          Reset
-        </button>
-        <button
-          onClick={applyFilters} // Apply filters
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Apply
-        </button>
-      </div>
+            <label>
+              Order:
+              <select
+                name="sortOrder"
+                value={filters.sortOrder}
+                onChange={handleFilterChange}
+                className="border p-2 rounded w-full"
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </label>
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={resetFilters}
+                className="bg-gray-300 px-4 py-2 rounded"
+              >
+                Reset
+              </button>
+              <button
+                onClick={applyFilters} // Apply filters
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-      )}
-  </div>
   );
 }
