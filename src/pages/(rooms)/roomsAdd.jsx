@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "@/utils/supabase";
 import { v4 as uuidv4 } from "uuid";
 import { useInsertRooms } from "@/hooks/queries/rooms/useInsertRooms";
@@ -23,98 +23,277 @@ function RoomsAdd() {
 
   const insertBuilding = useInsertBuilding(room_location);
 
-  const onHandleInsert = async () => {
-    try {
-      if (insertRooms && insertBuilding) {
-        await insertRooms();
-        await insertBuilding();
-        alert("Data saved successfully");
-        navigate("/rooms");
-      }
-    } catch (error) {
-      console.error("Error inserting data:", error);
-      alert("There was an error saving the data. Please try again.");
+  const onHandleInsert = () => {
+    if (insertRooms && insertBuilding) {
+      insertRooms;
+      insertBuilding;
+
+      alert("Data saved successfully");
+      navigate("/rooms");
     }
   };
 
   return (
-    <div className="round-box flex flex-col bg-white gap-4 p-4">
-      <h1 className="text-center font-bold text-lg">Create New Room</h1>
-      <div className="flex justify-center">
+    <div style={{ padding: '2.5rem 2rem', backgroundColor: '#fff', gap: '1.25rem' }}>
+      <h1 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.25rem', paddingBottom: '30px' }}>Create New Room</h1>
+  
+      {/* Image Preview */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         <img
-          src={
-            room_image ? room_image : "src/assets/dummy/image-placeholder.png"
-          }
+          src={room_image ? room_image : "src/assets/dummy/image-placeholder.png"}
           alt="Room Preview"
-          className="object-cover w-64"
+          style={{ objectFit: 'cover', width: '16rem' }} // 64px equivalent
         />
       </div>
+  
       {/* Image File Input */}
-      <label htmlFor="imageInput">Upload Image</label>
-      <input
-        id="imageInput"
-        type="file"
-        accept="image/*"
-        onChange={(e) =>
-          setRoomImage(
-            e.target.files[0] ? URL.createObjectURL(e.target.files[0]) : ""
-          )
-        }
-        className="border-2 border-gray-300 p-2 rounded-md"
-      />
-      <label htmlFor="roomName">Room Name</label>
-      <input
-        id="roomName"
-        className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-        value={room_name}
-        type="text"
-        placeholder="Enter room name here"
-        onChange={(e) => setRoomName(e.target.value)}
-      />
-      <label htmlFor="roomDescription">Room Description</label>
-      <input
-        id="roomDescription"
-        className="bg-none border-solid border-2 border-gray-300 p-2 pb-32 rounded-md text-sm"
-        value={room_type}
-        type="text"
-        placeholder="Enter room description here"
-        onChange={(e) => setRoomType(e.target.value)}
-      />
-      <label htmlFor="roomCapacity">Room Capacity</label>
-      <input
-        id="roomCapacity"
-        className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-        value={room_capacity}
-        type="text"
-        placeholder="Enter room capacity"
-        onChange={(e) => setRoomCapacity(e.target.value)}
-      />
-      <label htmlFor="roomLocation">Room Location/Building</label>
-      <input
-        id="roomLocation"
-        className="bg-none border-solid border-2 border-gray-300 p-2 rounded-md text-sm"
-        value={room_location}
-        type="text"
-        placeholder="Enter room location"
-        onChange={(e) => setRoomLocation(e.target.value)}
-      />
-      <div className="flex flex-row justify-center gap-8 w-full">
+      <div className="inputGroup" style={{ fontFamily: "'Segoe UI', sans-serif", margin: '1.7em 0', position: 'relative' }}>
+        <input
+          id="imageInput"
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setRoomImage(e.target.files[0] ? URL.createObjectURL(e.target.files[0]) : "")
+          }
+          style={{
+            fontSize: '100%',
+            padding: '30px',
+            outline: 'none',
+            border: '2px solid #35487a',
+            backgroundColor: 'transparent',
+            borderRadius: '20px',
+            width: '100%',
+          }}
+        />
+        <label
+          htmlFor="imageInput"
+          style={{
+            fontSize: '100%',
+            position: 'absolute',
+            left: '0',
+            padding: '0.8em',
+            marginLeft: '0.5em',
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            color: '#35487a',
+          }}
+        >
+          Upload Image
+        </label>
+      </div>
+  
+      {/* Room Name */}
+      <div className="inputGroup" style={{ fontFamily: "'Segoe UI', sans-serif", margin: '1.8em 0', position: 'relative' }}>
+        <input
+          id="roomName"
+          value={room_name}
+          type="text"
+          placeholder=" "
+          onChange={(e) => setRoomName(e.target.value)}
+          required
+          style={{
+            fontSize: '100%',
+            padding: '12px',
+            outline: 'none',
+            border: '2px solid #35487a',
+            backgroundColor: 'transparent',
+            borderRadius: '20px',
+            width: '100%',
+          }}
+        />
+        <label
+          htmlFor="roomName"
+          style={{
+            fontSize: '100%',
+            position: 'absolute',
+            left: '0',
+            padding: '0.8em',
+            marginLeft: '0.5em',
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            color: '#35487a',
+          }}
+        >
+          Room Name
+        </label>
+      </div>
+  
+      {/* Room Description */}
+      <div className="inputGroup" style={{ fontFamily: "'Segoe UI', sans-serif", margin: '1.8em 0', position: 'relative' }}>
+        <input
+          id="roomDescription"
+          value={room_type}
+          type="text"
+          placeholder=" "
+          onChange={(e) => setRoomType(e.target.value)}
+          required
+          style={{
+            fontSize: '100%',
+            padding: '12px',
+            outline: 'none',
+            border: '2px solid #35487a',
+            backgroundColor: 'transparent',
+            borderRadius: '20px',
+            width: '100%',
+          }}
+        />
+        <label
+          htmlFor="roomDescription"
+          style={{
+            fontSize: '100%',
+            position: 'absolute',
+            left: '0',
+            padding: '14px',
+            marginLeft: '0.5em',
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            color: '#35487a',
+          }}
+        >
+          Room Description
+        </label>
+      </div>
+  
+      {/* Room Capacity */}
+      <div className="inputGroup" style={{ fontFamily: "'Segoe UI', sans-serif", margin: '1.8em 0', position: 'relative' }}>
+        <input
+          id="roomCapacity"
+          value={room_capacity}
+          type="text"
+          placeholder=" "
+          onChange={(e) => setRoomCapacity(e.target.value)}
+          required
+          style={{
+            fontSize: '100%',
+            padding: '12px',
+            outline: 'none',
+            border: '2px solid #35487a',
+            backgroundColor: 'transparent',
+            borderRadius: '20px',
+            width: '100%',
+          }}
+        />
+        <label
+          htmlFor="roomCapacity"
+          style={{
+            fontSize: '100%',
+            position: 'absolute',
+            left: '0',
+            padding: '0.8em',
+            marginLeft: '0.5em',
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            color: '#35487a',
+          }}
+        >
+          Room Capacity
+        </label>
+      </div>
+  
+      {/* Room Location */}
+      <div className="inputGroup" style={{ fontFamily: "'Segoe UI', sans-serif", margin: '1.8em 0', position: 'relative' }}>
+        <input
+          id="roomLocation"
+          value={room_location}
+          type="text"
+          placeholder=" "
+          onChange={(e) => setRoomLocation(e.target.value)}
+          required
+          style={{
+            fontSize: '100%',
+            padding: '12px',
+            outline: 'none',
+            border: '2px solid #35487a',
+            backgroundColor: 'transparent',
+            borderRadius: '20px',
+            width: '100%',
+          }}
+        />
+        <label
+          htmlFor="roomLocation"
+          style={{
+            fontSize: '100%',
+            position: 'absolute',
+            left: '0',
+            padding: '0.8em',
+            marginLeft: '0.5em',
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            color: '#35487a',
+          }}
+        >
+          Room Location/Building
+        </label>
+      </div>
+  
+      {/* Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', width: '100%' }}>
         <button
           onClick={() => setClose(!close)}
-          className="bg-gray-100 w-full text-center p-2 rounded-md"
+          style={{
+          border: '2px solid #d1d1d1',
+          backgroundColor: '#f1f1f1',
+          borderRadius: '0.9em',
+          cursor: 'pointer',
+          padding: '0.8em 1.2em',
+          fontSize: '16px',
+          fontWeight: 500,
+          color: '#333',
+          transition: 'background-color 0.2s ease-in-out',
+          width: '100%', // Full width
+          maxWidth: '100%', // Ensure it doesn't exceed the screen width
+          textAlign: 'center', // Center text inside the button
+          }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#e1e1e1')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#f1f1f1')}
         >
           Cancel
         </button>
-        {close && <Navigate to="/rooms" />}
-        <button
-          onClick={onHandleInsert}
-          className="bg-[#2B32B2] text-white w-full text-center p-2 rounded-md"
-        >
-          Create
-        </button>
+
+  {close && <Navigate to="/rooms" />}
+  <button
+    onClick={onHandleInsert}
+    style={{
+      border: '2px solid #35487a',
+      backgroundColor: '#6b92e5',
+      borderRadius: '0.9em',
+      cursor: 'pointer',
+      padding: '0.8em 1.2em',
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#fff',
+      transition: 'background-color 0.2s ease-in-out',
+      width: '100%', // Full width
+      maxWidth: '100%', // Ensure it doesn't exceed the screen width
+      textAlign: 'center', // Center text inside the button
+    }}
+    onMouseOver={(e) => (e.target.style.backgroundColor = '#35487a')}
+    onMouseOut={(e) => (e.target.style.backgroundColor = '#6b92e5')}
+  >
+    Create
+  </button>
       </div>
+
+      {/* Style for animation in Add Room Forms */}
+      <style>
+  {`
+    .inputGroup input:focus ~ label,
+    .inputGroup input:valid ~ label {
+      transform: translateY(-50%) scale(0.9); /* Raised higher */
+      margin-left: 1.3em;
+      padding: 0.4em;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 5) 0%, rgba(255,255, 255, 3) 70%, transparent 100%);
+      border-radius: 20px; /* Rounded corners */
+    }
+
+    .inputGroup input:focus,
+    .inputGroup input:valid {
+      border-color: rgb(150, 150, 200);
+    }
+  `}
+      </style>
     </div>
   );
-}
+}  
 
 export default RoomsAdd;

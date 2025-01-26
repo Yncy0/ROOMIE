@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import supabase from "@/utils/supabase";
 
 function UserAdd() {
@@ -38,9 +38,11 @@ function UserAdd() {
   };
 
   return (
+    //Form Fields
     <div className="round-box flex flex-col bg-white gap-4 p-4">
       <h1 className="text-center font-bold text-lg">Create New User</h1>
 
+      {/*Name*/}
       <label htmlFor="userName">Name</label>
       <input
         id="userName"
@@ -51,6 +53,7 @@ function UserAdd() {
         onChange={(e) => setName(e.target.value)}
       />
 
+      {/*Email*/}
       <label htmlFor="userEmail">Email</label>
       <input
         id="userEmail"
@@ -61,6 +64,7 @@ function UserAdd() {
         onChange={(e) => setEmail(e.target.value)}
       />
 
+      {/*Role*/}
       <label htmlFor="userRole">Role</label>
       <input
         id="userRole"
@@ -71,6 +75,7 @@ function UserAdd() {
         onChange={(e) => setRole(e.target.value)}
       />
 
+      {/*Department*/}
       <label htmlFor="userDepartment">Department</label>
       <input
         id="userDepartment"
@@ -81,6 +86,7 @@ function UserAdd() {
         onChange={(e) => setDepartment(e.target.value)}
       />
 
+      {/*Buttons*/}
       <div className="flex flex-row justify-center gap-8 w-full">
         <button
           onClick={handleCancel}
