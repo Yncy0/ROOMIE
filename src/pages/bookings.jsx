@@ -16,6 +16,7 @@ import ReactDOM from "react-dom";
 import Modal from "react-modal";
 
 import dayjs from "dayjs";
+import { useUpdateBookedRooms } from "@/hooks/queries/bookedRooms/useUpdateBookedRooms";
 
 const customStyles = {
   content: {
@@ -113,7 +114,16 @@ const BookingsPage = () => {
               <p>{`Do you want to grant access the status: ${selectedBooking?.status} on ${selectedBooking?.profiles.username}?`}</p>
             </div>
             <div className="flex flex-row gap-4">
-              <button onClick={() => {}}>Yes</button>
+              <button
+                onClick={() =>
+                  useUpdateBookedRooms(
+                    selectedBooking?.status,
+                    selectedBooking?.id
+                  )
+                }
+              >
+                Yes
+              </button>
               <button onClick={closeModal}>Close</button>
             </div>
           </div>
