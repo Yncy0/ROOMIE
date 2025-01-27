@@ -54,10 +54,8 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       const { data: users, error } = await supabase
-        .from("users")
-        .select(
-          "user_id, user_name, user_email, user_role, user_department, login_time, is_archived"
-        )
+        .from("profiles")
+        .select("*")
         .eq("is_archived", false);
 
       if (error) {
@@ -82,8 +80,8 @@ export default function UsersPage() {
   // Add User
   const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
-      user_name: "",
-      user_email: "",
+      username: "",
+      email: "",
       user_role: "",
       user_department: "",
     });
@@ -97,8 +95,8 @@ export default function UsersPage() {
       e.preventDefault();
       onSubmit(formData);
       setFormData({
-        user_name: "",
-        user_email: "",
+        username: "",
+        email: "",
         user_role: "",
         user_department: "",
       });
@@ -123,18 +121,18 @@ export default function UsersPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
-              name="user_name"
+              name="username"
               placeholder="Name"
-              value={formData.user_name}
+              value={formData.username}
               onChange={handleChange}
               required
               className="input-field border border-gray-300 rounded-lg px-4 py-2"
             />
             <input
               type="email"
-              name="user_email"
+              name="email"
               placeholder="Email"
-              value={formData.user_email}
+              value={formData.email}
               onChange={handleChange}
               required
               className="input-field border border-gray-300 rounded-lg px-4 py-2"
@@ -179,6 +177,7 @@ export default function UsersPage() {
               <button
                 type="submit"
                 className="bg-[#1f2947] text-white px-4 py-2 rounded-md hover:bg-[#1f2947]"
+                onClick={handleSubmit}
               >
                 Add User
               </button>
@@ -190,7 +189,7 @@ export default function UsersPage() {
   };
   const handleAddUserSubmit = async (newUser) => {
     try {
-      const { data, error } = await supabase.from("users").insert([newUser]);
+      const { data, error } = await supabase.from("profiles").insert([newUser]);
 
       if (error) {
         console.error("Error adding user:", error);
@@ -206,8 +205,8 @@ export default function UsersPage() {
   // Edit User
   const EditUserModal = ({ isOpen, onClose, onSubmit, user }) => {
     const [formData, setFormData] = useState({
-      user_name: user?.user_name || "",
-      user_email: user?.user_email || "",
+      username: user?.username || "",
+      email: user?.email || "",
       user_role: user?.user_role || "",
       user_department: user?.user_department || "",
     });
@@ -215,8 +214,8 @@ export default function UsersPage() {
     useEffect(() => {
       if (user) {
         setFormData({
-          user_name: user.user_name,
-          user_email: user.user_email,
+          username: user.username,
+          email: user.email,
           user_role: user.user_role,
           user_department: user.user_department,
         });
@@ -230,7 +229,7 @@ export default function UsersPage() {
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const { user_name, user_email, user_role, user_department } = formData;
+      const { username, email, user_role, user_department } = formData;
       const user_id = user?.user_id; // Ensure user_id is from the passed user object
 
       if (!user_id) {
@@ -240,9 +239,9 @@ export default function UsersPage() {
 
       try {
         const { data, error } = await supabase
-          .from("users")
-          .update({ user_name, user_email, user_role, user_department })
-          .eq("user_id", user_id); // Use the correct user_id here
+          .from("profile")
+          .update({ username, email, user_role, user_department })
+          .eq("id", user_id); // Use the correct user_id here
 
         if (error) {
           console.error("Error updating user:", error);
@@ -272,18 +271,18 @@ export default function UsersPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
-              name="user_name"
+              name="username"
               placeholder="Name"
-              value={formData.user_name}
+              value={formData.username}
               onChange={handleChange}
               required
               className="input-field border border-gray-300 rounded-lg px-4 py-2"
             />
             <input
               type="email"
-              name="user_email"
+              name="email"
               placeholder="Email"
-              value={formData.user_email}
+              value={formData.email}
               onChange={handleChange}
               required
               className="input-field border border-gray-300 rounded-lg px-4 py-2"
@@ -430,9 +429,9 @@ export default function UsersPage() {
       .sort((a, b) => {
         if (filters.sortField === "name") {
           if (filters.sortOrder === "asc") {
-            return a.user_name.localeCompare(b.user_name);
+            return a.username.localeCompare(b.username);
           } else {
-            return b.user_name.localeCompare(a.user_name);
+            return b.username.localeCompare(a.username);
           }
         }
         if (filters.sortField === "role") {
@@ -500,15 +499,15 @@ export default function UsersPage() {
   //search
   const filteredData = useMemo(() => {
     return data.filter((user) => {
-      const userName = user.user_name?.[0].toLowerCase() || "";
-      const userEmail = user.user_email?.[0].toLowerCase() || "";
+      const username = user.username?.[0].toLowerCase() || "";
+      const email = user.email?.[0].toLowerCase() || "";
       const userRole = user.user_role?.[0].toLowerCase() || "";
       const userDepartment = user.user_department?.[0].toLowerCase() || "";
       const searchQueryFirstLetter = searchQuery[0]?.toLowerCase() || ""; // First letter of the search query
 
       return (
-        userName.includes(searchQuery.toLowerCase()) ||
-        userEmail.includes(searchQuery.toLowerCase()) ||
+        username.includes(searchQuery.toLowerCase()) ||
+        email.includes(searchQuery.toLowerCase()) ||
         userRole.includes(searchQuery.toLowerCase()) ||
         userDepartment.includes(searchQuery.toLowerCase())
       );
@@ -518,9 +517,9 @@ export default function UsersPage() {
   //Table Column Contents
   const columns = React.useMemo(
     () => [
-      { header: "UserID", accessorKey: "user_id" },
-      { header: "Name", accessorKey: "user_name" },
-      { header: "Email", accessorKey: "user_email" },
+      { header: "UserID", accessorKey: "id" },
+      { header: "Name", accessorKey: "username" },
+      { header: "Email", accessorKey: "email" },
       { header: "Role", accessorKey: "user_role" },
       { header: "Department", accessorKey: "user_department" },
       { header: "Last Login", accessorKey: "login_time" },
@@ -714,7 +713,7 @@ export default function UsersPage() {
           </button>
           <button
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            sdisabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage()}
             className={`p-2 rounded ${
               !table.getCanNextPage() ? "text-gray-400" : "text-[#35487a]"
             }`}
