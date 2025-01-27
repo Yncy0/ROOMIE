@@ -17,6 +17,17 @@ import Modal from "react-modal";
 
 import dayjs from "dayjs";
 
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
+
 const BookingsPage = () => {
   let subtitle;
   const { data, isLoading, error } = useFetchBookedRooms();
@@ -94,12 +105,17 @@ const BookingsPage = () => {
           onAfterOpen={afterOpenModal}
           onRequestClose={closeModal}
           contentLabel="Example Modal"
+          style={customStyles}
         >
-          <div>
-            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Permission</h2>
-            <p>{`Do you want to grant access the status: ${selectedBooking?.status} on ${selectedBooking?.profiles.username}?`}</p>
-            <button onClick={() => {}}>Yes</button>
-            <button onClick={closeModal}>close</button>
+          <div className="w-full flex flex-col gap-5">
+            <div>
+              <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Permission</h2>
+              <p>{`Do you want to grant access the status: ${selectedBooking?.status} on ${selectedBooking?.profiles.username}?`}</p>
+            </div>
+            <div className="flex flex-row gap-4">
+              <button onClick={() => {}}>Yes</button>
+              <button onClick={closeModal}>Close</button>
+            </div>
           </div>
         </Modal>
       </CardContent>
