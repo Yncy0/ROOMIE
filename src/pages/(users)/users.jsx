@@ -27,8 +27,11 @@ import {
   ChevronsLeft as ChevronsLeftIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useFetchUsers } from "@/hooks/queries/users/useFetchUsers";
 
 export default function UsersPage() {
+  // const { data, error } = useFetchUsers();
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -633,7 +636,7 @@ export default function UsersPage() {
               transition: "background-color 0.3s ease-in-out",
             }}
           >
-            Add Room
+            Add User
           </span>
         </button>
       </div>

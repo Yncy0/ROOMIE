@@ -17,6 +17,7 @@ import UserEdit from "./pages/(users)/userEdit";
 import UserSchedulePage from "./pages/userSchedule";
 import Root from "./pages/root";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import SchedulePage from "./pages/schedule";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "User Schedule",
+        path: "user_schedule",
         element: <UserSchedulePage />,
       },
 
@@ -48,7 +49,10 @@ const router = createBrowserRouter([
         path: "user_edit",
         element: <UserEdit />,
       },
-
+      {
+        path: "schedule",
+        element: <SchedulePage />,
+      },
       {
         path: "backlogs",
         element: <BacklogsPage />,
