@@ -115,12 +115,9 @@ const BookingsPage = () => {
             </div>
             <div className="flex flex-row gap-4">
               <button
-                onClick={() =>
-                  useUpdateBookedRooms(
-                    selectedBooking?.status,
-                    selectedBooking?.id
-                  )
-                }
+                onClick={() => {
+                  useUpdateBookedRooms("ON GOING", selectedBooking?.id);
+                }}
               >
                 Yes
               </button>
