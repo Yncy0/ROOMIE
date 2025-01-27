@@ -32,7 +32,10 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import PrintIcon from "@mui/icons-material/Print"; // Import the print icon
-import PrintablePage from "./print";
+import PrintablePage from "@/components/u_schedule/print";
+import EventModal from "@/components/u_schedule/EventModal";
+import CheckConflict from "@/components/u_schedule/conflictChecker";
+import "@/components/u_schedule/u_schedule.css"; // Import the CSS file
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -54,135 +57,203 @@ const UserSchedulePage = () => {
   const [modalType, setModalType] = useState("booking");
   const [formData, setFormData] = useState({
     subject_code: "",
-    section: "",
     date: "",
     time_in: "",
     time_out: "",
     room_id: "",
-    user_id: "",
-    weekday: "",
+    day: "",
     schedule_id: "",
     booking_id: "",
+    profile_id: "",
+    course_name: "",
+    course_year: "",
+    course_section: "",
   });
-
   const [rooms, setRooms] = useState([]);
   const [userInfo, setUserInfo] = useState({});
   const [allUsers, setAllUsers] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
+  const showIdColumn = false;
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      const { data: allUsers, error: usersError } = await supabase
-        .from("users")
-        .select("user_name, user_email, user_department, user_id");
+      try {
+        // Fetch Users
+        const { data: allUsers, error: usersError } = await supabase
+          .from("profiles")
+          .select("*");
+        if (usersError)
+          throw new Error("Error fetching users: " + usersError.message);
 
-      if (usersError) {
-        console.error("Error fetching users:", usersError);
-        setIsLoading(false);
-        return;
-      }
+        // Fetch Schedule
+        const { data: scheduleData, error: scheduleError } = await supabase
+          .from("schedule")
+          .select("*, rooms (*), profiles (*), subject (*), course (*)");
+        if (scheduleError)
+          throw new Error("Error fetching schedule: " + scheduleError.message);
 
-      const { data: scheduleData, error: scheduleError } = await supabase
-        .from("schedule")
-        .select(
-          "*, rooms (*), subject_code, section, time_in, time_out, status, weekday, users (user_name, user_email, user_department, user_id)"
+        // Fetch Bookings
+        const { data: bookingData, error: bookingError } = await supabase
+          .from("booked_rooms")
+          .select("*, rooms (*), profiles (*)");
+        if (bookingError)
+          throw new Error("Error fetching bookings: " + bookingError.message);
+
+        // Fetch Rooms
+        const { data: roomData, error: roomError } = await supabase
+          .from("rooms")
+          .select("*");
+        if (roomError)
+          throw new Error("Error fetching rooms: " + roomError.message);
+
+        setRooms(roomData);
+
+        // Transform Data
+        const transformedScheduleData = transformData(scheduleData, "schedule");
+        const transformedBookingData = transformData(bookingData, "booking");
+
+        setScheduleData(transformedScheduleData);
+        setBookingData(transformedBookingData);
+        setFilteredData(transformedScheduleData);
+
+        // Generate User Options
+        const users = Array.from(
+          new Set([
+            ...scheduleData.map((item) => item.profiles?.username),
+            ...bookingData.map((item) => item.profiles?.username),
+            ...allUsers.map((user) => user.username),
+          ])
         );
 
-      if (scheduleError) {
-        console.error("Error fetching schedule data:", scheduleError);
+        setUserOptions(users);
+        setAllUsers(allUsers);
+      } catch (error) {
+        console.error(error.message);
+      } finally {
         setIsLoading(false);
-        return;
       }
-
-      const { data: bookingData, error: bookingError } = await supabase
-        .from("booking")
-        .select(
-          "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, users (user_name, user_email, user_department, user_id)"
-        );
-
-      if (bookingError) {
-        console.error("Error fetching booking data:", bookingError);
-        setIsLoading(false);
-        return;
-      }
-
-      const { data: roomData, error: roomError } = await supabase
-        .from("rooms")
-        .select("room_id, room_name");
-
-      if (roomError) {
-        console.error("Error fetching rooms:", roomError);
-        setIsLoading(false);
-        return;
-      }
-
-      setRooms(roomData);
-
-      const transformedScheduleData = transformData(scheduleData);
-      const transformedBookingData = transformData(bookingData);
-
-      setScheduleData(transformedScheduleData);
-      setBookingData(transformedBookingData);
-      setFilteredData(transformedScheduleData);
-
-      const users = Array.from(
-        new Set([
-          ...scheduleData.map((item) => item.users?.user_name),
-          ...bookingData.map((item) => item.users?.user_name),
-          ...allUsers.map((user) => user.user_name),
-        ])
-      );
-      setUserOptions(users);
-      setAllUsers(allUsers);
-      setIsLoading(false);
     };
 
     fetchData();
   }, []);
 
-  const transformData = (data) =>
+  const getSubjectId = async (subjectCode) => {
+    try {
+      // Fetch the subject based on subject_code
+      const { data: subjectData, error } = await supabase
+        .from("subject")
+        .select("id")
+        .eq("subject_code", subjectCode)
+        .single();
+
+      if (error) throw error;
+
+      // Return the subject_id if the subject exists
+      if (subjectData) {
+        return subjectData.id;
+      } else {
+        throw new Error("Subject not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching subject:", error.message);
+      throw error;
+    }
+  };
+
+  const transformData = (data, type) =>
     data.map((item) => {
+      const isBooking = type === "booking";
       return {
         event_id: `${item.rooms?.room_name || "Unknown"}-${
-          item.weekday || "Unknown"
+          item.days || item.date || "Unknown"
         }`,
+
         start: item.time_in
           ? dayjs
-              .tz(`${item.weekday} ${item.time_in}`, "dddd H:mm", "Asia/Manila")
+              .utc(item.time_in) // Parse the UTC time first
+              .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
               .toDate()
           : null,
+
         end: item.time_out
           ? dayjs
-              .tz(
-                `${item.weekday} ${item.time_out}`,
-                "dddd H:mm",
-                "Asia/Manila"
-              )
+              .utc(item.time_out) // Parse the UTC time first
+              .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
               .toDate()
           : null,
+
         room_name: item.rooms?.room_name || "Unknown Room",
-        section: item.section || "Unknown",
-        user_name: item.users?.user_name || "Unknown",
+        section: isBooking
+          ? item.course_and_section || "Unknown Section"
+          : item.course?.course_section || "Unknown Section",
+
+        user_name: item.profiles?.username || "Unknown",
         time_in: item.time_in,
         time_out: item.time_out,
-        weekday: item.weekday || "Unknown",
-        subject_code: item.subject_code || "Unknown",
-        email: item.users?.user_email || "Unknown Email",
-        department: item.users?.user_department || "Unknown Department",
-        id: item.users?.user_id || "Unknown ID",
+        days: item.days || "Unknown",
+
+        subject_code: isBooking
+          ? item.subject_name || "Unknown Subject"
+          : item.subject?.subject_code || "Unknown",
+
+        subject: isBooking
+          ? item.subject_code || "Unknown Subject" // Adjusted for booking
+          : item.subject?.subject_code || "Unknown", // Adjusted for schedule
+
+        email: item.profiles?.email || "Unknown Email",
+        department: item.profiles?.department || "Unknown Department",
+        id: item.profiles?.id || "Unknown ID",
         date: item.date,
         status: item.status || "Pending",
-        schedule_id: item.schedule_id || "", // Include schedule_id for schedules
-        booking_id: item.booking_id || "", // Include booking_id for bookings
+
+        schedule_id: isBooking ? "" : item.id || "",
+        booking_id: isBooking ? item.id || "" : "",
+
+        course_name: isBooking
+          ? item.course_name || "Unknown Course"
+          : item.course?.course_name || "Unknown Course",
+
+        course_year: isBooking
+          ? item.course_year || "Unknown Year"
+          : item.course?.course_year || "Unknown Year",
+
+        course_section: isBooking
+          ? item.course_and_section || "Unknown Section"
+          : item.course?.course_section || "Unknown Section",
+
+        // New fields for extracted booking times (only time, no date)
+        book_timeIn: item.time_in
+          ? dayjs
+              .utc(item.time_in) // Parse UTC time
+              .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
+              .format("HH:mm:ss") // Only time, no date
+          : null,
+
+        book_timeOut: item.time_out
+          ? dayjs
+              .utc(item.time_out) // Parse UTC time
+              .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
+              .format("HH:mm:ss") // Only time, no date
+          : null,
       };
     });
+
   const handleUserSelection = (user) => {
     setSelectedUser(user);
-    const selectedUserInfo = allUsers.find((item) => item.user_name === user);
+    const selectedUserInfo = allUsers.find((item) => item.username === user);
+
+    // Log selectedUserInfo to check the structure
+    console.log("Selected User Info:", selectedUserInfo);
+
     if (selectedUserInfo) {
-      setUserInfo(selectedUserInfo);
+      setUserInfo({
+        user_id: selectedUserInfo.id, // Make sure `id` exists
+        user_email: selectedUserInfo.email, // Make sure `email` exists
+        user_department: selectedUserInfo.department, // Make sure `department` exists
+      });
     }
 
     const userSchedule = scheduleData.filter(
@@ -199,153 +270,222 @@ const UserSchedulePage = () => {
 
   const openModal = (type, event) => {
     setModalType(type);
-
     if (event) {
-      setSelectedEvent(event); // Set selected event for editing
+      setSelectedEvent(event);
       setFormData({
         room_id: event.room_id,
         subject_code: event.subject_code,
-        section: event.section,
-        date: event.date || "", // Optional for schedules
+        date: event.date || "",
         time_in: event.time_in,
         time_out: event.time_out,
-        weekday: event.weekday || "", // Optional for bookings
+        days: event.days || "",
       });
     } else {
-      setSelectedEvent(null); // Reset for adding new data
+      setSelectedEvent(null);
       setFormData({
         subject_code: "",
-        section: "",
         date: "",
         time_in: "",
         time_out: "",
         room_id: "",
-        user_id: "",
-        weekday: "",
+        profile_id: "",
+        days: "",
       });
     }
-
     setModalOpen(true);
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById("printableContent"); // Get the printable content
-    const printWindow = window.open("", "_blank", "width=800,height=600"); // Open a new window
+    const printContent = document.getElementById("printableContent");
+    const printWindow = window.open("", "_blank", "width=800,height=600");
     printWindow.document.write("<html><head><title>Print</title>");
     printWindow.document.write(
       "<style>@media print { body { font-family: Arial, sans-serif; font-size: 12px; } }</style>"
     );
     printWindow.document.write("<body>");
-    printWindow.document.write(printContent.innerHTML); // Write the content to the print window
+    printWindow.document.write(printContent.innerHTML);
     printWindow.document.write("</body></html>");
     printWindow.document.close();
-    printWindow.print(); // Trigger print dialog
+    printWindow.print();
   };
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    console.log(`Field Changed: ${name}, Value: ${value}`); // Debugging log
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
   const handleFormSubmit = async () => {
-    // Check if a user is selected
     if (!selectedUser) {
       alert("Please select a user first.");
       return;
     }
 
-    // Find the user by user_name and validate user_id
-    const user = allUsers.find((item) => item.user_name === selectedUser);
-    if (!user || !user.user_id) {
-      console.error("Error: User ID is missing or invalid.");
+    const user = allUsers.find((item) => item.username === selectedUser);
+    if (!user || !user.id) {
+      console.error("Error: Profile ID is missing or invalid.");
       return;
     }
 
-    // Prepare the formatted data with the user_id included
-    const formattedData = { ...formData, user_id: user.user_id };
+    // Fetch course ID using course_name
+    let courseId;
+    try {
+      const { data: existingCourse, error } = await supabase
+        .from("course")
+        .select("id")
+        .eq("course_name", formData.course_name)
+        .single(); // `.single()` ensures only one result is returned
 
-    // Automatically set weekday for bookings based on the selected date
-    if (modalType === "booking" && formattedData.date) {
-      const bookingWeekday = dayjs(formattedData.date).format("dddd");
-      formattedData.weekday = bookingWeekday; // Set the weekday automatically
+      if (error) {
+        alert("Error fetching course. Please verify details.");
+        return;
+      }
+
+      if (!existingCourse) {
+        alert("Course not found. Please check the course name.");
+        return;
+      }
+
+      courseId = existingCourse.id; // Assign course ID from the fetched course
+    } catch (error) {
+      console.error("Error fetching course:", error.message);
+      return;
     }
 
-    // Validate for conflicts
-    const conflictMessage = await checkScheduleBookingConflict(formattedData);
-    if (conflictMessage) {
-      alert(conflictMessage); // Show the conflict message from checkScheduleBookingConflict
-      return; // Stop further execution
+    // Fetch subject ID
+    let subjectId;
+    try {
+      subjectId = await getSubjectId(formData.subject_code);
+    } catch (error) {
+      alert("Error fetching subject. Please verify details.");
+      return;
     }
+    // Format data for insertion or update
+    let formattedData = {
+      ...formData,
+      profile_id: user.id,
+      course_id: courseId, // Use fetched course_id
+      subject_id: subjectId, // Ensure subject_id is set
+      course_and_section: `${formData.course_name}`,
+      subject_code: formData.subject_code, // Ensure subject_code is included
+      time_in: formData.date ? `${formData.date}T${formData.time_in}:00` : null,
+      time_out: formData.date
+        ? `${formData.date}T${formData.time_out}:00`
+        : null,
+    };
 
-    let actionResult;
+    console.log("Formatted Data Before Insert:", formattedData);
 
     if (modalType === "booking") {
-      // Validate date for booking
       if (!formattedData.date) {
         alert("Date is required for bookings.");
         return;
       }
 
-      const startDateTime = dayjs(
-        `${formattedData.date} ${formattedData.time_in}`,
-        "YYYY-MM-DD HH:mm"
-      );
-      const endDateTime = dayjs(
-        `${formattedData.date} ${formattedData.time_out}`,
-        "YYYY-MM-DD HH:mm"
-      );
+      // Calculate the weekday from the selected date and add it to the formattedData
+      const bookingDay = dayjs(formattedData.date).format("dddd"); // Get the weekday name (e.g., "Monday")
+      formattedData.days = bookingDay; // Add the day to the booking data
 
-      // Calculate status for booking based on current time
-      formattedData.status = dayjs().isBefore(startDateTime)
-        ? "Incoming"
-        : dayjs().isBefore(endDateTime)
-        ? "In Progress"
-        : "Complete";
+      try {
+        if (selectedEvent) {
+          // Add new booking
+          delete formattedData.course_name;
+          delete formattedData.course_section;
+          delete formattedData.course_year;
+          delete formattedData.course_id;
+          delete formattedData.subject_id;
+          // Log booking ID and data
+          console.log("Booking ID to Update:", selectedEvent.booking_id);
+          console.log("Formatted Data for Update:", formattedData);
 
-      // Remove weekday field for booking (since booking doesn't need it in this step)
-      // Comment or remove this line to ensure the weekday is saved
-      // delete formattedData.weekday;
+          // Update existing booking
+          const { data, error } = await supabase
+            .from("booked_rooms")
+            .update(formattedData)
+            .eq("id", selectedEvent.booking_id);
 
-      if (selectedEvent) {
-        const { error } = await supabase
-          .from("booking")
-          .update(formattedData)
-          .eq("booking_id", selectedEvent.booking_id);
-        actionResult = error
-          ? `Error updating booking: ${error.message}`
-          : "Booking updated successfully";
-      } else {
-        const { data, error } = await supabase
-          .from("booking")
-          .insert([formattedData]);
-        if (error) {
-          actionResult = `Error adding booking: ${error.message}`;
-        } else if (data && data.length > 0) {
-          const newBookingId = data[0].booking_id;
-          actionResult = "Booking added successfully. ID: " + newBookingId;
+          if (error) {
+            console.error("Supabase Update Error:", error.message);
+            alert("Failed to update booking. Please try again.");
+            return;
+          }
+
+          console.log("Updated Booking Data:", data);
+          alert("Booking updated successfully.");
         } else {
-          actionResult = "Booking added successfully!";
+          // Add new booking
+          delete formattedData.course_name;
+          delete formattedData.course_section;
+          delete formattedData.course_year;
+          delete formattedData.course_id;
+          delete formattedData.subject_id;
+          // Insert new booking
+          const { data, error } = await supabase
+            .from("booked_rooms")
+            .insert([formattedData]);
+
+          if (error) {
+            throw error;
+          }
+
+          console.log("Newly Added Booking Data:", data);
+          alert("Booking added successfully.");
         }
+      } catch (error) {
+        console.error("Error handling booking:", error.message);
+        alert("An error occurred while handling booking.");
       }
     } else if (modalType === "schedule") {
-      // Existing schedule logic remains the same
-      if (!formattedData.weekday) {
-        alert("Weekday is required for schedules.");
+      // Remove unnecessary fields
+      delete formattedData.course_name;
+      delete formattedData.course_section;
+      delete formattedData.course_year;
+      delete formattedData.subject_code;
+      delete formattedData.course_and_section;
+
+      // Validate and format time_in and time_out
+      if (!formData.time_in || !dayjs(formData.time_in, "HH:mm").isValid()) {
+        console.error("Invalid or missing time_in:", formData.time_in);
+        alert("Invalid or missing time_in.");
+        return;
+      }
+
+      if (!formData.time_out || !dayjs(formData.time_out, "HH:mm").isValid()) {
+        console.error("Invalid or missing time_out:", formData.time_out);
+        alert("Invalid or missing time_out.");
+        return;
+      }
+
+      // Format time_in and time_out
+      formattedData.time_in = dayjs(formData.time_in, "HH:mm").format(
+        "HH:mm:ss"
+      );
+      formattedData.time_out = dayjs(formData.time_out, "HH:mm").format(
+        "HH:mm:ss"
+      );
+
+      // Days validation
+      if (!formattedData.days) {
+        alert("Days are required for schedules.");
         return;
       }
 
       delete formattedData.date;
 
-      const todayWeekday = dayjs().format("dddd");
-      const isToday = todayWeekday === formattedData.weekday;
+      // Determine schedule status
+      const todayDays = dayjs().format("dddd");
+      const isToday = todayDays === formattedData.days;
 
       if (isToday) {
         const startDateTime = dayjs(
-          `${todayWeekday} ${formattedData.time_in}`,
+          `${todayDays} ${formattedData.time_in}`,
           "dddd HH:mm"
         );
         const endDateTime = dayjs(
-          `${todayWeekday} ${formattedData.time_out}`,
+          `${todayDays} ${formattedData.time_out}`,
           "dddd HH:mm"
         );
 
@@ -355,277 +495,76 @@ const UserSchedulePage = () => {
           ? "In Progress"
           : "Complete";
       } else {
-        formattedData.status = dayjs().isBefore(
-          dayjs().day(formattedData.weekday)
-        )
+        formattedData.status = dayjs().isBefore(dayjs().day(formattedData.days))
           ? "Incoming"
           : "Complete";
       }
 
-      if (selectedEvent) {
-        const { error } = await supabase
-          .from("schedule")
-          .update(formattedData)
-          .eq("schedule_id", selectedEvent.schedule_id);
-        actionResult = error
-          ? `Error updating schedule: ${error.message}`
-          : "Schedule updated successfully";
-      } else {
-        const { data, error } = await supabase
-          .from("schedule")
-          .insert([formattedData]);
-        if (error) {
-          actionResult = `Error adding schedule: ${error.message}`;
-        } else if (data && data.length > 0) {
-          const newScheduleId = data[0].schedule_id;
-          actionResult = "Schedule added successfully. ID: " + newScheduleId;
+      // Perform the update or insert
+      try {
+        if (selectedEvent) {
+          // Apply the formatted time_in and time_out during the update
+          const { error } = await supabase
+            .from("schedule")
+            .update({
+              ...formattedData, // Ensure all fields, including formatted time_in and time_out, are updated
+            })
+            .eq("id", selectedEvent.schedule_id);
+
+          if (error) {
+            console.error("Error updating schedule:", error.message);
+            alert("Failed to update schedule. Please try again.");
+            return;
+          }
+          alert("Schedule updated successfully.");
         } else {
-          actionResult = "Schedule added successfully!";
+          // Insert new schedule
+          const { error } = await supabase
+            .from("schedule")
+            .insert([formattedData]);
+          if (error) {
+            console.error("Error adding schedule:", error.message);
+            alert("Failed to add schedule. Please try again.");
+            return;
+          }
+          alert("Schedule added successfully.");
         }
+        closeModal();
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        alert("An unexpected error occurred. Please try again.");
       }
     }
-
-    alert(actionResult);
-    closeModal();
-  };
-
-  const checkScheduleBookingConflict = async (formattedData) => {
-    const { room_id, weekday, time_in, time_out, date, selectedUserId } =
-      formattedData;
-
-    console.log(
-      "Checking for schedule vs booking conflicts with data:",
-      formattedData
-    );
-
-    const newStart = dayjs(time_in, "HH:mm");
-    const newEnd = dayjs(time_out, "HH:mm");
-
-    if (!newStart.isValid() || !newEnd.isValid()) {
-      console.error("Invalid time format for time_in or time_out.");
-      return null; // No conflict found
-    }
-
-    // --- Booking vs Booking Conflict Check (date-based) ---
-    if (date) {
-      const { data: existingBookings, error: bookingError } = await supabase
-        .from("booking")
-        .select(
-          "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, user_id"
-        )
-        .eq("room_id", room_id)
-        .eq("date", date); // Filter by room_id and date for bookings
-
-      if (bookingError) {
-        console.error("Error fetching bookings:", bookingError.message);
-        return null; // No conflict found
-      }
-
-      // Check if any existing booking conflicts with the new booking
-      const bookingConflictMessage = await Promise.all(
-        existingBookings.map(async (record, index) => {
-          const recordStart = dayjs(record.time_in, "HH:mm");
-          const recordEnd = dayjs(record.time_out, "HH:mm");
-
-          const conflict =
-            newStart.isBetween(recordStart, recordEnd, null, "[)") ||
-            newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
-            (newStart.isSameOrBefore(recordStart) &&
-              newEnd.isSameOrAfter(recordEnd));
-
-          if (conflict) {
-            console.log(`Conflicting Booking User ID: ${record.user_id}`);
-
-            // Fetch the user name by user_id
-            const { data: userData, error: userError } = await supabase
-              .from("users")
-              .select("user_name")
-              .eq("user_id", record.user_id)
-              .single();
-
-            if (userError) {
-              console.error("Error fetching user name:", userError.message);
-              return null;
-            }
-
-            const userName = userData?.user_name || "Unknown User";
-            return `A conflict has been detected with another booking.\nConflicting Booking: ${userName} in the Booking tab (Row: ${
-              index + 1
-            }).`;
-          }
-
-          return null; // No conflict for this record
-        })
-      );
-
-      const conflictMessage = bookingConflictMessage.find(
-        (message) => message !== null
-      );
-      if (conflictMessage) {
-        return conflictMessage; // Return the first conflict message found
-      }
-    }
-
-    // --- Schedule vs Schedule Conflict Check (weekday-based) ---
-    const { data: existingSchedules, error: scheduleError } = await supabase
-      .from("schedule")
-      .select("*, user_id")
-      .eq("room_id", room_id)
-      .eq("weekday", weekday); // Filter by room_id and weekday for schedules
-
-    if (scheduleError) {
-      console.error("Error fetching schedules:", scheduleError.message);
-      return null; // No conflict found
-    }
-
-    const scheduleConflictMessage = await Promise.all(
-      existingSchedules.map(async (record, index) => {
-        const recordStart = dayjs(record.time_in, "HH:mm");
-        const recordEnd = dayjs(record.time_out, "HH:mm");
-
-        const conflict =
-          newStart.isBetween(recordStart, recordEnd, null, "[)") ||
-          newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
-          (newStart.isSameOrBefore(recordStart) &&
-            newEnd.isSameOrAfter(recordEnd));
-
-        if (conflict) {
-          console.log(`Conflicting Schedule User ID: ${record.user_id}`);
-
-          // Fetch the user name by user_id
-          const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("user_name")
-            .eq("user_id", record.user_id)
-            .single();
-
-          if (userError) {
-            console.error("Error fetching user name:", userError.message);
-            return null;
-          }
-
-          const userName = userData?.user_name || "Unknown User";
-          return `A conflict has been detected with another schedule.\nConflicting Schedule: ${userName} in the Schedule tab (Row: ${
-            index + 1
-          }).`;
-        }
-
-        return null; // No conflict for this record
-      })
-    );
-
-    const scheduleConflict = scheduleConflictMessage.find(
-      (message) => message !== null
-    );
-    if (scheduleConflict) {
-      return scheduleConflict; // Return the first conflict message found
-    }
-
-    // --- Schedule vs Booking Conflict Check (weekday-based) ---
-    const {
-      data: existingBookingsForSchedule,
-      error: bookingForScheduleError,
-    } = await supabase
-      .from("booking")
-      .select(
-        "*, rooms (*), subject_code, section, time_in, time_out, status, date, weekday, user_id"
-      )
-      .eq("room_id", room_id)
-      .eq("weekday", weekday); // Filter by room_id and weekday for bookings
-
-    if (bookingForScheduleError) {
-      console.error(
-        "Error fetching bookings for schedule:",
-        bookingForScheduleError.message
-      );
-      return null; // No conflict found
-    }
-
-    const bookingConflictForScheduleMessage = await Promise.all(
-      existingBookingsForSchedule.map(async (record, index) => {
-        const recordStart = dayjs(record.time_in, "HH:mm");
-        const recordEnd = dayjs(record.time_out, "HH:mm");
-
-        const conflict =
-          newStart.isBetween(recordStart, recordEnd, null, "[)") ||
-          newEnd.isBetween(recordStart, recordEnd, null, "(]") ||
-          (newStart.isSameOrBefore(recordStart) &&
-            newEnd.isSameOrAfter(recordEnd));
-
-        if (conflict) {
-          console.log(
-            `Conflicting Booking User ID (Schedule): ${record.user_id}`
-          );
-
-          // Fetch the user name by user_id
-          const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("user_name")
-            .eq("user_id", record.user_id)
-            .single();
-
-          if (userError) {
-            console.error("Error fetching user name:", userError.message);
-            return null;
-          }
-
-          const userName = userData?.user_name || "Unknown User";
-          return `A conflict has been detected with a booking.\nConflicting Booking: ${userName} in the Booking tab (Row: ${
-            index + 1
-          }).`;
-        }
-
-        return null; // No conflict for this record
-      })
-    );
-
-    const bookingConflictForSchedule = bookingConflictForScheduleMessage.find(
-      (message) => message !== null
-    );
-    if (bookingConflictForSchedule) {
-      return bookingConflictForSchedule; // Return the first conflict message found
-    }
-
-    console.log("No conflicts detected in schedules or bookings.");
-    return null; // No conflict found
+    console.log(actionResult);
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setFormData({
       subject_code: "",
-      section: "",
       date: "",
       time_in: "",
       time_out: "",
       room_id: "",
       user_id: "",
-      weekday: "",
+      days: "",
     });
   };
 
   // Add Function
   const add = async (dataToAdd, table) => {
-    try {
-      const { data, error } = await supabase.from(table).insert([dataToAdd]);
-      if (error) {
-        console.error(`Error adding to ${table}:`, error.message);
-        alert(`Error adding to ${table}: ${error.message}`);
-        return null;
-      }
-      alert(`Successfully added to ${table}.`);
-      return data[0];
-    } catch (err) {
-      console.error("Unexpected error in add function:", err.message);
-      alert("Unexpected error. Please try again.");
+    const { data, error } = await supabase.from(table).insert([dataToAdd]);
+    if (error) {
+      console.error(`Error adding to ${table}:`, error.message);
+      alert(`Error adding to ${table}: ${error.message}`);
       return null;
     }
+    alert(`Successfully added to ${table}.`);
   };
 
-  const [showIdColumn, setShowIdColumn] = useState(false); // State to control visibility of the ID column
-
+  //table
   return (
-    <Box sx={{ padding: 3, color: "black", display: "flex" }}>
+    <Box sx={{ padding: 3, color: "white", display: "flex" }}>
       <Box sx={{ width: "200px", borderRight: "1px solid #ccc" }}>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           All Users
@@ -653,7 +592,6 @@ const UserSchedulePage = () => {
               {selectedUser} Information
             </Typography>
 
-            {/* Printable Content Wrapper */}
             <div id="printableContent" className="printable-content">
               <PrintablePage
                 selectedUser={selectedUser}
@@ -665,10 +603,42 @@ const UserSchedulePage = () => {
               value={activeTab}
               onChange={handleTabChange}
               sx={{ marginBottom: 2 }}
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#8aa9ff", // Change the color of the underline (highlight) when the tab is selected
+                },
+              }}
             >
-              <Tab label="User Info" />
-              <Tab label="Booking Info" />
-              <Tab label="Schedule Info" />
+              <Tab
+                sx={{
+                  color: "#BFD3F5", // Color of unselected tab
+                  "&.Mui-selected": {
+                    color: "#8aa9ff", // Color of selected tab
+                    fontWeight: "bold", // Optional: make selected tab text bold
+                  },
+                }}
+                label="User Info"
+              />
+              <Tab
+                sx={{
+                  color: "#BFD3F5",
+                  "&.Mui-selected": {
+                    color: "#8aa9ff",
+                    fontWeight: "bold",
+                  },
+                }}
+                label="Booking Info"
+              />
+              <Tab
+                sx={{
+                  color: "#BFD3F5",
+                  "&.Mui-selected": {
+                    color: "#8aa9ff",
+                    fontWeight: "bold",
+                  },
+                }}
+                label="Schedule Info"
+              />
             </Tabs>
             {activeTab === 0 && (
               <Card sx={{ marginBottom: 2 }}>
@@ -767,6 +737,7 @@ const UserSchedulePage = () => {
                       Booking Information
                     </Typography>
                     <Button
+                      sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
                       variant="contained"
                       color="primary"
                       onClick={() => openModal("booking")}
@@ -801,10 +772,10 @@ const UserSchedulePage = () => {
                               )}{" "}
                               {/* Conditionally render Booking ID */}
                               <TableCell>{event.room_name}</TableCell>
-                              <TableCell>{event.subject_code}</TableCell>
-                              <TableCell>{event.section}</TableCell>
+                              <TableCell>{event.subject}</TableCell>
+                              <TableCell>{event.course_section}</TableCell>
                               <TableCell>{event.date}</TableCell>
-                              <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
+                              <TableCell>{`${event.book_timeIn} - ${event.book_timeOut}`}</TableCell>
                               <TableCell>{event.status}</TableCell>
                             </TableRow>
                           ))}
@@ -828,6 +799,7 @@ const UserSchedulePage = () => {
                       Schedule Information
                     </Typography>
                     <Button
+                      sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
                       variant="contained"
                       color="primary"
                       onClick={() => openModal("schedule")}
@@ -863,8 +835,8 @@ const UserSchedulePage = () => {
                               {/* Conditionally render Schedule ID */}
                               <TableCell>{event.room_name}</TableCell>
                               <TableCell>{event.subject_code}</TableCell>
-                              <TableCell>{event.section}</TableCell>
-                              <TableCell>{event.weekday}</TableCell>
+                              <TableCell>{`${event.course_name}`}</TableCell>
+                              <TableCell>{event.days}</TableCell>
                               <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
                               <TableCell>{event.status}</TableCell>
                             </TableRow>
@@ -875,10 +847,20 @@ const UserSchedulePage = () => {
                 </CardContent>
               </Card>
             )}
+            <EventModal
+              modalOpen={modalOpen}
+              closeModal={() => setModalOpen(false)}
+              modalType={modalType}
+              formData={formData}
+              setFormData={setFormData}
+              selectedEvent={selectedEvent}
+              rooms={rooms}
+              handleFormChange={handleFormChange}
+              handleFormSubmit={handleFormSubmit}
+            />
           </Box>
         )}
       </Box>
-      {/* Floating Action Button (FAB) for printing */}
       <Fab
         color="primary"
         aria-label="print"
@@ -886,149 +868,14 @@ const UserSchedulePage = () => {
           position: "fixed",
           bottom: 16,
           right: 16,
+          backgroundColor: "#B0C4DE",
+          color: "#1F305E",
         }}
-        onClick={handlePrint} // Make sure the function is correctly referenced
+        onClick={handlePrint}
       >
         <PrintIcon />
       </Fab>
 
-      {/* Modal for adding data */}
-      <Modal open={modalOpen} onClose={closeModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 1,
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-            Add {modalType === "booking" ? "Booking" : "Schedule"}
-          </Typography>
-
-          {/* Display ID (non-editable) */}
-          {modalType === "booking" && selectedEvent && (
-            <TextField
-              label="Booking ID"
-              value={selectedEvent.booking_id}
-              fullWidth
-              disabled
-              sx={{ marginBottom: 2 }}
-            />
-          )}
-          {modalType === "schedule" && selectedEvent && (
-            <TextField
-              label="Schedule ID"
-              value={selectedEvent.schedule_id}
-              fullWidth
-              disabled
-              sx={{ marginBottom: 2 }}
-            />
-          )}
-
-          {/* Rest of the modal form */}
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel>Room</InputLabel>
-            <Select
-              name="room_id"
-              value={formData.room_id}
-              onChange={handleFormChange}
-            >
-              {rooms.map((room) => (
-                <MenuItem key={room.room_id} value={room.room_id}>
-                  {room.room_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="Subject Code"
-            name="subject_code"
-            fullWidth
-            value={formData.subject_code}
-            onChange={handleFormChange}
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            label="Section"
-            name="section"
-            fullWidth
-            value={formData.section}
-            onChange={handleFormChange}
-            sx={{ marginBottom: 2 }}
-          />
-          {modalType === "booking" ? (
-            <TextField
-              label="Date"
-              name="date"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={formData.date}
-              onChange={handleFormChange}
-              sx={{ marginBottom: 2 }}
-            />
-          ) : (
-            <FormControl fullWidth sx={{ marginBottom: 2 }}>
-              <InputLabel>Weekday</InputLabel>
-              <Select
-                name="weekday"
-                value={formData.weekday}
-                onChange={handleFormChange}
-              >
-                {[
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                ].map((day) => (
-                  <MenuItem key={day} value={day}>
-                    {day}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-          <TextField
-            label="Time In"
-            name="time_in"
-            type="time"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            value={formData.time_in}
-            onChange={handleFormChange}
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            label="Time Out"
-            name="time_out"
-            type="time"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            value={formData.time_out}
-            onChange={handleFormChange}
-            sx={{ marginBottom: 2 }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleFormSubmit}
-          >
-            Submit
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* Print styles */}
       <style>
         {`
           @media print {
