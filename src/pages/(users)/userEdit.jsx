@@ -40,7 +40,8 @@ function Modal({ isOpen, onClose, user }) {
           website,
           mobile_number,
         })
-        .eq("id", id);
+        .eq("id", id)
+        .select();
 
       if (error) throw error;
 
