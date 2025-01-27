@@ -7,7 +7,7 @@ export const useFetchBookedRooms = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("booked_rooms")
-        .select(`*, rooms(*)`);
+        .select(`*, rooms(*), profiles(*)`);
 
       if (error) throw error;
 
