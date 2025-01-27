@@ -1,7 +1,7 @@
 "use client";
 
 import { useFetchBookedRooms } from "@/hooks/queries/bookedRooms/useFetchBookedRooms";
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,13 +11,38 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import ReactDOM from "react-dom";
+import Modal from "react-modal";
+
 import dayjs from "dayjs";
 
 const BookingsPage = () => {
+  let subtitle;
   const { data, isLoading, error } = useFetchBookedRooms();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  function openModal() {
+    setIsModalOpen(true);
+  }
+
+  function afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    subtitle.style.color = "#f00";
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+  }
+
+  const handleStatusClick = (booking) => {
+    setSelectedBooking(booking);
+    setIsModalOpen(true);
+  };
 
   return (
     <Card className="w-full">
@@ -52,11 +77,31 @@ const BookingsPage = () => {
                 <TableCell>{booking.rooms?.room_name}</TableCell>
                 <TableCell>{booking.course_and_section}</TableCell>
                 <TableCell>{booking.subject_code}</TableCell>
-                <TableCell>{booking.status}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="link"
+                    onClick={() => handleStatusClick(booking)}
+                  >
+                    {booking.status}
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <Modal
+          isOpen={isModalOpen}
+          onAfterOpen={afterOpenModal}
+          onRequestClose={closeModal}
+          contentLabel="Example Modal"
+        >
+          <div>
+            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Permission</h2>
+            <p>{`Do you want to grant access the status: ${selectedBooking?.status} on ${selectedBooking?.profiles.username}?`}</p>
+            <button onClick={() => {}}>Yes</button>
+            <button onClick={closeModal}>close</button>
+          </div>
+        </Modal>
       </CardContent>
     </Card>
   );
