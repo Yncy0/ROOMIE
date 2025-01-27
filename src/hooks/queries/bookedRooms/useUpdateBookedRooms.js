@@ -13,7 +13,5 @@ export const useUpdateBookedRooms = async (s, id) => {
     throw error;
   }
 
-  if (data) console.log(data);
-
   return data;
 };

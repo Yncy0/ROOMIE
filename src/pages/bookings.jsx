@@ -17,6 +17,7 @@ import Modal from "react-modal";
 
 import dayjs from "dayjs";
 import { useUpdateBookedRooms } from "@/hooks/queries/bookedRooms/useUpdateBookedRooms";
+import { sendSms } from "@/utils/sendSMS";
 
 const customStyles = {
   content: {
@@ -115,8 +116,9 @@ const BookingsPage = () => {
             </div>
             <div className="flex flex-row gap-4">
               <button
-                onClick={() => {
+                onClick={async () => {
                   useUpdateBookedRooms("ON GOING", selectedBooking?.id);
+                  sendSms();
                 }}
               >
                 Yes
