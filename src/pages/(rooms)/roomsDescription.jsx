@@ -17,6 +17,7 @@ export default function RoomsDescription() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     room_name,
@@ -31,6 +32,9 @@ export default function RoomsDescription() {
 
   const openDeleteModal = () => setIsDeleteModalOpen(true);
   const closeDeleteModal = () => setIsDeleteModalOpen(false);
+
+  const openStatusModal = () => setIsStatusModalOpen(true);
+  const closeStatusModal = () => setIsStatusModalOpen(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -89,15 +93,17 @@ export default function RoomsDescription() {
 
       {/*Room Description Contents*/}
       <div className="bg-white p-8 rounded-[40px] shadow-lg w-[95%] mx-auto mt-4">
-      <h3 style={{
-        textAlign: 'center', 
-        fontSize: '1.125rem',  // equivalent to text-lg
-        fontWeight: '600',     // equivalent to font-semibold
-        color: '#2d3748',       // equivalent to text-gray-800\
-        marginBottom:'15px',
-      }}>
-        Room Description
-      </h3>
+        <h3
+          style={{
+            textAlign: "center",
+            fontSize: "1.125rem", // equivalent to text-lg
+            fontWeight: "600", // equivalent to font-semibold
+            color: "#2d3748", // equivalent to text-gray-800\
+            marginBottom: "15px",
+          }}
+        >
+          Room Description
+        </h3>
 
         {/*Room Image*/}
         <div className="flex flex-col md:flex-row items-center">
@@ -110,22 +116,30 @@ export default function RoomsDescription() {
           {/*Room Details*/}
           <div className="md:ml-6 text-left w-full md:w-1/2">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">Room Name:</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                Room Name:
+              </h3>
               <h2 className="text-xl text-gray-500">{room_name}</h2>
             </div>
 
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">Location:</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                Location:
+              </h3>
               <p className="text-xl text-gray-500">{room_location}</p>
             </div>
 
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">Seat Capacity:</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                Seat Capacity:
+              </h3>
               <p className="text-xl text-gray-500">{room_capacity}</p>
             </div>
 
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">Room Type:</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                Room Type:
+              </h3>
               <p className="text-xl text-gray-500">{room_type}</p>
             </div>
 
@@ -138,11 +152,17 @@ export default function RoomsDescription() {
             </button>
 
             <button
-                onClick={openDeleteModal}
-                className="bg-red-500 text-white py-2 px-4 rounded-md ml-4"
-              >
-                Delete Room
-              </button>
+              onClick={openDeleteModal}
+              className="bg-red-500 text-white py-2 px-4 rounded-md ml-4"
+            >
+              Delete Room
+            </button>
+            <button
+              onClick={openStatusModal}
+              className=" bg-amber-400 text-white py-2 px-10 rounded-md  ml-4"
+            >
+              Status
+            </button>
           </div>
         </div>
       </div>
@@ -151,7 +171,9 @@ export default function RoomsDescription() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg border border-[#1f2947]">
-            <h2 className="text-xl font-semibold text-[#1f2947] mb-4">Edit Room Information</h2>
+            <h2 className="text-xl font-semibold text-[#1f2947] mb-4">
+              Edit Room Information
+            </h2>
             <form onSubmit={handleSubmit}>
               {/*Change Room Image*/}
               <label className="block mb-2 text-[#1f2947]">
@@ -162,7 +184,6 @@ export default function RoomsDescription() {
                   onChange={handleImageChange}
                   className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947]"
                 />
-
               </label>
               {/*Room Name*/}
               <label className="block mb-2 text-[#1f2947]">
@@ -172,7 +193,7 @@ export default function RoomsDescription() {
                   name="room_name"
                   className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947] shadow-sm"
                   value={formData.room_name}
-                onChange={handleInputChange}
+                  onChange={handleInputChange}
                 />
               </label>
 
@@ -222,12 +243,12 @@ export default function RoomsDescription() {
                 >
                   Cancel
                 </button>
-            
+
                 <button
                   type="submit"
                   className="bg-[#1f2947] text-white py-2 px-4 rounded-md border border-[#1f2947] 
                 hover:bg-[#172331]"
-                > 
+                >
                   Save
                 </button>
               </div>
@@ -235,7 +256,6 @@ export default function RoomsDescription() {
           </div>
         </div>
       )}
-
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
@@ -258,6 +278,95 @@ export default function RoomsDescription() {
                 Confirm
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isStatusModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg border border-[#1f2947]">
+            <h2 className="text-xl font-semibold text-[#1f2947] mb-4">
+              Edit Room Information
+            </h2>
+            <form onSubmit={handleSubmit}>
+              {/*Change Room Image*/}
+              <label className="block mb-2 text-[#1f2947]">
+                Change Room Image:
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947]"
+                />
+              </label>
+              {/*Room Name*/}
+              <label className="block mb-2 text-[#1f2947]">
+                Room Name:
+                <input
+                  type="text"
+                  name="room_name"
+                  className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947] shadow-sm"
+                  value={formData.room_name}
+                  onChange={handleInputChange}
+                />
+              </label>
+
+              {/*Location*/}
+              <label className="block mb-2 text-[#1f2947]">
+                Location:
+                <input
+                  type="text"
+                  name="room_location"
+                  className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947] shadow-sm"
+                  value={formData.room_location}
+                  onChange={handleInputChange}
+                />
+              </label>
+
+              {/*Seat Capacity*/}
+              <label className="block mb-2 text-[#1f2947]">
+                Seat Capacity:
+                <input
+                  type="number"
+                  name="room_capacity"
+                  className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 text-[#1f2947] shadow-sm"
+                  value={formData.room_capacity}
+                  onChange={handleInputChange}
+                />
+              </label>
+
+              {/*Room Type*/}
+              <label className="block mb-2 text-[#1f2947]">
+                Room Type:
+                <input
+                  type="text"
+                  name="room_type"
+                  className="mt-1 block w-full border border-[#1f2947] rounded-md py-2 px-4 
+                  text-[#1f2947] shadow-sm"
+                  value={formData.room_type}
+                  onChange={handleInputChange}
+                />
+              </label>
+
+              {/*Buttons*/}
+              <div className="flex justify-end mt-6">
+                <button
+                  type="button"
+                  onClick={closeStatusModal}
+                  className="mr-4 bg-gray-500 text-white py-2 px-4 rounded-md border border-[#1f2947]"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="bg-[#1f2947] text-white py-2 px-4 rounded-md border border-[#1f2947] 
+                hover:bg-[#172331]"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

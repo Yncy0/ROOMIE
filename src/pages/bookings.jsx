@@ -17,6 +17,7 @@ import Modal from "react-modal";
 
 import dayjs from "dayjs";
 import { useUpdateBookedRooms } from "@/hooks/queries/bookedRooms/useUpdateBookedRooms";
+import useSubscription from "@/hooks/queries/bookedRooms/useSubscription";
 
 const customStyles = {
   content: {
@@ -55,6 +56,8 @@ const BookingsPage = () => {
     setSelectedBooking(booking);
     setIsModalOpen(true);
   };
+
+  useSubscription();
 
   return (
     <Card className="w-full">
@@ -111,7 +114,7 @@ const BookingsPage = () => {
           <div className="w-full flex flex-col gap-5">
             <div>
               <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Permission</h2>
-              <p>{`Do you want to grant access the status: ${selectedBooking?.status} on ${selectedBooking?.profiles.username}?`}</p>
+              <p>{`Do you want to allow ${selectedBooking?.profiles.username} on its booking request?`}</p>
             </div>
             <div className="flex flex-row gap-4">
               <button
@@ -120,6 +123,13 @@ const BookingsPage = () => {
                 }}
               >
                 Yes
+              </button>
+              <button
+                onClick={async () => {
+                  useUpdateBookedRooms("NOT GRANTED", selectedBooking?.id);
+                }}
+              >
+                No
               </button>
               <button onClick={closeModal}>Close</button>
             </div>
