@@ -564,7 +564,7 @@ const UserSchedulePage = () => {
 
   //table
   return (
-    <Box sx={{ padding: 3, color: "white", display: "flex" }}>
+    <Box sx={{ padding: 3, color: "black", display: "flex" }}>
       <Box sx={{ width: "200px", borderRight: "1px solid #ccc" }}>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           All Users
@@ -611,9 +611,9 @@ const UserSchedulePage = () => {
             >
               <Tab
                 sx={{
-                  color: "#BFD3F5", // Color of unselected tab
+                  color: "gray", // Color of unselected tab
                   "&.Mui-selected": {
-                    color: "#8aa9ff", // Color of selected tab
+                    color: "#5563e0", // Color of selected tab
                     fontWeight: "bold", // Optional: make selected tab text bold
                   },
                 }}
@@ -621,9 +621,9 @@ const UserSchedulePage = () => {
               />
               <Tab
                 sx={{
-                  color: "#BFD3F5",
+                  color: "gray",
                   "&.Mui-selected": {
-                    color: "#8aa9ff",
+                    color: "#5563e0",
                     fontWeight: "bold",
                   },
                 }}
@@ -631,9 +631,9 @@ const UserSchedulePage = () => {
               />
               <Tab
                 sx={{
-                  color: "#BFD3F5",
+                  color: "gray",
                   "&.Mui-selected": {
-                    color: "#8aa9ff",
+                    color: "#5563e0",
                     fontWeight: "bold",
                   },
                 }}
