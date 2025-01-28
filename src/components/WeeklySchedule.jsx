@@ -101,7 +101,7 @@ export function WeeklySchedule({
                 return (
                   <div
                     key={schedule.id}
-                    className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200 pointer-events-auto hover:z-50 transition-transform hover:scale-105 ml-36 z-20"
+                    className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200 pointer-events-auto hover:z-50 transition-transform hover:scale-105 ml-[12.5%]"
                     style={{
                       top: `${top}%`,
                       height: `${height}%`,
