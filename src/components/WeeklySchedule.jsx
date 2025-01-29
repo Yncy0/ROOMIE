@@ -76,7 +76,7 @@ export function WeeklySchedule({
                 className="grid grid-cols-8 gap-0 border-b"
                 style={{ height: `${100 / timeSlots.length}%` }}
               >
-                <div className="sticky left-0 p-2 border-l font-medium bg-white z-10">
+                <div className="sticky left-0 p-2 border-l font-medium bg-white z-10 mr-5">
                   {slot}
                 </div>
                 {weekdays.map((day) => (
@@ -101,7 +101,7 @@ export function WeeklySchedule({
                 return (
                   <div
                     key={schedule.id}
-                    className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200 pointer-events-auto hover:z-50 transition-transform hover:scale-105"
+                    className="absolute bg-blue-100 p-2 rounded shadow-sm border border-blue-200 pointer-events-auto hover:z-50 transition-transform hover:scale-105 ml-[12.5%]"
                     style={{
                       top: `${top}%`,
                       height: `${height}%`,
