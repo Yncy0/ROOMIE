@@ -36,6 +36,9 @@ import PrintablePage from "@/components/u_schedule/print";
 import EventModal from "@/components/u_schedule/EventModal";
 import CheckConflict from "@/components/u_schedule/conflictChecker";
 import "@/components/u_schedule/u_schedule.css"; // Import the CSS file
+import ManageUser from "@/components/users/manageUser";
+import StatusModal from "@/components/u_schedule/statusModal";
+import AddUserModal from "@/components/users/addUser";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -46,6 +49,9 @@ import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 
 const UserSchedulePage = () => {
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const handleOpenAddUserModal = () => setAddUserModalOpen(true);
+  const handleCloseAddUserModal = () => setAddUserModalOpen(false);
   const [scheduleData, setScheduleData] = useState([]);
   const [bookingData, setBookingData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -55,6 +61,10 @@ const UserSchedulePage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("booking");
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedStatusEvent, setSelectedStatusEvent] = useState(null);
+  const [statusModalType, setStatusModalType] = useState("");
+
   const [formData, setFormData] = useState({
     subject_code: "",
     date: "",
@@ -140,6 +150,9 @@ const UserSchedulePage = () => {
     fetchData();
   }, []);
 
+
+
+
   const getSubjectId = async (subjectCode) => {
     try {
       // Fetch the subject based on subject_code
@@ -167,22 +180,21 @@ const UserSchedulePage = () => {
     data.map((item) => {
       const isBooking = type === "booking";
       return {
-        event_id: `${item.rooms?.room_name || "Unknown"}-${
-          item.days || item.date || "Unknown"
-        }`,
+        event_id: `${item.rooms?.room_name || "Unknown"}-${item.days || item.date || "Unknown"
+          }`,
 
         start: item.time_in
           ? dayjs
-              .utc(item.time_in) // Parse the UTC time first
-              .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
-              .toDate()
+            .utc(item.time_in) // Parse the UTC time first
+            .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
+            .toDate()
           : null,
 
         end: item.time_out
           ? dayjs
-              .utc(item.time_out) // Parse the UTC time first
-              .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
-              .toDate()
+            .utc(item.time_out) // Parse the UTC time first
+            .tz("Asia/Manila", true) // Convert to Manila timezone, but keep the same time (without changing)
+            .toDate()
           : null,
 
         room_name: item.rooms?.room_name || "Unknown Room",
@@ -207,6 +219,9 @@ const UserSchedulePage = () => {
         department: item.profiles?.department || "Unknown Department",
         id: item.profiles?.id || "Unknown ID",
         date: item.date,
+        mobile_number: item.profiles?.mobile_number || "Unknown Number",
+        user_role: item.profiles?.user_role || "Unknown Role",
+        full_name: item.profiles?.full_name || "Unknown Name",
         status: item.status || "Pending",
 
         schedule_id: isBooking ? "" : item.id || "",
@@ -227,16 +242,16 @@ const UserSchedulePage = () => {
         // New fields for extracted booking times (only time, no date)
         book_timeIn: item.time_in
           ? dayjs
-              .utc(item.time_in) // Parse UTC time
-              .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
-              .format("HH:mm:ss") // Only time, no date
+            .utc(item.time_in) // Parse UTC time
+            .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
+            .format("HH:mm:ss") // Only time, no date
           : null,
 
         book_timeOut: item.time_out
           ? dayjs
-              .utc(item.time_out) // Parse UTC time
-              .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
-              .format("HH:mm:ss") // Only time, no date
+            .utc(item.time_out) // Parse UTC time
+            .tz("Asia/Manila", true) // Convert to Asia/Manila time without changing the time
+            .format("HH:mm:ss") // Only time, no date
           : null,
       };
     });
@@ -250,9 +265,13 @@ const UserSchedulePage = () => {
 
     if (selectedUserInfo) {
       setUserInfo({
-        user_id: selectedUserInfo.id, // Make sure `id` exists
-        user_email: selectedUserInfo.email, // Make sure `email` exists
-        user_department: selectedUserInfo.department, // Make sure `department` exists
+        user_id: selectedUserInfo.id,
+        username: selectedUserInfo.username,
+        full_name: selectedUserInfo.full_name,
+        user_email: selectedUserInfo.email,
+        user_department: selectedUserInfo.user_department,
+        mobile_number: selectedUserInfo.mobile_number,
+        user_role: selectedUserInfo.user_role,
       });
     }
 
@@ -279,6 +298,7 @@ const UserSchedulePage = () => {
         time_in: event.time_in,
         time_out: event.time_out,
         days: event.days || "",
+        course_name: event.course_name
       });
     } else {
       setSelectedEvent(null);
@@ -290,6 +310,7 @@ const UserSchedulePage = () => {
         room_id: "",
         profile_id: "",
         days: "",
+        course_name: "",
       });
     }
     setModalOpen(true);
@@ -492,8 +513,8 @@ const UserSchedulePage = () => {
         formattedData.status = dayjs().isBefore(startDateTime)
           ? "Incoming"
           : dayjs().isBefore(endDateTime)
-          ? "In Progress"
-          : "Complete";
+            ? "In Progress"
+            : "Complete";
       } else {
         formattedData.status = dayjs().isBefore(dayjs().day(formattedData.days))
           ? "Incoming"
@@ -551,315 +572,501 @@ const UserSchedulePage = () => {
     });
   };
 
-  // Add Function
-  const add = async (dataToAdd, table) => {
-    const { data, error } = await supabase.from(table).insert([dataToAdd]);
-    if (error) {
-      console.error(`Error adding to ${table}:`, error.message);
-      alert(`Error adding to ${table}: ${error.message}`);
-      return null;
-    }
-    alert(`Successfully added to ${table}.`);
+
+
+  const openStatusModal = (event, type) => {
+    setSelectedStatusEvent(event);
+    setStatusModalType(type);
+    setStatusModalOpen(true);
   };
+
+  const closeStatusModal = () => {
+    setStatusModalOpen(false);
+  };
+
+  const [manageUserModalOpen, setManageUserModalOpen] = useState(false);
+
+
+  // Handlers for Manage User modal
+  const handleOpenManageUserModal = () => setManageUserModalOpen(true);
+  const handleCloseManageUserModal = () => setManageUserModalOpen(false);
+
+
+
+
+
+
 
   //table
   return (
-    <Box sx={{ padding: 3, color: "black", display: "flex" }}>
-      <Box sx={{ width: "200px", borderRight: "1px solid #ccc" }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          All Users
-        </Typography>
-        <List>
-          {userOptions.map((user) => (
-            <ListItem
-              button={true}
-              key={user}
-              onClick={() => handleUserSelection(user)}
-            >
-              <ListItemText primary={user} />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
+    <Box sx={{ position: 'relative' }}>
 
-      <Box sx={{ flexGrow: 1, padding: "20px" }}>
-        {selectedUser && (
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "bold", marginBottom: 2 }}
-            >
-              {selectedUser} Information
-            </Typography>
+    {/* Add User Button */}
+    <Button
+    variant="contained"
+    color="primary"
+    onClick={handleOpenAddUserModal}
+    sx={{
+      fontWeight: "bold",
+      position: "absolute",
+      top: "5%", // Keeps button 5% from the top
+      right: "5%", // Keeps button 5% from the right
+      fontSize: "12px",
+      "&:hover": {
+        backgroundColor: "primary.dark", // Hover effect does not affect positioning
+        
+      },
+    }}
+    >
+        Add User +
+      </Button>
 
-            <div id="printableContent" className="printable-content">
-              <PrintablePage
-                selectedUser={selectedUser}
-                userInfo={userInfo}
-                scheduleData={scheduleData}
-              />
-            </div>
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              sx={{ marginBottom: 2 }}
-              TabIndicatorProps={{
-                style: {
-                  backgroundColor: "#8aa9ff", // Change the color of the underline (highlight) when the tab is selected
-                },
-              }}
-            >
-              <Tab
-                sx={{
-                  color: "gray", // Color of unselected tab
-                  "&.Mui-selected": {
-                    color: "#5563e0", // Color of selected tab
-                    fontWeight: "bold", // Optional: make selected tab text bold
+      {/* Add User Modal */}
+      <AddUserModal open={addUserModalOpen} onClose={handleCloseAddUserModal} />
+
+
+      <Box sx={{ padding: 3, color: "black", display: "flex" }}>
+        <Box sx={{ width: "200px", borderRight: "1px solid #ccc" }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            All Users
+          </Typography>
+          <List>
+            {userOptions.map((user) => (
+              <ListItem
+                button={true}
+                key={user}
+                onClick={() => handleUserSelection(user)}
+              >
+                <ListItemText primary={user} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box sx={{ flexGrow: 1, padding: "20px" }}>
+          {selectedUser && (
+            <Box>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: "bold", marginBottom: 2 }}
+              >
+                {selectedUser} Information
+              </Typography>
+
+              <div id="printableContent" className="printable-content">
+                <PrintablePage
+                  selectedUser={selectedUser}
+                  userInfo={userInfo}
+                  scheduleData={scheduleData}
+                />
+              </div>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                sx={{ marginBottom: 2 }}
+                TabIndicatorProps={{
+                  style: {
+                    backgroundColor: "#8aa9ff", // Change the color of the underline (highlight) when the tab is selected
                   },
                 }}
-                label="User Info"
-              />
-              <Tab
-                sx={{
-                  color: "gray",
-                  "&.Mui-selected": {
-                    color: "#5563e0",
-                    fontWeight: "bold",
-                  },
-                }}
-                label="Booking Info"
-              />
-              <Tab
-                sx={{
-                  color: "gray",
-                  "&.Mui-selected": {
-                    color: "#5563e0",
-                    fontWeight: "bold",
-                  },
-                }}
-                label="Schedule Info"
-              />
-            </Tabs>
-            {activeTab === 0 && (
-              <Card sx={{ marginBottom: 2 }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    User Information
-                  </Typography>
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      marginTop: "10px",
-                    }}
-                  >
-                    <tbody>
-                      <tr>
-                        <td
-                          style={{
-                            fontWeight: "bold",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          Name
-                        </td>
-                        <td
-                          style={{ padding: "8px", border: "1px solid #ccc" }}
-                        >
-                          {selectedUser}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          style={{
-                            fontWeight: "bold",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          ID
-                        </td>
-                        <td
-                          style={{ padding: "8px", border: "1px solid #ccc" }}
-                        >
-                          {userInfo?.user_id || "Unknown ID"}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          style={{
-                            fontWeight: "bold",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          Email
-                        </td>
-                        <td
-                          style={{ padding: "8px", border: "1px solid #ccc" }}
-                        >
-                          {userInfo?.user_email || "Unknown Email"}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          style={{
-                            fontWeight: "bold",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          Department
-                        </td>
-                        <td
-                          style={{ padding: "8px", border: "1px solid #ccc" }}
-                        >
-                          {userInfo?.user_department || "Unknown Department"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 1 && (
-              <Card>
-                <CardContent>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                      Booking Information
-                    </Typography>
-                    <Button
-                      sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
-                      variant="contained"
-                      color="primary"
-                      onClick={() => openModal("booking")}
+              >
+                <Tab
+                  sx={{
+                    color: "gray", // Color of unselected tab
+                    "&.Mui-selected": {
+                      color: "#5563e0", // Color of selected tab
+                      fontWeight: "bold", // Optional: make selected tab text bold
+                    },
+                  }}
+                  label="User Info"
+                />
+                <Tab
+                  sx={{
+                    color: "gray",
+                    "&.Mui-selected": {
+                      color: "#5563e0",
+                      fontWeight: "bold",
+                    },
+                  }}
+                  label="Booking Info"
+                />
+                <Tab
+                  sx={{
+                    color: "gray",
+                    "&.Mui-selected": {
+                      color: "#5563e0",
+                      fontWeight: "bold",
+                    },
+                  }}
+                  label="Schedule Info"
+                />
+              </Tabs>
+              {activeTab === 0 && (
+                <Card sx={{ marginBottom: 2 }}>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 2,
+                      }}
                     >
-                      Add Booking
-                    </Button>
-                  </Box>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }}>
-                      <TableHead>
-                        <TableRow>
-                          {showIdColumn && <TableCell>Booking ID</TableCell>}{" "}
-                          {/* Conditionally render Booking ID */}
-                          <TableCell>Room Name</TableCell>
-                          <TableCell>Subject Code</TableCell>
-                          <TableCell>Section</TableCell>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Time</TableCell>
-                          <TableCell>Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {bookingData
-                          .filter((event) => event.user_name === selectedUser)
-                          .map((event, index) => (
-                            <TableRow
-                              key={index}
-                              onClick={() => openModal("booking", event)}
-                            >
-                              {showIdColumn && (
-                                <TableCell>{event.booking_id}</TableCell>
-                              )}{" "}
-                              {/* Conditionally render Booking ID */}
-                              <TableCell>{event.room_name}</TableCell>
-                              <TableCell>{event.subject}</TableCell>
-                              <TableCell>{event.course_section}</TableCell>
-                              <TableCell>{event.date}</TableCell>
-                              <TableCell>{`${event.book_timeIn} - ${event.book_timeOut}`}</TableCell>
-                              <TableCell>{event.status}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 2 && (
-              <Card>
-                <CardContent>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                      Schedule Information
-                    </Typography>
-                    <Button
-                      sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
-                      variant="contained"
-                      color="primary"
-                      onClick={() => openModal("schedule")}
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        User Information
+                      </Typography>
+                      <Button
+                        sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
+                        variant="contained"
+                        color="primary"
+                        onClick={handleOpenManageUserModal}
+                      >
+                        Manage User
+                      </Button>
+                    </Box>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        marginTop: "10px",
+                      }}
                     >
-                      Add Schedule
-                    </Button>
-                  </Box>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }}>
-                      <TableHead>
-                        <TableRow>
-                          {showIdColumn && <TableCell>Schedule ID</TableCell>}{" "}
-                          {/* Conditionally render Schedule ID */}
-                          <TableCell>Room Name</TableCell>
-                          <TableCell>Subject Code</TableCell>
-                          <TableCell>Section</TableCell>
-                          <TableCell>Weekday</TableCell>
-                          <TableCell>Time</TableCell>
-                          <TableCell>Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {scheduleData
-                          .filter((event) => event.user_name === selectedUser)
-                          .map((event, index) => (
-                            <TableRow
-                              key={index}
-                              onClick={() => openModal("schedule", event)}
-                            >
-                              {showIdColumn && (
-                                <TableCell>{event.schedule_id}</TableCell>
-                              )}{" "}
-                              {/* Conditionally render Schedule ID */}
-                              <TableCell>{event.room_name}</TableCell>
-                              <TableCell>{event.subject_code}</TableCell>
-                              <TableCell>{`${event.course_name}`}</TableCell>
-                              <TableCell>{event.days}</TableCell>
-                              <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
-                              <TableCell>{event.status}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            )}
-            <EventModal
-              modalOpen={modalOpen}
-              closeModal={() => setModalOpen(false)}
-              modalType={modalType}
-              formData={formData}
-              setFormData={setFormData}
-              selectedEvent={selectedEvent}
-              rooms={rooms}
-              handleFormChange={handleFormChange}
-              handleFormSubmit={handleFormSubmit}
-            />
-          </Box>
-        )}
+                      <tbody>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Username
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {selectedUser}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Fullname
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.full_name || "Unknown ID"}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            ID
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.user_id || "Unknown ID"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Email
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.user_email || "Unknown Email"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Department
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.user_department || "Unknown Department"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Mobile Number
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.mobile_number || "Unknown ID"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontWeight: "bold",
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            Role
+                          </td>
+                          <td
+                            style={{ padding: "8px", border: "1px solid #ccc" }}
+                          >
+                            {userInfo?.user_role || "Unknown ID"}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Modal for Manage User */}
+              <Modal
+                open={manageUserModalOpen}
+                onClose={handleCloseManageUserModal}
+                aria-labelledby="manage-user-modal-title"
+                aria-describedby="manage-user-modal-description"
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "80%",
+                    maxWidth: "600px",
+                    bgcolor: "background.paper",
+                    boxShadow: 24,
+                    p: 4,
+                    borderRadius: 2,
+                  }}
+                >
+                  <ManageUser
+                    id={userInfo?.user_id || ""}
+                    username={userInfo?.username || ""}
+                    full_name={userInfo?.full_name || ""}
+                    avatar_url={userInfo?.avatar_url || ""}
+                    website={userInfo?.website || ""}
+                    mobile_number={userInfo?.mobile_number || ""}
+                    email={userInfo?.user_email || ""}
+                    user_role={userInfo?.user_role || ""}
+                    user_department={userInfo?.user_department || ""}
+                    onClose={handleCloseManageUserModal}
+                  />
+                </Box>
+              </Modal>
+
+
+              {activeTab === 1 && (
+                <Card>
+                  <CardContent>
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={2}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Booking Information
+                      </Typography>
+
+                      <Button
+                        sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => openModal("booking")}
+                      >
+                        Add Booking
+                      </Button>
+                    </Box>
+                    <TableContainer component={Paper}>
+                      <Table sx={{ minWidth: 650 }}>
+                        <TableHead>
+                          <TableRow>
+                            {showIdColumn && <TableCell>Booking ID</TableCell>}{" "}
+                            {/* Conditionally render Booking ID */}
+                            <TableCell>Room Name</TableCell>
+                            <TableCell>Subject Code</TableCell>
+                            <TableCell>Section</TableCell>
+                            <TableCell>Date</TableCell>
+                            <TableCell>Time</TableCell>
+                            <TableCell>Status</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {bookingData
+                            .filter((event) => event.user_name === selectedUser)
+                            .map((event, index) => (
+                              <TableRow
+                                key={index}
+                                onClick={() => openModal("booking", event)}
+                              >
+                                {showIdColumn && (
+                                  <TableCell>{event.booking_id}</TableCell>
+                                )}{" "}
+                                {/* Conditionally render Booking ID */}
+                                <TableCell>{event.room_name}</TableCell>
+                                <TableCell>{event.subject}</TableCell>
+                                <TableCell>{event.course_section}</TableCell>
+                                <TableCell>{event.date}</TableCell>
+                                <TableCell>{`${event.book_timeIn} - ${event.book_timeOut}`}</TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    sx={{
+                                      textTransform: "none",
+                                      backgroundColor: "#1F305E",
+                                      color: "white",
+                                      "&:hover": { backgroundColor: "#172647" },
+                                      width: "100px",
+                                      fontSize: "10px"
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openStatusModal(event, "schedule");
+                                    }}
+                                  >
+                                    {event.status}
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              {activeTab === 2 && (
+                <Card>
+                  <CardContent>
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={2}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Schedule Information
+                      </Typography>
+                      <Button
+                        sx={{ fontWeight: "bold", backgroundColor: "#1F305E" }}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => openModal("schedule")}
+                      >
+                        Add Schedule
+                      </Button>
+                    </Box>
+                    <TableContainer component={Paper}>
+                      <Table sx={{ minWidth: 650 }}>
+                        <TableHead>
+                          <TableRow>
+                            {showIdColumn && <TableCell>Schedule ID</TableCell>}{" "}
+                            {/* Conditionally render Schedule ID */}
+                            <TableCell>Room Name</TableCell>
+                            <TableCell>Subject Code</TableCell>
+                            <TableCell>Section</TableCell>
+                            <TableCell>Weekday</TableCell>
+                            <TableCell>Time</TableCell>
+                            <TableCell>Status</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {scheduleData
+                            .filter((event) => event.user_name === selectedUser)
+                            .map((event, index) => (
+                              <TableRow key={index} onClick={() => openModal("schedule", event)}>
+                                {showIdColumn && <TableCell>{event.schedule_id}</TableCell>}
+                                <TableCell>{event.room_name}</TableCell>
+                                <TableCell>{event.subject_code}</TableCell>
+                                <TableCell>{event.course_name}</TableCell>
+                                <TableCell>{event.days}</TableCell>
+                                <TableCell>{`${event.time_in} - ${event.time_out}`}</TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    sx={{
+                                      textTransform: "none",
+                                      backgroundColor: "#1F305E",
+                                      color: "white",
+                                      "&:hover": { backgroundColor: "#172647" },
+                                      width: "100px",
+                                      fontSize: "10px"
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openStatusModal(event, "schedule");
+                                    }}
+                                  >
+                                    {event.status}
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              <StatusModal
+                statusModalOpen={statusModalOpen}
+                closeStatusModal={closeStatusModal}
+                selectedEvent={selectedStatusEvent}
+                modalType={statusModalType}
+              />
+
+
+
+
+              <EventModal
+                modalOpen={modalOpen}
+                closeModal={() => setModalOpen(false)}
+                modalType={modalType}
+                formData={formData}
+                setFormData={setFormData}
+                selectedEvent={selectedEvent}
+                rooms={rooms}
+                handleFormChange={handleFormChange}
+                handleFormSubmit={handleFormSubmit}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
       <Fab
         color="primary"

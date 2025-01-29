@@ -1,0 +1,38 @@
+.rbc-calendar {
+    min-height: 600px;
+}
+
+.rbc-event {
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+}
+
+.rbc-event-content {
+    height: 100%;
+    font-size: 0.8rem;
+}
+
+.rbc-time-view {
+    border: 1px solid #ddd;
+}
+
+.rbc-timeslot-group {
+    min-height: 60px;
+}
+
+.rbc-time-slot {
+    min-height: 60px;
+}
+
+.rbc-events-container {
+    margin-right: 0 !important;
+}
+
+.rbc-event.rbc-selected {
+    background: none !important;
+}
+
+.rbc-event:hover {
+    z-index: 1000;
+}
